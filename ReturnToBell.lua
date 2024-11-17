@@ -38,10 +38,11 @@ function ReturnToBell()
   yield("/wait 1")
   if IsInZone(129) then
     yield("/li hawkers")
-    yield("/wait 5")
-    while LifestreamIsBusy() == true do
-      yield("/wait 1")
+    yield("/wait 3")
+    while LifestreamIsBusy() == true or NavIsReady() == false or IsPlayerAvailable() == false or GetTargetName() == "Aetheryte" do
+      yield("/wait 0.1")
     end
+    yield("/wait 1")
   end
   if IsInHousingDistrict() == false or GetDistanceToObject("Apartment Building Entrance") < 20 then
     -- walk to bell if at hawkers or apartment
