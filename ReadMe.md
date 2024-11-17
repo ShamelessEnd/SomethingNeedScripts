@@ -1,6 +1,6 @@
 dependencies:
   - SND
-  - Autoretainer
+  - AutoRetainer
   - Lifestream
   - Deliveroo (might replace eventually since it's slow as shit and the flakiest part of the whole process)
   - Pandora's Box (just for `/pcall` which supposedly will eventually get removed in favor of `/callback`, but `/callback` crashes for me so :shrug:)
