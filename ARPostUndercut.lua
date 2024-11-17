@@ -295,7 +295,7 @@ function CalculateUndercutPrice(p1, p2, p3, h)
     return RoundUpToNext(h * 1.25, 10000) - 10
   end
 
-  local hh = 0.5 * h
+  local hh = 0.4 * h
   local h2 = 2 * h
   local hr = RoundUpToNext(h, 10000)
   local h3r = RoundUpToNext(3 * h, 10000)
