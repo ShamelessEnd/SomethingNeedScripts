@@ -1,6 +1,7 @@
 
-minInventorySpace = 40
-minVentureCount = 100
+local minInventorySpace = 40
+local minVentureCount = 100
+local undercutAlways = false
 
 function IsARActiveCharacter()
   local chars = ARGetRegisteredEnabledCharacters()
@@ -14,8 +15,13 @@ end
 
 
 if IsARActiveCharacter() == true then
-  yield("/runmacro ARPostUndercut")
+  if undercutAlways then
+    yield("/runmacro ARPostUndercut")
+  end
   if GetInventoryFreeSlotCount() < minInventorySpace or GetItemCount(21072) < minVentureCount then
+    if not undercutAlways then
+      yield("/runmacro ARPostUndercut")
+    end
     yield("/runmacro GCTurnIn")
     yield("/runmacro ReturnToBell")
   end

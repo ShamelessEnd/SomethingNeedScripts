@@ -1,6 +1,6 @@
 
 function BailGCTurnIn()
-  dellyrooStop = true
+  local dellyrooStop = true
   while dellyrooStop do
     yield("/deliveroo disable")
     yield("/wait 1")
@@ -17,8 +17,8 @@ function GCTurnIn()
   yield("/runmacro GoToGCHQ")
   yield("/deliveroo enable")
   yield("/wait 3")
-  dellyroo = true
-  timeout = 0
+  local dellyroo = true
+  local timeout = 0
   while dellyroo do
     dellyroo = DeliverooIsTurnInRunning()
     yield("/wait 1")
