@@ -21,7 +21,7 @@ end
 
 function ReturnToBell()
   TeleportToBellZone()
-  timeout = 0
+  local timeout = 0
   while LifestreamIsBusy() == true or (IsInZone(129) == false and IsInHousingDistrict() == false) or NavIsReady() == false or IsPlayerAvailable() == false do
     yield("/wait 1")
     timeout = timeout + 1
