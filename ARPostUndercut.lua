@@ -285,7 +285,7 @@ function GetItemHistoryTrimmedMean()
 end
 
 function RoundUpToNext(x, increment)
-  return ((x + increment - 1) // increment) * increment
+  return math.floor(((x + increment - 1) // increment) * increment + 0.5)
 end
 
 function CalculateUndercutPrice(p1, p2, p3, h)
@@ -362,7 +362,7 @@ end
 function ApplyPriceUpdateAndClose(new_price)
   LogDebug("applying new price "..new_price)
   AwaitAddonReady("RetainerSell")
-  Callback("RetainerSell", true, 2, new_price)
+  Callback("RetainerSell", true, 2, string.format("%.0f", new_price))
   ConfirmItemSellAndClose()
 end
 
