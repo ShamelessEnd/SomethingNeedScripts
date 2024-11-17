@@ -8,6 +8,7 @@ function WalkToBell()
     return false
   end
   if GetDistanceToTarget() > 1 then
+    -- works for me, but can add waits if flaky
     yield("/facetarget")
     yield("/lockon on")
     yield("/automove on")
