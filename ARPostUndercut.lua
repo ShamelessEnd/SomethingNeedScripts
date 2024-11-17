@@ -598,7 +598,7 @@ function UndercutItems(retainer_index)
       if last_item_name == item_name then
         undercut_price = last_item_price
       else
-        GetUndercutPrice()
+        undercut_price = GetUndercutPrice()
       end
 
       if undercut_price <= 0 then
