@@ -245,7 +245,7 @@ function GetItemHistoryTrimmedMean()
 
   local history_count = 1
   for i = 2, 10 do
-    history_list[i] = GetItemHistoryPrice(1)
+    history_list[i] = GetItemHistoryPrice(i)
     if (history_list[i] <= 0) then
       break
     else
