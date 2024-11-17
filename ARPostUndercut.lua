@@ -204,7 +204,7 @@ function OpenItemListings(attempts)
       yield("/wait 0.1")
     end
     CloseItemListings()
-    yield("/wait 1")
+    yield("/wait 0.5")
   end
 
   return false
