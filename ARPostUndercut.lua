@@ -157,7 +157,10 @@ end
 
 function GetSellListCount()
   local item_full_text = GetNodeText("RetainerSellList", 3)
-  local count_start, count_end = string.find(item_full_text, "%d+")
+  local count_start, count_end
+  while count_start == nil or count_end == nil do
+    count_start, count_end = string.find(item_full_text, "%d+")
+  end
   local item_count = string.sub(item_full_text, count_start, count_end - count_start + 1)
   LogDebug("found "..item_count.." items for sale on retainer ("..item_full_text..")")
   return tonumber(item_count)
