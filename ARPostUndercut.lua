@@ -144,7 +144,15 @@ end
 
 function CloseSellList()
   LogDebug("closing retainer sell list")
-  CloseAndAwaitOther("RetainerSellList", "SelectString")
+  Callback("RetainerSellList", true, -1)
+  while IsAddonReady("RetainerSellList") or IsAddonVisible("RetainerSellList") do
+    if IsAddonReady("SelectYesno") or IsAddonVisible("SelectYesno") then
+      Callback("SelectYesno", true, 0)
+      break
+    end
+    yield("/wait 0.1")
+  end
+  AwaitAddonReady("SelectString")
 end
 
 function GetSellListCount()
