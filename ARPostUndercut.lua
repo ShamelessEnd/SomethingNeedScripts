@@ -295,9 +295,10 @@ function CalculateUndercutPrice(p1, p2, p3, h)
     return RoundUpToNext(h * 1.25, 10000) - 10
   end
 
+  local hr = RoundUpToNext(h, 10000)
   local hh = 0.5 * h
   local h2 = 2 * h
-  local hr = RoundUpToNext(h, 10000)
+  local h2r = RoundUpToNext(h2, 10000)
   if p2 <= 0 then p2 = hr end
   if p3 <= 0 then p3 = hr end
 
@@ -307,6 +308,8 @@ function CalculateUndercutPrice(p1, p2, p3, h)
     return RoundUpToNext(p3, 10) - 10
   elseif p1 < hh or (p1 < (0.5 * p2) and p2 < h2) then
     return RoundUpToNext(p2, 10) - 10
+  elseif p1 > h2r then
+    return h2r - 10
   else
     return RoundUpToNext(p1, 10) - 10
   end
