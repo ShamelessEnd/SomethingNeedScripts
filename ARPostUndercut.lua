@@ -5,14 +5,14 @@ local undercut_floor = 15000
 local sell_retainers = {
   [1] = {
     --   id, price floor, force list, stack size, max listings, min keep
-    { 13115,      400000,       true,          1,           20,        1 }, -- Jet Black
-    { 13114,      300000,       true,          1,           20,        1 }, -- Pure White
-    { 13708,       50000,      false,          2,            5,        2 }, -- Pastel Pink
+    { 13115,      399900,       true,          1,           20,        1 }, -- Jet Black
+    { 13114,      299900,       true,          1,           20,        1 }, -- Pure White
+    { 13708,       49500,      false,          2,            5,        2 }, -- Pastel Pink
     { 13116,       17500,      false,          2,            5,        2 }, -- Metallic Silver
     { 13117,       17500,      false,          2,            5,        2 }, -- Metallic Gold
-    { 13723,       15000,      false,          2,            5,        2 }, -- Metallic Purple
-    { 13716,       15000,      false,          2,            5,        2 }, -- Dark Purple
-    { 13721,       12000,      false,          2,            5,        2 }, -- Sky Blue
+    { 13723,       14500,      false,          2,            5,        2 }, -- Metallic Purple
+    { 13716,       14500,      false,          2,            5,        2 }, -- Dark Purple
+    { 13721,       11500,      false,          2,            5,        2 }, -- Sky Blue
   }
 }
 
