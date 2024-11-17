@@ -182,19 +182,32 @@ function CloseItemSell()
   CloseAndAwaitOther("RetainerSell", "RetainerSellList")
 end
 
-function OpenItemListings()
-  LogDebug("opening item listings")
-  Callback("RetainerSell", true, 4)
-  AwaitAddonReady("ItemSearchResult")
-
-  while not string.find(GetNodeText("ItemSearchResult", 2), "hit") do
-      yield("/wait 0.1")
-  end
-end
-
 function CloseItemListings()
   LogDebug("closing item listings")
   CloseAndAwaitOther("ItemSearchResult", "RetainerSell")
+end
+
+function OpenItemListings(attempts)
+  LogDebug("opening item listings")
+
+  for i = 1, attempts do
+    Callback("RetainerSell", true, 4)
+    AwaitAddonReady("ItemSearchResult")
+
+    for wait_time = 1, 120 do
+      if string.find(GetNodeText("ItemSearchResult", 2), "hit") then
+        return true
+      end
+      if string.find(GetNodeText("ItemSearchResult", 26), "Please wait") then
+        break
+      end
+      yield("/wait 0.1")
+    end
+    CloseItemListings()
+    yield("/wait 1")
+  end
+
+  return false
 end
 
 function GetItemListingPrice(listing_index)
@@ -293,7 +306,10 @@ end
 
 function GetUndercutPrice()
   LogDebug("calculating suggested price")
-  OpenItemListings()
+  if not OpenItemListings(10) then
+    LogDebug("failed to open item listings")
+    return 0
+  end
 
   local p1 = GetItemListingPrice(1)
   while p1 == 0 do
@@ -388,7 +404,7 @@ function GetRetainerItemCount(item_page, page_slot)
   if not IsNodeVisible(page_addon, 1, 2, 3 + page_slot, 2) then
     -- need to swap pages, but that doesn't seem possible right now with callbacks
     LogDebug("cannot load item count, page is not loaded")
-return -1
+    return -1
   end
   local count_text = GetNodeText(page_addon, 37 - page_slot, 2, 8)
   if StringIsEmpty(count_text) then
