@@ -5,7 +5,7 @@ local undercut_floor = 14500
 local sell_retainers = {
   [1] = {
     -- config
-    [0] = { unlist=true },
+    [0] = { unlist=false },
     --   id, price floor, force list, stack size, max listings, min keep, name
     { 13115,      399900,       true,          1,           20,        0, "Jet Black"                 },
     { 13114,      299900,       true,          1,           20,        0, "Pure White"                },
@@ -57,7 +57,7 @@ local sell_retainers = {
   }
 }
 
-local log_level = 0
+local log_level = 3
 function LogMessage(message) yield(""..message) end
 function LogDebug(message) if log_level <= 0 then LogMessage(message) end end
 function LogInfo(message) if log_level <= 1 then LogMessage(message) end end
@@ -545,7 +545,7 @@ function ListItemForSaleFromStack(item_stack, stack_size, max_slots, price_floor
   return num_listings, list_price
 end
 
-function ListItemForSale(sell_entry, max_slots)
+function ListItemForSale(sell_entry, max_slots, found_item)
   local item_id = sell_entry[1]
   local price_floor = sell_entry[2]
   local force_list = sell_entry[3]
@@ -553,6 +553,12 @@ function ListItemForSale(sell_entry, max_slots)
   local max_listings = sell_entry[5]
   local save_count = sell_entry[6]
   LogInfo("  Listing item "..item_id)
+  
+  local list_price = -1
+  if found_item ~= nil then
+    list_price = found_item.price
+    max_listings = max_listings - found_item.count
+  end
 
   if max_listings < max_slots then
     max_slots = max_listings
@@ -563,7 +569,6 @@ function ListItemForSale(sell_entry, max_slots)
   end
 
   local num_listings = 0
-  local list_price = -1
   for _, item_stack in pairs(FindItemsInRetainer(item_id)) do
     LogDebug("processing stack "..item_stack.count.." at "..item_stack.page.."."..item_stack.slot)
     if item_stack.count <= 0 then
@@ -618,6 +623,11 @@ function UndercutItems(return_function, sell_table)
   local last_item_price = 0
   local last_sell_entry = nil
   local returned_count = 0
+  local found_items = nil
+  if sell_table ~= nil then
+    found_items = {}
+  end
+
   LogInfo("  Found "..item_count.." items listed")
   if item_count > 0 then
     for item_number = 1, item_count do
@@ -643,6 +653,15 @@ function UndercutItems(return_function, sell_table)
         sell_entry = GetSellEntryByName(sell_table, item_name)
       end
 
+      if sell_entry ~= nil then
+        local item_id = sell_entry[1]
+        if found_items[item_id] == nil then
+          found_items[item_id] = { count=1, price=undercut_price }
+        else
+          found_items[item_id].count = found_items[item_id].count + 1
+        end
+      end
+
       local floor_price = undercut_floor
       if sell_entry ~= nil then
         floor_price = sell_entry[2]
@@ -664,6 +683,9 @@ function UndercutItems(return_function, sell_table)
           if return_function(item_index, 5) then
             returned_count = returned_count + 1
           end
+          if sell_entry ~= nil then
+            found_items[sell_entry[1]].count = sell_entry[5]
+          end
         end
       else
         ApplyPriceUpdateAndClose(undercut_price)
@@ -675,6 +697,7 @@ function UndercutItems(return_function, sell_table)
       last_sell_entry = sell_entry
     end
   end
+  return found_items
 end
 
 function SellRetainerItems(retainer_index, sell_table)
@@ -685,17 +708,22 @@ function SellRetainerItems(retainer_index, sell_table)
   OpenSellListRetainer()
 
   local sale_slots = 0
+  local found_items = nil
   if sell_table[0].unlist == true then
     ReturnAllItemsToRetainer()
     sale_slots = 20
   else
-    UndercutItems(ReturnItemToRetainer, sell_table)
+    found_items = UndercutItems(ReturnItemToRetainer, sell_table)
     sale_slots = 20 - GetSellListCount()
   end
 
   for i, sell_entry in pairs(sell_table) do
     if i ~= 0 then
-      sale_slots = sale_slots - ListItemForSale(sell_entry, sale_slots)
+      local found_item = nil
+      if found_items ~= nil then
+        found_item = found_items[sell_entry[1]]
+      end
+      sale_slots = sale_slots - ListItemForSale(sell_entry, sale_slots, found_item)
       if sale_slots <= 0 then
         LogDebug("no open slots remaining")
         break
