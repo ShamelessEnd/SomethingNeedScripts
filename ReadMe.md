@@ -17,19 +17,5 @@ random notes:
   - there's a hardcoded override that sends Behemoth characters to the summonning bell next to their apartment instead
     - remove it from `ReturnToBell` if you don't want that or don't have one
 - you can run these scripts on their own manually (or in some other automation) outside of ARPostProcess
-
-for the undercutting script:
-- can put any plogons that fuck with it in an xlplugins collection called `ARPostUndercutSuppress`, which will get disabled while running
-  - I put Market board, Dropbox, Penny Pincher while debugging crashes since they were doing shit, but might not be needed
-- script setup is at the top of the file `ARPostUndercut`
-  - `undercut_retainers` these retainers will only undercut items you already listed yourself
-  - `sell_retainers` is a table with items to list for sale per retainer, along with properties for each item
-    - create more entries `[2] = {}, [3] = {}, etc.` for additional retainers.
-    - if using this sell logic, delete all your `ITEM_ODR` configs, otherwise it will try to list random shit for sale and probably break (undercutting is fine tho)
-      - and never sort your retainer's inventory
-      - i probably should figure out how to fix this eventually
-    - the script will only sell items from your retainer's inventory (for now)
-- what's in the script by default is just my dye selling logic for second retainer, others only undercut
-- theres a lot of non-customizable logic baked into the code itself, if you don't like it write your own
-
-
+- for the undercutting script it's changing all time time as i update it
+  - theres a lot of non-customizable logic baked into the code itself, if you don't like it write your own
