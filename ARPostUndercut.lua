@@ -1,18 +1,34 @@
 
-local undercut_retainers = { 0, 2, 3, 4, 5, 6, 7, 8 }
+local undercut_retainers = { 0, 2, 3, 4, 5, 6, 7 }
 local undercut_floor = 15000
 
 local sell_retainers = {
   [1] = {
+    -- config
+    [0] = { unlist=true },
     --   id, price floor, force list, stack size, max listings, min keep
-    { 13115,      399900,       true,          1,           20,        1 }, -- Jet Black
-    { 13114,      299900,       true,          1,           20,        1 }, -- Pure White
-    { 13708,       49500,      false,          2,            5,        2 }, -- Pastel Pink
-    { 13116,       17500,      false,          2,            5,        2 }, -- Metallic Silver
-    { 13117,       17500,      false,          2,            5,        2 }, -- Metallic Gold
-    { 13723,       14500,      false,          2,            5,        2 }, -- Metallic Purple
-    { 13716,       14500,      false,          2,            5,        2 }, -- Dark Purple
-    { 13721,       11500,      false,          2,            5,        2 }, -- Sky Blue
+    { 13115,      399900,       true,          1,           20,        0 }, -- Jet Black
+    { 13114,      299900,       true,          1,           20,        0 }, -- Pure White
+    { 13708,       49500,      false,          2,            5,        0 }, -- Pastel Pink
+    { 13116,       14500,      false,          2,            5,        0 }, -- Metallic Silver
+    { 13117,       14500,      false,          2,            5,        0 }, -- Metallic Gold
+    { 13723,       11500,      false,          2,            5,        0 }, -- Metallic Purple
+    { 13716,       11500,      false,          2,            5,        0 }, -- Dark Purple
+    { 13721,        9500,      false,          2,            3,        0 }, -- Sky Blue
+    { 13719,        5500,      false,          2,            3,        0 }, -- Metallic Yellow
+    { 13720,        5500,      false,          2,            3,        0 }, -- Metallic Green
+    { 13717,        5500,      false,          2,            3,        0 }, -- Metallic Red
+    { 13722,        5500,      false,          2,            3,        0 }, -- Metallic Blue
+    { 13709,        5500,      false,          2,            3,        0 }, -- Dark Red
+    { 13713,        5500,      false,          2,            3,        0 }, -- Pastel Blue
+  },
+  [8] = {
+    [0] = { unlist=false },
+    --   id, price floor, force list, stack size, max listings, min keep
+    { 40405,       99500,       true,          1,           20,        0 }, -- Plain Pajama Shirt
+    {  8547,       19500,       true,          1,           20,        0 }, -- Coeurl Beach Maro
+    { 33662,       99500,       true,          1,           20,        0 }, -- Frontier Pumps
+    { 35575,       19500,       true,          1,           20,        0 }, -- Imitation Wooden Skylight
   }
 }
 
@@ -558,37 +574,8 @@ function ListItemForSale(sell_entry, max_slots)
   return num_listings
 end
 
-function SellItems(retainer_index, sell_table)
-  local retainer_name = GetNodeText("RetainerList", 2, retainer_index + 1, 13)
-  LogInfo("Listing sale items for retainer "..retainer_index.." "..retainer_name)
-
-  OpenRetainer(retainer_index)
-  OpenSellListRetainer()
-  ReturnAllItemsToRetainer()
-
-  local sale_slots = 20
-  for _, sell_entry in pairs(sell_table) do
-    sale_slots = sale_slots - ListItemForSale(sell_entry, sale_slots)
-    if sale_slots <= 0 then
-      break
-    end
-  end
-
-  CloseSellList()
-  CloseRetainer()
-end
-
-function UndercutItems(retainer_index)
-  local retainer_name = GetNodeText("RetainerList", 2, retainer_index + 1, 13)
-  LogInfo("Undercutting items for retainer "..retainer_index.." "..retainer_name)
-  if GetNodeText("RetainerList", 2, retainer_index + 1, 5) == "None" then
-    LogInfo("  Skipping retainer "..retainer_index.." - No items listed")
-    return
-  end
-
-  OpenRetainer(retainer_index)
-  OpenSellListInventory()
-
+function UndercutItems(return_function)
+  LogDebug("undercutting all items")
   local item_count = GetSellListCount()
   local last_item_name = ""
   local last_item_price = 0
@@ -621,10 +608,10 @@ function UndercutItems(retainer_index)
       elseif undercut_price == current_price then
         LogInfo("    price target unchanged, skipping item")
         CloseItemSell()
-      elseif undercut_price < (0.3 * current_price) or undercut_price < undercut_floor then
+      elseif undercut_price < undercut_floor then
         LogInfo("    new price too low ("..undercut_price.."), removing listing")
         CloseItemSell()
-        if ReturnItemToInventory(item_index, 5) then
+        if return_function(item_index, 5) then
           returned_count = returned_count + 1
         end
       else
@@ -636,7 +623,49 @@ function UndercutItems(retainer_index)
       last_item_price = undercut_price
     end
   end
+end
 
+function SellRetainerItems(retainer_index, sell_table)
+  local retainer_name = GetNodeText("RetainerList", 2, retainer_index + 1, 13)
+  LogInfo("Listing sale items for retainer "..retainer_index.." "..retainer_name)
+
+  OpenRetainer(retainer_index)
+  OpenSellListRetainer()
+
+  local sale_slots = 0
+  if sell_table[0].unlist == true then
+    ReturnAllItemsToRetainer()
+    sale_slots = 20
+  else
+    UndercutItems(ReturnItemToRetainer)
+    sale_slots = 20 - GetSellListCount()
+  end
+
+  for i, sell_entry in pairs(sell_table) do
+    if i ~= 0 then
+      sale_slots = sale_slots - ListItemForSale(sell_entry, sale_slots)
+      if sale_slots <= 0 then
+        LogDebug("no open slots remaining")
+        break
+      end
+    end
+  end
+
+  CloseSellList()
+  CloseRetainer()
+end
+
+function UndercutRetainerItems(retainer_index)
+  local retainer_name = GetNodeText("RetainerList", 2, retainer_index + 1, 13)
+  LogInfo("Undercutting items for retainer "..retainer_index.." "..retainer_name)
+  if GetNodeText("RetainerList", 2, retainer_index + 1, 5) == "None" then
+    LogInfo("  Skipping retainer "..retainer_index.." - No items listed")
+    return
+  end
+
+  OpenRetainer(retainer_index)
+  OpenSellListInventory()
+  UndercutItems(ReturnItemToInventory)
   CloseSellList()
   CloseRetainer()
 end
@@ -647,10 +676,10 @@ function ARPostUndercut()
   yield("/xldisablecollection ARPostUndercutSuppress")
   if OpenRetainerList() then
     for sell_retainer, sell_table in pairs(sell_retainers) do
-      SellItems(sell_retainer, sell_table)
+      SellRetainerItems(sell_retainer, sell_table)
     end
     for _, undercut_retainer in pairs(undercut_retainers) do
-      UndercutItems(undercut_retainer)
+      UndercutRetainerItems(undercut_retainer)
     end
     CloseRetainerList()
   end
