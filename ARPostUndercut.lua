@@ -1,38 +1,47 @@
 
 local undercut_retainers = { 0, 2, 3, 4, 5, 6, 7 }
-local undercut_floor = 15000
+local undercut_floor = 14500
 
 local sell_retainers = {
   [1] = {
     -- config
     [0] = { unlist=true },
-    --   id, price floor, force list, stack size, max listings, min keep
-    { 13115,      399900,       true,          1,           20,        0 }, -- Jet Black
-    { 13114,      299900,       true,          1,           20,        0 }, -- Pure White
-    { 13708,       49500,      false,          2,            5,        0 }, -- Pastel Pink
-    { 13116,       14500,      false,          2,            5,        0 }, -- Metallic Silver
-    { 13117,       14500,      false,          2,            5,        0 }, -- Metallic Gold
-    { 13723,       11500,      false,          2,            5,        0 }, -- Metallic Purple
-    { 13716,       11500,      false,          2,            5,        0 }, -- Dark Purple
-    { 13721,        9500,      false,          2,            3,        0 }, -- Sky Blue
-    { 13719,        5500,      false,          2,            3,        0 }, -- Metallic Yellow
-    { 13720,        5500,      false,          2,            3,        0 }, -- Metallic Green
-    { 13717,        5500,      false,          2,            3,        0 }, -- Metallic Red
-    { 13722,        5500,      false,          2,            3,        0 }, -- Metallic Blue
-    { 13709,        5500,      false,          2,            3,        0 }, -- Dark Red
-    { 13713,        5500,      false,          2,            3,        0 }, -- Pastel Blue
+    --   id, price floor, force list, stack size, max listings, min keep, name
+    { 13115,      399900,       true,          1,           20,        0, "Jet Black"                 },
+    { 13114,      299900,       true,          1,           20,        0, "Pure White"                },
+    { 13708,       49500,      false,          2,            5,        0, "Pastel Pink"               },
+    { 13116,       14500,      false,          2,            5,        0, "Metallic Silver"           },
+    { 13117,       14500,      false,          2,            5,        0, "Metallic Gold"             },
+    { 13723,       11500,      false,          2,            5,        0, "Metallic Purple"           },
+    { 13716,       11500,      false,          2,            5,        0, "Dark Purple"               },
+    { 13721,        9500,      false,          2,            3,        0, "Sky Blue"                  },
+    { 13719,        5500,      false,          2,            3,        0, "Metallic Yellow"           },
+    { 13720,        5500,      false,          2,            3,        0, "Metallic Green"            },
+    { 13717,        5500,      false,          2,            3,        0, "Metallic Red"              },
+    { 13722,        5500,      false,          2,            3,        0, "Metallic Blue"             },
+    { 13709,        5500,      false,          2,            3,        0, "Dark Red"                  },
+    { 13713,        5500,      false,          2,            3,        0, "Pastel Blue"               },
   },
   [8] = {
     [0] = { unlist=false },
-    --   id, price floor, force list, stack size, max listings, min keep
-    { 40405,       99500,       true,          1,           20,        0 }, -- Plain Pajama Shirt
-    {  8547,       19500,       true,          1,           20,        0 }, -- Coeurl Beach Maro
-    { 33662,       99500,       true,          1,           20,        0 }, -- Frontier Pumps
-    { 35575,       19500,       true,          1,           20,        0 }, -- Imitation Wooden Skylight
+    --   id, price floor, force list, stack size, max listings, min keep, name
+    { 40405,       99500,       true,          1,           20,        0, "Plain Pajama Shirt"        },
+    {  8547,       19500,       true,          1,           20,        0, "Coeurl Beach Maro"         },
+    { 33662,       99500,       true,          1,           20,        0, "Frontier Pumps"            },
+    { 35575,       19500,       true,          1,           20,        0, "Imitation Wooden Skylight" },
+    { 44148,        4500,       true,          2,           20,        0, "Sterling Silver Ingot"     },
+    { 44150,        4500,       true,          2,           20,        0, "Blackseed Cotton Cloth"    },
+    { 44151,        4500,       true,          1,           20,        0, "Purussaurus Leather"       },
+    { 44147,        4500,       true,          2,           20,        0, "Maraging Steel Ingot"      },
+    {  6586,       29500,       true,          1,           20,        0, "Manor Candelabra"          },
+    { 16625,       14500,       true,          1,           20,        0, "Astral Silk Robe"          },
+    { 33655,       14500,       true,          1,           20,        0, "Frontier Hat"              },
+    {  7548,       14500,       true,          1,           20,        0, "Taffeta Shawl"             },
+    { 37359,       14500,       true,          1,           20,        0, "Ivy Curtain"               },
   }
 }
 
-local log_level = 3
+local log_level = 0
 function LogMessage(message) yield(""..message) end
 function LogDebug(message) if log_level <= 0 then LogMessage(message) end end
 function LogInfo(message) if log_level <= 1 then LogMessage(message) end end
@@ -574,11 +583,24 @@ function ListItemForSale(sell_entry, max_slots)
   return num_listings
 end
 
-function UndercutItems(return_function)
+function GetSellEntryByName(sell_table, item_name)
+  if sell_table ~= nil then
+    for i, sell_entry in pairs(sell_table) do
+      if sell_entry[7] ~= nil and string.find(item_name, sell_entry[7]) then
+        return sell_entry
+      end
+    end
+  end
+
+  return nil
+end
+
+function UndercutItems(return_function, sell_table)
   LogDebug("undercutting all items")
   local item_count = GetSellListCount()
   local last_item_name = ""
   local last_item_price = 0
+  local last_sell_entry = nil
   local returned_count = 0
   LogInfo("  Found "..item_count.." items listed")
   if item_count > 0 then
@@ -596,10 +618,18 @@ function UndercutItems(return_function)
       LogInfo("    current price: "..current_price)
 
       local undercut_price = 0
+      local sell_entry = nil
       if last_item_name == item_name then
         undercut_price = last_item_price
+        sell_entry = last_sell_entry
       else
         undercut_price = GetUndercutPrice()
+        sell_entry = GetSellEntryByName(sell_table, item_name)
+      end
+
+      local floor_price = undercut_floor
+      if sell_entry ~= nil then
+        floor_price = sell_entry[2]
       end
 
       if undercut_price <= 0 then
@@ -608,11 +638,16 @@ function UndercutItems(return_function)
       elseif undercut_price == current_price then
         LogInfo("    price target unchanged, skipping item")
         CloseItemSell()
-      elseif undercut_price < undercut_floor then
-        LogInfo("    new price too low ("..undercut_price.."), removing listing")
-        CloseItemSell()
-        if return_function(item_index, 5) then
-          returned_count = returned_count + 1
+      elseif undercut_price < floor_price then
+        if sell_entry ~= nil and sell_entry[3] == true then
+          LogInfo("    new price too low ("..undercut_price.."), using floor price "..floor_price)
+          ApplyPriceUpdateAndClose(floor_price)
+        else
+          LogInfo("    new price too low ("..undercut_price.." < "..floor_price.."), removing listings")
+          CloseItemSell()
+          if return_function(item_index, 5) then
+            returned_count = returned_count + 1
+          end
         end
       else
         ApplyPriceUpdateAndClose(undercut_price)
@@ -621,6 +656,7 @@ function UndercutItems(return_function)
 
       last_item_name = item_name
       last_item_price = undercut_price
+      last_sell_entry = sell_entry
     end
   end
 end
@@ -637,7 +673,7 @@ function SellRetainerItems(retainer_index, sell_table)
     ReturnAllItemsToRetainer()
     sale_slots = 20
   else
-    UndercutItems(ReturnItemToRetainer)
+    UndercutItems(ReturnItemToRetainer, sell_table)
     sale_slots = 20 - GetSellListCount()
   end
 
