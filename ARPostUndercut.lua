@@ -26,14 +26,10 @@ local sell_retainers = {
     [0] = { unlist=false },
     --   id, price floor, force list, stack size, max listings, min keep, name
     { 40405,       99500,      false,          1,           20,        0, "Plain Pajama Shirt"        },
-    {  8547,       19500,      false,          1,           20,        0, "Coeurl Beach Maro"         },
     { 33662,       99500,      false,          1,           20,        0, "Frontier Pumps"            },
-    { 35575,       19500,      false,          1,           20,        0, "Imitation Wooden Skylight" },
-    { 44148,        4500,      false,          2,           20,        0, "Sterling Silver Ingot"     },
-    { 44150,        4500,      false,          2,           20,        0, "Blackseed Cotton Cloth"    },
-    { 44151,        4500,      false,          1,           20,        0, "Purussaurus Leather"       },
-    { 44147,        4500,      false,          2,           20,        0, "Maraging Steel Ingot"      },
     {  6586,       29500,      false,          1,           20,        0, "Manor Candelabra"          },
+    { 35575,       19500,      false,          1,           20,        0, "Imitation Wooden Skylight" },
+    {  8547,       19500,      false,          1,           20,        0, "Coeurl Beach Maro"         },
     { 16625,       14500,      false,          1,           20,        0, "Astral Silk Robe"          },
     { 33655,       14500,      false,          1,           20,        0, "Frontier Hat"              },
     {  7548,       14500,      false,          1,           20,        0, "Taffeta Shawl"             },
@@ -54,6 +50,10 @@ local sell_retainers = {
     {  8796,       14500,      false,          1,           20,        0, "Shipping Crate"            },
     { 14068,       14500,      false,          1,           20,        0, "Alpine Chandelier"         },
     { 32226,       14500,      false,          1,           20,        0, "Wood Slat Partition"       },
+    { 44148,        4500,      false,          2,           20,        0, "Sterling Silver Ingot"     },
+    { 44150,        4500,      false,          2,           20,        0, "Blackseed Cotton Cloth"    },
+    { 44151,        4500,      false,          1,           20,        0, "Purussaurus Leather"       },
+    { 44147,        4500,      false,          2,           20,        0, "Maraging Steel Ingot"      },
   }
 }
 
