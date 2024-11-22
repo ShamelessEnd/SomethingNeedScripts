@@ -1,11 +1,10 @@
 
-local undercut_retainers = { 0, 2, 3, 4, 5, 6, 7 }
-local undercut_floor = 14500
-
-local sell_retainers = {
-  [1] = {
+local retainer_count = 9
+local default_undercut_floor = 14500
+local retainer_sell_tables = {
+  [2] = {
     -- config
-    [0] = { unlist=false },
+    [0] = { exclude=false, unlist=false },
     --   id, price floor, force list, stack size, max listings, min keep, name
     { 13115,      399900,       true,          1,           20,        0, "Jet Black"                 },
     { 13114,      299900,       true,          1,           20,        0, "Pure White"                },
@@ -22,12 +21,16 @@ local sell_retainers = {
     { 13709,        5500,      false,          2,            3,        0, "Dark Red"                  },
     { 13713,        5500,      false,          2,            3,        0, "Pastel Blue"               },
   },
-  [8] = {
-    [0] = { unlist=false },
+  [9] = {
+    [0] = { exclude=false, unlist=false },
     --   id, price floor, force list, stack size, max listings, min keep, name
     { 40405,       99500,      false,          1,           20,        0, "Plain Pajama Shirt"        },
     { 33662,       99500,      false,          1,           20,        0, "Frontier Pumps"            },
+    { 10393,       99500,      false,          1,           20,        0, "Thavnairian Bustier"       },
+    {  7535,       49500,      false,          1,           20,        0, "Sailor Shirt"              },
+    {  7771,       29500,      false,          1,           20,        0, "Dress Material"            },
     {  6586,       29500,      false,          1,           20,        0, "Manor Candelabra"          },
+    { 24004,       19500,      false,          1,           20,        0, "Whisperfine Woolen Coat"   },
     { 35575,       19500,      false,          1,           20,        0, "Imitation Wooden Skylight" },
     {  8547,       19500,      false,          1,           20,        0, "Coeurl Beach Maro"         },
     { 16625,       14500,      false,          1,           20,        0, "Astral Silk Robe"          },
@@ -50,10 +53,11 @@ local sell_retainers = {
     {  8796,       14500,      false,          1,           20,        0, "Shipping Crate"            },
     { 14068,       14500,      false,          1,           20,        0, "Alpine Chandelier"         },
     { 32226,       14500,      false,          1,           20,        0, "Wood Slat Partition"       },
-    { 44148,        4500,      false,          2,           20,        0, "Sterling Silver Ingot"     },
-    { 44150,        4500,      false,          2,           20,        0, "Blackseed Cotton Cloth"    },
-    { 44151,        4500,      false,          1,           20,        0, "Purussaurus Leather"       },
-    { 44147,        4500,      false,          2,           20,        0, "Maraging Steel Ingot"      },
+    { 44148,        4500,      false,          0,           20,        0, "Sterling Silver Ingot"     },
+    { 44150,        4500,      false,          0,           20,        0, "Blackseed Cotton Cloth"    },
+    { 44151,        4500,      false,          0,           20,        0, "Purussaurus Leather"       },
+    { 44147,        4500,      false,          0,           20,        0, "Maraging Steel Ingot"      },
+    {  8155,        4500,      false,          0,           20,        0, "Mastercraft Demimateria"   },
   }
 }
 
@@ -161,7 +165,7 @@ end
 
 function OpenRetainer(retainer_index)
   LogDebug("opening retainer "..retainer_index)
-  Callback("RetainerList", true, 2, retainer_index)
+  Callback("RetainerList", true, 2, retainer_index - 1)
   ClearTalkAndAwait("SelectString")
 end
 
@@ -493,7 +497,12 @@ function FindItemsInRetainer(item_id)
 end
 
 function ListItemForSaleFromStack(item_stack, stack_size, max_slots, price_floor, force_list, list_price)
-  local num_listings = item_stack.count // stack_size
+  local num_listings = 1
+  if stack_size > 0 then
+    num_listings = item_stack.count // stack_size
+  else
+    stack_size = item_stack.count
+  end
   if num_listings > max_slots then
     num_listings = max_slots
   end
@@ -528,8 +537,7 @@ function ListItemForSaleFromStack(item_stack, stack_size, max_slots, price_floor
       OpenItemRetainerSell(item_stack.page, item_stack.slot)
     end
 
-    local current_count = GetCurrentItemSellCount()
-    if stack_size ~= current_count then
+    if stack_size > 0 and stack_size ~= GetCurrentItemSellCount() then
       ApplyItemSellCount(stack_size)
     end
 
@@ -662,7 +670,7 @@ function UndercutItems(return_function, sell_table)
         end
       end
 
-      local floor_price = undercut_floor
+      local floor_price = default_undercut_floor
       if sell_entry ~= nil then
         floor_price = sell_entry[2]
       end
@@ -700,8 +708,33 @@ function UndercutItems(return_function, sell_table)
   return found_items
 end
 
+function UndercutRetainerItems(retainer_index)
+  local retainer_name = GetNodeText("RetainerList", 2, retainer_index, 13)
+  LogInfo("Undercutting items for retainer "..retainer_index.." "..retainer_name)
+  if GetNodeText("RetainerList", 2, retainer_index, 5) == "None" then
+    LogInfo("  Skipping retainer "..retainer_index.." - No items listed")
+    return
+  end
+
+  OpenRetainer(retainer_index)
+  OpenSellListInventory()
+  UndercutItems(ReturnItemToInventory)
+  CloseSellList()
+  CloseRetainer()
+end
+
 function SellRetainerItems(retainer_index, sell_table)
-  local retainer_name = GetNodeText("RetainerList", 2, retainer_index + 1, 13)
+  if sell_table == nil then
+    UndercutRetainerItems(retainer_index)
+    return
+  end
+  
+  if sell_table[0].exclude == true then
+    LogInfo("Skipping excluded retainer  "..retainer_index)
+    return
+  end
+
+  local retainer_name = GetNodeText("RetainerList", 2, retainer_index, 13)
   LogInfo("Listing sale items for retainer "..retainer_index.." "..retainer_name)
 
   OpenRetainer(retainer_index)
@@ -735,31 +768,13 @@ function SellRetainerItems(retainer_index, sell_table)
   CloseRetainer()
 end
 
-function UndercutRetainerItems(retainer_index)
-  local retainer_name = GetNodeText("RetainerList", 2, retainer_index + 1, 13)
-  LogInfo("Undercutting items for retainer "..retainer_index.." "..retainer_name)
-  if GetNodeText("RetainerList", 2, retainer_index + 1, 5) == "None" then
-    LogInfo("  Skipping retainer "..retainer_index.." - No items listed")
-    return
-  end
-
-  OpenRetainer(retainer_index)
-  OpenSellListInventory()
-  UndercutItems(ReturnItemToInventory)
-  CloseSellList()
-  CloseRetainer()
-end
-
 function ARPostUndercut()
   LogInfo("ARPostUndercut")
   ARSetSuppressed(true)
   yield("/xldisablecollection ARPostUndercutSuppress")
   if OpenRetainerList() then
-    for sell_retainer, sell_table in pairs(sell_retainers) do
-      SellRetainerItems(sell_retainer, sell_table)
-    end
-    for _, undercut_retainer in pairs(undercut_retainers) do
-      UndercutRetainerItems(undercut_retainer)
+    for i in 1..retainer_count do
+      SellRetainerItems(i, retainer_sell_tables[i])
     end
     CloseRetainerList()
   end
