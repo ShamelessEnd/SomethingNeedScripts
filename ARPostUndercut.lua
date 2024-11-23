@@ -323,6 +323,17 @@ function CloseSellList()
   AwaitAddonReady("SelectString")
 end
 
+function OpenRetainerInventory()
+  LogDebug("opening retainer inventory")
+  Callback("SelectString", true, 0)
+  AwaitAddonReady("InventoryRetainerLarge")
+end
+
+function CloseRetainerInventory()
+  LogDebug("closing retainer inventory")
+  CloseAndAwaitOther("InventoryRetainerLarge", "SelectString")
+end
+
 function GetSellListCount()
   local item_full_text = GetNodeText("RetainerSellList", 3)
   local count_start, count_end
@@ -619,6 +630,41 @@ function FindItemsInRetainer(item_id)
   return item_stacks
 end
 
+function SellTableContainsItem(sell_table, item_id)
+  for _, sell_entry in pairs(sell_table) do
+    if sell_entry[1] == item_id then
+      return true
+    end
+  end
+  return false
+end
+
+function FindItemsInInventory(sell_table)
+  local item_stacks = {}
+  for container = 0, 3 do
+    for container_slot = 0, 34 do
+      local item_id = GetItemIdInSlot(container, container_slot)
+      if SellTableContainsItem(sell_table, item_id) then
+        LogDebug("found "..item_id.." at "..container.."."..container_slot)
+        table.insert(item_stacks, { id = item_id, page = container, slot = container_slot })
+      end
+    end
+  end
+  return item_stacks
+end
+
+function EntrustSingleItem(item_stack)
+  if GetItemIdInSlot(item_stack.page, item_stack.slot) ~= item_stack.id then
+    LogDebug("item id mismatch, aborting entrust")
+    return
+  end
+  LogDebug("entrusting item "..item_stack.id.." at "..item_stack.page.."."..item_stack.slot.."to retainer")
+  Callback("InventoryExpansion", true, 14, 48 + item_stack.page, item_stack.slot)
+  while GetItemIdInSlot(item_stack.page, item_stack.slot) == item_stack.id do
+    yield("/wait 0.1")
+  end
+end
+
 function ListItemForSaleFromStack(item_stack, stack_size, max_slots, price_floor, force_list, list_price)
   local num_listings = 1
   if stack_size > 0 then
@@ -851,13 +897,24 @@ function UndercutRetainerItems(retainer_index)
   CloseRetainer()
 end
 
+function EntrustInventoryItems(sell_table)
+  LogInfo("  Entrusting items to retainer from inventory")
+  OpenRetainerInventory()
+  for _, found_item in pairs(FindItemsInInventory(sell_table)) do
+    EntrustSingleItem(found_item)
+  end
+  CloseRetainerInventory()
+end
+
 function SellRetainerItems(retainer_index, sell_table)
   if sell_table == nil then
     UndercutRetainerItems(retainer_index)
     return
   end
   
-  if sell_table[0].exclude == true then
+  local retainer_config = sell_table[0]
+  
+  if retainer_config.exclude == true then
     LogInfo("Skipping excluded retainer  "..retainer_index)
     return
   end
@@ -866,11 +923,16 @@ function SellRetainerItems(retainer_index, sell_table)
   LogInfo("Listing sale items for retainer "..retainer_index.." "..retainer_name)
 
   OpenRetainer(retainer_index)
+
+  if retainer_config.entrust == true then
+    EntrustInventoryItems(sell_table)
+  end
+
   OpenSellListRetainer()
 
   local sale_slots = 0
   local found_items = nil
-  if sell_table[0].unlist == true then
+  if retainer_config.unlist == true then
     ReturnAllItemsToRetainer()
     sale_slots = 20
   else
