@@ -654,14 +654,15 @@ function FindItemsInInventory(sell_table)
 end
 
 function EntrustSingleItem(item_stack)
-  if GetItemIdInSlot(item_stack.page, item_stack.slot) ~= item_stack.id then
-    LogDebug("item id mismatch, aborting entrust")
-    return
-  end
   LogDebug("entrusting item "..item_stack.id.." at "..item_stack.page.."."..item_stack.slot.."to retainer")
-  Callback("InventoryExpansion", true, 14, 48 + item_stack.page, item_stack.slot)
+  local retry_timeout = 3
   while GetItemIdInSlot(item_stack.page, item_stack.slot) == item_stack.id do
+    if retry_timeout >= 3 then
+      Callback("InventoryExpansion", true, 14, 48 + item_stack.page, item_stack.slot)
+      retry_timeout = 0
+    end
     yield("/wait 0.1")
+    retry_timeout = retry_timeout + 0.1
   end
 end
 
@@ -729,7 +730,7 @@ function ListItemForSale(sell_entry, max_slots, found_item)
   local stack_size = sell_entry[4]
   local max_listings = sell_entry[5]
   local save_count = sell_entry[6]
-  LogInfo("  Listing item "..item_id)
+  -- LogInfo("  Listing item "..item_id)
   
   if max_listings <= 0 then
     LogInfo("    No listings desired, skipping item")
@@ -782,7 +783,9 @@ function ListItemForSale(sell_entry, max_slots, found_item)
     end
   end
 
-  LogInfo("    Listed item "..item_id.." "..num_listings.." times, at "..list_price)
+  if num_listings > 0 then
+    LogInfo("    Listed item "..item_id.." "..num_listings.." times, at "..list_price)
+  end
   return num_listings
 end
 
