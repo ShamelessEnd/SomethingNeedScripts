@@ -731,6 +731,11 @@ function ListItemForSale(sell_entry, max_slots, found_item)
   local max_listings = sell_entry[5]
   local save_count = sell_entry[6]
   -- LogInfo("  Listing item "..item_id)
+
+  if max_slots <= 0 then
+    LogInfo("    No slots available, skipping item")
+    return 0
+  end
   
   if max_listings <= 0 then
     LogInfo("    No listings desired, skipping item")
@@ -741,14 +746,14 @@ function ListItemForSale(sell_entry, max_slots, found_item)
   if found_item ~= nil then
     list_price = found_item.price
     max_listings = max_listings - found_item.count
+    if max_listings <= 0 then
+      LogInfo("    Max listings already fulfilled, skipping item")
+      return 0
+    end
   end
 
   if max_listings < max_slots then
     max_slots = max_listings
-  end
-  if max_slots <= 0 then
-    LogInfo("    No slots available, skipping item")
-    return 0
   end
 
   local num_listings = 0
