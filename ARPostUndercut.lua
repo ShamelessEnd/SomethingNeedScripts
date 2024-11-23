@@ -828,10 +828,8 @@ function UndercutItems(return_function, sell_table)
       end
 
       local item_name = GetNodeText("RetainerSell", 18)
-      LogInfo("  Undercutting item "..item_number.." "..item_name)
-
       local current_price = GetCurrentItemSellPrice()
-      LogInfo("    current price: "..current_price)
+      LogInfo("  Undercutting item "..item_number.." "..item_name.." (current: "..current_price..")")
 
       local undercut_price = 0
       local sell_entry = nil
