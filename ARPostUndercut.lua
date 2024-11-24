@@ -667,14 +667,19 @@ end
 
 function EntrustSingleItem(item_stack)
   LogDebug("entrusting item "..item_stack.id.." at "..item_stack.page.."."..item_stack.slot.."to retainer")
-  local retry_timeout = 3
+  local retry_timeout = 1
+  local fail_timeout = 0
   while GetItemIdInSlot(item_stack.page, item_stack.slot) == item_stack.id do
-    if retry_timeout >= 3 then
+    if fail_timeout >= 5 then
+      LogWarning("failed to entrust item, skipping")
+      break
+    elseif retry_timeout >= 1 then
       Callback("InventoryExpansion", true, 14, 48 + item_stack.page, item_stack.slot)
       retry_timeout = 0
     end
     yield("/wait 0.1")
     retry_timeout = retry_timeout + 0.1
+    fail_timeout = fail_timeout + 0.1
   end
 end
 
