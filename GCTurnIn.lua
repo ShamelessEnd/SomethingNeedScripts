@@ -24,12 +24,12 @@ function GCTurnIn()
     yield("/wait 1")
     if timeout == 1000 then
       BailGCTurnIn()
-      yield("/wait 2")
+      yield("/wait 1")
       return
     end
     timeout = timeout + 1
   end
-  yield("/wait 2")
+  yield("/wait 1")
 end
 
 
