@@ -186,6 +186,7 @@ local retainer_sell_tables = {
 }
 
 function LogMessage(message) yield(""..message) end
+function LogTrace(message) if log_level <= -1 then LogMessage("-- "..message) end end
 function LogDebug(message) if log_level <= 0 then LogMessage(message) end end
 function LogInfo(message) if log_level <= 1 then LogMessage(message) end end
 function LogWarning(message) if log_level <= 2 then LogMessage("WARNING: "..message) end end
@@ -199,18 +200,16 @@ function CallbackCommand(target, update, ...)
   for _, arg in pairs({...}) do
     command = command.." "..tostring(arg)
   end
+  LogTrace(command)
   return command
 end
 
 function Callback(target, update, ...)
   local command = CallbackCommand(target, update, ...)
-  while true do
-    if IsAddonReady(target) then
-      yield(command)
-      break
-    end
+  while not IsAddonReady(target) do
     yield("/wait 0.1")
   end
+  yield(command)
 end
 
 function CallbackTimeout(timeout, target, update, ...)
