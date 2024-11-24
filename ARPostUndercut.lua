@@ -188,8 +188,8 @@ local retainer_sell_tables = {
 function LogMessage(message) yield(""..message) end
 function LogDebug(message) if log_level <= 0 then LogMessage(message) end end
 function LogInfo(message) if log_level <= 1 then LogMessage(message) end end
-function LogWarning(message) if log_level <= 2 then LogMessage(message) end end
-function LogError(message) if log_level <= 3 then LogMessage(message) end end
+function LogWarning(message) if log_level <= 2 then LogMessage("WARNING: "..message) end end
+function LogError(message) if log_level <= 3 then LogMessage("ERROR: "..message) end end
 
 function StringIsEmpty(s) return s == nil or s == "" end
 
@@ -224,6 +224,7 @@ function CallbackTimeout(timeout, target, update, ...)
     yield("/wait 0.1")
     timeout_count = timeout_count + 0.1
   end
+  LogError("callback command timed out: "..command)
   return false
 end
 
@@ -277,6 +278,7 @@ function OpenRetainerList()
 
   yield("/runmacro WalkToBell")
   if GetTargetName() ~= "Summoning Bell" or GetDistanceToTarget() > 3.59 then
+    LogError("could not get in range of Summoning Bell")
     return false
   end
   
@@ -284,6 +286,7 @@ function OpenRetainerList()
   repeat
     attempt_count = attempt_count + 1
     if attempt_count > 5 then
+      LogError("could not open Summoning Bell")
       return false
     end
     yield("/interact")
@@ -511,7 +514,7 @@ end
 function GetUndercutPrice()
   LogDebug("calculating suggested price")
   if not OpenItemListings(10) then
-    LogDebug("failed to open item listings")
+    LogError("failed to open item listings")
     return 0
   end
 
@@ -606,7 +609,7 @@ function GetRetainerItemCount(item_page, page_slot)
   AwaitAddonReady(page_addon)
   if not IsNodeVisible(page_addon, 1, 2, 3 + page_slot, 2) then
     -- need to swap pages, but that doesn't seem possible right now with callbacks
-    LogDebug("cannot load item count, page is not loaded")
+    LogWarning("cannot load item count, page is not loaded")
     return -1
   end
   local count_text = GetNodeText(page_addon, 37 - page_slot, 2, 8)
@@ -832,7 +835,7 @@ function UndercutItems(return_function, sell_table)
     for item_number = 1, item_count do
       local item_index = item_number - returned_count
       if not OpenItemSell(item_index, 5) then
-        LogDebug("failed to open ItemSell, aborting")
+        LogError("failed to open ItemSell, aborting")
         break
       end
 
