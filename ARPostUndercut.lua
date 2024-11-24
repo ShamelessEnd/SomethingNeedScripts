@@ -1,4 +1,5 @@
 
+local log_level = 1
 local retainer_count = 9
 local default_undercut_floor = 14500
 local retainer_sell_tables = {
@@ -184,10 +185,11 @@ local retainer_sell_tables = {
   }
 }
 
-local log_level = 3
 function LogMessage(message) yield(""..message) end
 function LogDebug(message) if log_level <= 0 then LogMessage(message) end end
 function LogInfo(message) if log_level <= 1 then LogMessage(message) end end
+function LogWarning(message) if log_level <= 2 then LogMessage(message) end end
+function LogError(message) if log_level <= 3 then LogMessage(message) end end
 
 function StringIsEmpty(s) return s == nil or s == "" end
 
@@ -269,14 +271,23 @@ end
 
 function OpenRetainerList()
   LogDebug("opening RetainerList")
-  if not IsAddonVisible("RetainerList") then
-    yield("/runmacro WalkToBell")
-    if GetTargetName() ~= "Summoning Bell" or GetDistanceToTarget() > 3.59 then
+  if IsAddonVisible("RetainerList") then
+    return AwaitAddonReady("RetainerList", 5)
+  end
+
+  yield("/runmacro WalkToBell")
+  if GetTargetName() ~= "Summoning Bell" or GetDistanceToTarget() > 3.59 then
+    return false
+  end
+  
+  local attempt_count = 0
+  repeat
+    attempt_count = attempt_count + 1
+    if attempt_count > 5 then
       return false
     end
     yield("/interact")
-  end
-  AwaitAddonReady("RetainerList")
+  until AwaitAddonReady("RetainerList", 5)
   return true
 end
 
@@ -585,7 +596,6 @@ function ReturnItemToRetainer(item_index, attempts)
 end
 
 function ReturnAllItemsToRetainer()
-  LogInfo("  Returning all listed items to retainer inventory")
   while GetSellListCount() > 0 do
     ReturnItemToRetainer(1, 1)
   end
@@ -730,15 +740,15 @@ function ListItemForSale(sell_entry, max_slots, found_item)
   local stack_size = sell_entry[4]
   local max_listings = sell_entry[5]
   local save_count = sell_entry[6]
-  -- LogInfo("  Listing item "..item_id)
+  -- LogDebug("listing item "..item_id)
 
   if max_slots <= 0 then
-    LogInfo("    No slots available, skipping item")
+    LogDebug("no slots available, skipping item")
     return 0
   end
   
   if max_listings <= 0 then
-    LogInfo("    No listings desired, skipping item")
+    LogDebug("no listings desired, skipping item")
     return 0
   end
 
@@ -747,7 +757,7 @@ function ListItemForSale(sell_entry, max_slots, found_item)
     list_price = found_item.price
     max_listings = max_listings - found_item.count
     if max_listings <= 0 then
-      LogInfo("    Max listings already fulfilled, skipping item")
+      LogDebug("max listings already fulfilled, skipping item")
       return 0
     end
   end
@@ -802,7 +812,6 @@ function GetSellEntryByName(sell_table, item_name)
       end
     end
   end
-
   return nil
 end
 
@@ -823,13 +832,14 @@ function UndercutItems(return_function, sell_table)
     for item_number = 1, item_count do
       local item_index = item_number - returned_count
       if not OpenItemSell(item_index, 5) then
-        LogInfo("failed to open ItemSell, aborting")
+        LogDebug("failed to open ItemSell, aborting")
         break
       end
 
       local item_name = GetNodeText("RetainerSell", 18)
       local current_price = GetCurrentItemSellPrice()
-      LogInfo("  Undercutting item "..item_number.." "..item_name.." (current: "..current_price..")")
+      LogInfo("  Undercutting item "..item_number.." "..item_name)
+      LogDebug("    current_price: "..current_price)
 
       local undercut_price = 0
       local sell_entry = nil
@@ -862,11 +872,12 @@ function UndercutItems(return_function, sell_table)
         LogInfo("    price target unchanged, skipping item")
         CloseItemSell()
       elseif undercut_price < floor_price then
+        LogInfo("    new price too low ("..undercut_price.." < "..floor_price..")")
         if sell_entry ~= nil and sell_entry[3] == true then
-          LogInfo("    new price too low ("..undercut_price.."), using floor price "..floor_price)
+          LogInfo("      using floor price")
           ApplyPriceUpdateAndClose(floor_price)
         else
-          LogInfo("    new price too low ("..undercut_price.." < "..floor_price.."), removing listings")
+          LogInfo("      removing listing")
           CloseItemSell()
           if return_function(item_index, 5) then
             returned_count = returned_count + 1
@@ -877,7 +888,7 @@ function UndercutItems(return_function, sell_table)
         end
       else
         ApplyPriceUpdateAndClose(undercut_price)
-        LogInfo("    price updated: "..undercut_price)
+        LogInfo("    price updated: "..current_price.." -> "..undercut_price)
       end
 
       last_item_name = item_name
@@ -889,10 +900,8 @@ function UndercutItems(return_function, sell_table)
 end
 
 function UndercutRetainerItems(retainer_index)
-  local retainer_name = GetNodeText("RetainerList", 2, retainer_index, 13)
-  LogInfo("Undercutting items for retainer "..retainer_index.." "..retainer_name)
   if GetNodeText("RetainerList", 2, retainer_index, 5) == "None" then
-    LogInfo("  Skipping retainer "..retainer_index.." - No items listed")
+    LogDebug("skipping retainer "..retainer_index.." - no items listed")
     return
   end
 
@@ -904,7 +913,6 @@ function UndercutRetainerItems(retainer_index)
 end
 
 function EntrustInventoryItems(sell_table)
-  LogInfo("  Entrusting items to retainer from inventory")
   OpenRetainerInventory()
   for _, found_item in pairs(FindItemsInInventory(sell_table)) do
     EntrustSingleItem(found_item)
@@ -913,24 +921,25 @@ function EntrustInventoryItems(sell_table)
 end
 
 function SellRetainerItems(retainer_index, sell_table)
+  local retainer_name = GetNodeText("RetainerList", 2, retainer_index, 13)
+  LogInfo("Processing retainer "..retainer_index.." "..retainer_name)
+
   if sell_table == nil then
+    LogInfo("  Only undercutting items for retainer "..retainer_index)
     UndercutRetainerItems(retainer_index)
     return
   end
-  
+
   local retainer_config = sell_table[0]
-  
   if retainer_config.exclude == true then
-    LogInfo("Skipping excluded retainer  "..retainer_index)
+    LogInfo("  Skipping excluded retainer  "..retainer_index)
     return
   end
-
-  local retainer_name = GetNodeText("RetainerList", 2, retainer_index, 13)
-  LogInfo("Listing sale items for retainer "..retainer_index.." "..retainer_name)
 
   OpenRetainer(retainer_index)
 
   if retainer_config.entrust == true then
+    LogInfo("  Entrusting items to retainer "..retainer_index.." from inventory")
     EntrustInventoryItems(sell_table)
   end
 
@@ -939,13 +948,16 @@ function SellRetainerItems(retainer_index, sell_table)
   local sale_slots = 0
   local found_items = nil
   if retainer_config.unlist == true then
+    LogInfo("  Returning all listed items to retainer "..retainer_index.." inventory")
     ReturnAllItemsToRetainer()
     sale_slots = 20
   else
+    LogInfo("  Undercutting existing items for retainer "..retainer_index)
     found_items = UndercutItems(ReturnItemToRetainer, sell_table)
     sale_slots = 20 - GetSellListCount()
   end
 
+  LogInfo("  Listing sale items for retainer "..retainer_index)
   for i, sell_entry in pairs(sell_table) do
     if i ~= 0 then
       local found_item = nil
