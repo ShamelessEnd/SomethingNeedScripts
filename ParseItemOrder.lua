@@ -33,7 +33,7 @@ function ReadBlock(f, eid, elen)
   return ReadXORData(f, xor, len)
 end
 
-function ParseInventory(f, n)
+function ParseInventory(f, o, n)
   if n == nil then LogDebug("nil count") return nil end
   local inventory = {}
   for i = 0, n - 1 do
@@ -43,7 +43,7 @@ function ParseInventory(f, n)
     p = ReadXORData(f, xor, 2)
     if s == nil or p == nil then LogDebug("bad slot") return nil end
     inventory[i] = {
-      internal = { slot = s, page = p},
+      internal = { slot = s, page = o + p },
       visible = { slot = i % 35, page = i // 35 }
     }
   end
@@ -55,7 +55,7 @@ function ParseRetainers(f, n)
   for _ = 1, n do
     local rid = ReadBlock(f, 0x52, 8)
     if rid == nil then LogDebug("bad rid") return nil end
-    retainers[rid] = ParseInventory(f, ReadBlock(f, 0x6E, 4))
+    retainers[rid] = ParseInventory(f, 10000, ReadBlock(f, 0x6E, 4))
     if retainers[rid] == nil then LogDebug("bad rinv") return nil end
   end
   return retainers
@@ -73,7 +73,7 @@ function ParseItemOrder(cid)
       break
     elseif id == 0x6E and data.inventory == nil then
       if len ~= 4 then LogDebug("bad clen") return nil end
-      data.inventory = ParseInventory(f, ReadXORData(f, xor, len))
+      data.inventory = ParseInventory(f, 0, ReadXORData(f, xor, len))
       if data.inventory == nil then LogDebug("bad cinv") return nil end
     elseif id == 0x4E and data.retainers == nil then
       if len ~= 4 then LogDebug("bad rlen") return nil end
