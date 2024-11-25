@@ -617,21 +617,6 @@ function ReturnAllItemsToRetainer()
   end
 end
 
-function GetRetainerItemCount(item_page, page_slot)
-  local page_addon = "RetainerGrid"..item_page
-  AwaitAddonReady(page_addon)
-  if not IsNodeVisible(page_addon, 1, 2, 3 + page_slot, 2) then
-    -- need to swap pages, but that doesn't seem possible right now with callbacks
-    LogWarning("cannot load item count, page is not loaded")
-    return -1
-  end
-  local count_text = GetNodeText(page_addon, 37 - page_slot, 2, 8)
-  if StringIsEmpty(count_text) then
-    return 1
-  end
-  return tonumber(count_text)
-end
-
 function OpenItemRetainerSell(item_page, page_slot)
   LogDebug("opening item from page "..item_page.." slot "..page_slot.." of retainer inventory")
   AwaitAddonReady("RetainerSellList")
@@ -647,7 +632,7 @@ function FindItemsInRetainer(item_id)
         local item_slot = (container - 10000) * 25 + container_slot
         local item_page = item_slot // 35
         local page_slot = item_slot % 35
-        local item_count = GetRetainerItemCount(item_page, page_slot)
+        local item_count = GetItemCountInSlot(container, container_slot)
         LogDebug("found "..item_count.." items for "..item_id.." at slot "..item_slot.." ("..item_page.."."..page_slot..")")
         table.insert(item_stacks, { page = item_page, slot = page_slot, count = item_count })
       end
