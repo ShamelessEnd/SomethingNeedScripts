@@ -2,11 +2,11 @@
 --           ITEMODR.DAT format
 --   ID | Name      | DL | Variable       | Note
 -- -----------------------------------------------------
--- 0x56 | Unknown   | ?? | ???            | idk what this actually does. I read the length byte and skip it
--- 0x6E | Inventory | 04 | Slot Count     | Expects [Slot Count] 'Slot' sections to follow
--- 0x69 | Slot      | 04 | Slot/Container | 2 shorts, Slot Index and Container Index
--- 0x4E | Retainers | 04 | Retainer Count | Expects [Retainer Count] 'Retainer' sections to follow
--- 0x52 | Retainer  | 08 | Retainer ID    | Has an 'Inventory' section directly following
+-- 0x56 | Unknown   | ?? | ???            | ??
+-- 0x4E | Retainers | 04 | Retainer Count | followed by [Retainer Count] 'Retainer' sections
+-- 0x52 | Retainer  | 08 | Retainer ID    | followed by an 'Inventory' section
+-- 0x6E | Inventory | 04 | Slot Count     | followed by [Slot Count] 'Slot' sections
+-- 0x69 | Slot      | 04 | Slot|Container | 2 shorts: Slot Index, Container Index
 
 local game_folder =  "D:\\Documents\\My Games\\FINAL FANTASY XIV - A Realm Reborn"
 local debug = false
