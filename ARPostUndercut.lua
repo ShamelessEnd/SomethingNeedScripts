@@ -1,6 +1,7 @@
 
 local log_level = 1
 local retainer_count = 9
+local game_folder =  "D:\\Documents\\My Games\\FINAL FANTASY XIV - A Realm Reborn"
 local default_undercut_floor = 14500
 local retainer_sell_tables = {
   [2] = {
@@ -198,6 +199,8 @@ local retainer_sell_tables = {
   }
 }
 
+-- Logging
+
 function LogMessage(message) yield(""..message) end
 function LogTrace(message) if log_level <= -1 then LogMessage("-- "..message) end end
 function LogDebug(message) if log_level <= 0 then LogMessage(message) end end
@@ -205,7 +208,32 @@ function LogInfo(message) if log_level <= 1 then LogMessage(message) end end
 function LogWarning(message) if log_level <= 2 then LogMessage("WARNING: "..message) end end
 function LogError(message) if log_level <= 3 then LogMessage("ERROR: "..message) end end
 
+-- Utils
+
 function StringIsEmpty(s) return s == nil or s == "" end
+function RoundUpToNext(x, increment) return math.floor(((x + increment - 1) // increment) * increment + 0.5) end
+
+function SellTableContainsItem(sell_table, item_id)
+  for _, sell_entry in pairs(sell_table) do
+    if sell_entry[1] == item_id then
+      return true
+    end
+  end
+  return false
+end
+
+function GetSellEntryByName(sell_table, item_name)
+  if sell_table ~= nil then
+    for i, sell_entry in pairs(sell_table) do
+      if sell_entry[7] ~= nil and string.find(item_name, sell_entry[7]) then
+        return sell_entry
+      end
+    end
+  end
+  return nil
+end
+
+-- Callback
 
 function CallbackCommand(target, update, ...)
   -- even with all these checks, /callback will randomly crash, so fallback to /pcall
@@ -239,6 +267,8 @@ function CallbackTimeout(timeout, target, update, ...)
   LogError("callback command timed out: "..command)
   return false
 end
+
+-- UI Navigation
 
 function AwaitAddonReady(addon_name, timeout)
   if timeout == nil or timeout <= 0 then
@@ -361,17 +391,6 @@ function CloseRetainerInventory()
   CloseAndAwaitOther("InventoryRetainerLarge", "SelectString")
 end
 
-function GetSellListCount()
-  local item_full_text = GetNodeText("RetainerSellList", 3)
-  local count_start, count_end
-  while count_start == nil or count_end == nil do
-    count_start, count_end = string.find(item_full_text, "%d+")
-  end
-  local item_count = string.sub(item_full_text, count_start, count_end - count_start + 1)
-  LogDebug("found "..item_count.." items for sale on retainer ("..item_full_text..")")
-  return tonumber(item_count)
-end
-
 function OpenSellListItemContext(item_index, timeout)
   -- this is flaky if you're moving/clicking the mouse at the same time
   -- hence the timeout/retry logic
@@ -427,6 +446,33 @@ function OpenItemListings(attempts)
   return false
 end
 
+function OpenItemRetainerSell(item_page, page_slot)
+  LogDebug("opening item from page "..item_page.." slot "..page_slot.." of retainer inventory")
+  AwaitAddonReady("RetainerSellList")
+  Callback("RetainerSellList", true, 2, 52 + item_page, page_slot)
+  AwaitAddonReady("RetainerSell")
+end
+
+function ConfirmItemSellAndClose()
+  AwaitAddonReady("RetainerSell")
+  Callback("RetainerSell", true, 0)
+  AwaitAddonGone("RetainerSell")
+  AwaitAddonReady("RetainerSellList")
+end
+
+-- Read UI
+
+function GetSellListCount()
+  local item_full_text = GetNodeText("RetainerSellList", 3)
+  local count_start, count_end
+  while count_start == nil or count_end == nil do
+    count_start, count_end = string.find(item_full_text, "%d+")
+  end
+  local item_count = string.sub(item_full_text, count_start, count_end - count_start + 1)
+  LogDebug("found "..item_count.." items for sale on retainer ("..item_full_text..")")
+  return tonumber(item_count)
+end
+
 function GetItemListingPrice(listing_index)
   local price_text = string.gsub(GetNodeText("ItemSearchResult", 5, listing_index, 10), "%D", "")
   if StringIsEmpty(price_text) then
@@ -444,6 +490,18 @@ function GetItemHistoryPrice(history_index)
     return tonumber(hist_price_text)
   end
 end
+
+function GetCurrentItemSellPrice()
+  AwaitAddonReady("RetainerSell")
+  return tonumber(GetNodeText("RetainerSell", 15, 4))
+end
+
+function GetCurrentItemSellCount()
+  AwaitAddonReady("RetainerSell")
+  return tonumber(GetNodeText("RetainerSell", 11, 4))
+end
+
+-- Calcs
 
 function GetItemHistoryTrimmedMean()
   LogDebug("fetching item history")
@@ -491,10 +549,6 @@ function GetItemHistoryTrimmedMean()
 
   CloseAndAwaitOther("ItemHistory", "ItemSearchResult")
   return history_trimmed_mean
-end
-
-function RoundUpToNext(x, increment)
-  return math.floor(((x + increment - 1) // increment) * increment + 0.5)
 end
 
 function CalculateUndercutPrice(p1, p2, p3, h)
@@ -551,35 +605,40 @@ function GetUndercutPrice()
   return CalculateUndercutPrice(p1, p2, p3, hist)
 end
 
-function GetCurrentItemSellPrice()
-  AwaitAddonReady("RetainerSell")
-  return tonumber(GetNodeText("RetainerSell", 15, 4))
+-- Inventory
+
+function FindItemsInRetainer(item_id)
+  local item_stacks = {}
+  for container = 10000, 10006 do
+    for container_slot = 0, 24 do
+      if GetItemIdInSlot(container, container_slot) == item_id then
+        local item_slot = (container - 10000) * 25 + container_slot
+        local item_page = item_slot // 35
+        local page_slot = item_slot % 35
+        local item_count = GetItemCountInSlot(container, container_slot)
+        LogDebug("found "..item_count.." items for "..item_id.." at slot "..item_slot.." ("..item_page.."."..page_slot..")")
+        table.insert(item_stacks, { page = item_page, slot = page_slot, count = item_count })
+      end
+    end
+  end
+  return item_stacks
 end
 
-function GetCurrentItemSellCount()
-  AwaitAddonReady("RetainerSell")
-  return tonumber(GetNodeText("RetainerSell", 11, 4))
+function FindItemsInInventory(sell_table)
+  local item_stacks = {}
+  for container = 0, 3 do
+    for container_slot = 0, 34 do
+      local item_id = GetItemIdInSlot(container, container_slot)
+      if SellTableContainsItem(sell_table, item_id) then
+        LogDebug("found "..item_id.." at "..container.."."..container_slot)
+        table.insert(item_stacks, { id = item_id, page = container, slot = container_slot })
+      end
+    end
+  end
+  return item_stacks
 end
 
-function ConfirmItemSellAndClose()
-  AwaitAddonReady("RetainerSell")
-  Callback("RetainerSell", true, 0)
-  AwaitAddonGone("RetainerSell")
-  AwaitAddonReady("RetainerSellList")
-end
-
-function ApplyPriceUpdateAndClose(new_price)
-  LogDebug("applying new price "..new_price)
-  AwaitAddonReady("RetainerSell")
-  Callback("RetainerSell", true, 2, string.format("%.0f", new_price))
-  ConfirmItemSellAndClose()
-end
-
-function ApplyItemSellCount(new_count)
-  LogDebug("applying item sell count "..new_count)
-  AwaitAddonReady("RetainerSell")
-  Callback("RetainerSell", true, 3, new_count)
-end
+-- Actions (Manage Items)
 
 function ReturnItemToTarget(item_index, target_id, attempts)
   for i = 1, attempts do
@@ -617,53 +676,6 @@ function ReturnAllItemsToRetainer()
   end
 end
 
-function OpenItemRetainerSell(item_page, page_slot)
-  LogDebug("opening item from page "..item_page.." slot "..page_slot.." of retainer inventory")
-  AwaitAddonReady("RetainerSellList")
-  Callback("RetainerSellList", true, 2, 52 + item_page, page_slot)
-  AwaitAddonReady("RetainerSell")
-end
-
-function FindItemsInRetainer(item_id)
-  local item_stacks = {}
-  for container = 10000, 10006 do
-    for container_slot = 0, 24 do
-      if GetItemIdInSlot(container, container_slot) == item_id then
-        local item_slot = (container - 10000) * 25 + container_slot
-        local item_page = item_slot // 35
-        local page_slot = item_slot % 35
-        local item_count = GetItemCountInSlot(container, container_slot)
-        LogDebug("found "..item_count.." items for "..item_id.." at slot "..item_slot.." ("..item_page.."."..page_slot..")")
-        table.insert(item_stacks, { page = item_page, slot = page_slot, count = item_count })
-      end
-    end
-  end
-  return item_stacks
-end
-
-function SellTableContainsItem(sell_table, item_id)
-  for _, sell_entry in pairs(sell_table) do
-    if sell_entry[1] == item_id then
-      return true
-    end
-  end
-  return false
-end
-
-function FindItemsInInventory(sell_table)
-  local item_stacks = {}
-  for container = 0, 3 do
-    for container_slot = 0, 34 do
-      local item_id = GetItemIdInSlot(container, container_slot)
-      if SellTableContainsItem(sell_table, item_id) then
-        LogDebug("found "..item_id.." at "..container.."."..container_slot)
-        table.insert(item_stacks, { id = item_id, page = container, slot = container_slot })
-      end
-    end
-  end
-  return item_stacks
-end
-
 function EntrustSingleItem(item_stack)
   LogDebug("entrusting item "..item_stack.id.." at "..item_stack.page.."."..item_stack.slot.."to retainer")
   local retry_timeout = 1
@@ -680,6 +692,126 @@ function EntrustSingleItem(item_stack)
     retry_timeout = retry_timeout + 0.1
     fail_timeout = fail_timeout + 0.1
   end
+end
+
+function EntrustInventoryItems(sell_table)
+  OpenRetainerInventory()
+  for _, found_item in pairs(FindItemsInInventory(sell_table)) do
+    EntrustSingleItem(found_item)
+  end
+  CloseRetainerInventory()
+end
+
+-- Actions (Sell)
+
+function ApplyItemSellCount(new_count)
+  LogDebug("applying item sell count "..new_count)
+  AwaitAddonReady("RetainerSell")
+  Callback("RetainerSell", true, 3, new_count)
+end
+
+function ApplyPriceUpdateAndClose(new_price)
+  LogDebug("applying new price "..new_price)
+  AwaitAddonReady("RetainerSell")
+  Callback("RetainerSell", true, 2, string.format("%.0f", new_price))
+  ConfirmItemSellAndClose()
+end
+
+function UndercutItems(return_function, sell_table)
+  LogDebug("undercutting all items")
+  local item_count = GetSellListCount()
+  local last_item_name = ""
+  local last_item_price = 0
+  local last_sell_entry = nil
+  local returned_count = 0
+  local found_items = nil
+  if sell_table ~= nil then
+    found_items = {}
+  end
+
+  LogInfo("  Found "..item_count.." items listed")
+  if item_count > 0 then
+    for item_number = 1, item_count do
+      local item_index = item_number - returned_count
+      if not OpenItemSell(item_index, 5) then
+        LogError("failed to open ItemSell, aborting")
+        break
+      end
+
+      local item_name = GetNodeText("RetainerSell", 18)
+      local current_price = GetCurrentItemSellPrice()
+      LogInfo("  Undercutting item "..item_number.." "..item_name)
+      LogDebug("    current_price: "..current_price)
+
+      local undercut_price = 0
+      local sell_entry = nil
+      if last_item_name == item_name then
+        undercut_price = last_item_price
+        sell_entry = last_sell_entry
+      else
+        undercut_price = GetUndercutPrice()
+        sell_entry = GetSellEntryByName(sell_table, item_name)
+      end
+
+      if sell_entry ~= nil then
+        local item_id = sell_entry[1]
+        if found_items[item_id] == nil then
+          found_items[item_id] = { count=1, price=undercut_price }
+        else
+          found_items[item_id].count = found_items[item_id].count + 1
+        end
+      end
+
+      local floor_price = default_undercut_floor
+      if sell_entry ~= nil then
+        floor_price = sell_entry[2]
+      end
+
+      if undercut_price <= 0 then
+        LogInfo("    failed to calculate price, skipping item")
+        CloseItemSell()
+      elseif undercut_price == current_price then
+        LogInfo("    price target unchanged, skipping item")
+        CloseItemSell()
+      elseif undercut_price < floor_price then
+        LogInfo("    new price too low ("..undercut_price.." < "..floor_price..")")
+        if sell_entry ~= nil and sell_entry[3] == true then
+          LogInfo("      using floor price")
+          ApplyPriceUpdateAndClose(floor_price)
+        else
+          LogInfo("      removing listing")
+          CloseItemSell()
+          if return_function(item_index, 5) then
+            returned_count = returned_count + 1
+          end
+          if sell_entry ~= nil then
+            found_items[sell_entry[1]].count = sell_entry[5]
+          end
+        end
+      else
+        ApplyPriceUpdateAndClose(undercut_price)
+        LogInfo("    price updated: "..current_price.." -> "..undercut_price)
+      end
+
+      last_item_name = item_name
+      last_item_price = undercut_price
+      last_sell_entry = sell_entry
+    end
+  end
+  return found_items
+end
+
+function UndercutRetainerItems(retainer_index)
+  if GetNodeText("RetainerList", 2, retainer_index, 5) == "None" then
+    LogDebug("skipping retainer "..retainer_index.." - no items listed")
+    return
+  end
+
+  OpenRetainer(retainer_index)
+  OpenSellListInventory()
+  UndercutItems(ReturnItemToInventory)
+  CloseSellList()
+  CloseRetainer()
 end
 
 function ListItemForSaleFromStack(item_stack, stack_size, max_slots, price_floor, force_list, list_price)
@@ -810,150 +942,11 @@ function ListItemForSale(sell_entry, max_slots, found_item)
   return num_listings
 end
 
-function GetSellEntryByName(sell_table, item_name)
-  if sell_table ~= nil then
-    for i, sell_entry in pairs(sell_table) do
-      if sell_entry[7] ~= nil and string.find(item_name, sell_entry[7]) then
-        return sell_entry
-      end
-    end
-  end
-  return nil
-end
-
-function UndercutItems(return_function, sell_table)
-  LogDebug("undercutting all items")
-  local item_count = GetSellListCount()
-  local last_item_name = ""
-  local last_item_price = 0
-  local last_sell_entry = nil
-  local returned_count = 0
-  local found_items = nil
-  if sell_table ~= nil then
-    found_items = {}
-  end
-
-  LogInfo("  Found "..item_count.." items listed")
-  if item_count > 0 then
-    for item_number = 1, item_count do
-      local item_index = item_number - returned_count
-      if not OpenItemSell(item_index, 5) then
-        LogError("failed to open ItemSell, aborting")
-        break
-      end
-
-      local item_name = GetNodeText("RetainerSell", 18)
-      local current_price = GetCurrentItemSellPrice()
-      LogInfo("  Undercutting item "..item_number.." "..item_name)
-      LogDebug("    current_price: "..current_price)
-
-      local undercut_price = 0
-      local sell_entry = nil
-      if last_item_name == item_name then
-        undercut_price = last_item_price
-        sell_entry = last_sell_entry
-      else
-        undercut_price = GetUndercutPrice()
-        sell_entry = GetSellEntryByName(sell_table, item_name)
-      end
-
-      if sell_entry ~= nil then
-        local item_id = sell_entry[1]
-        if found_items[item_id] == nil then
-          found_items[item_id] = { count=1, price=undercut_price }
-        else
-          found_items[item_id].count = found_items[item_id].count + 1
-        end
-      end
-
-      local floor_price = default_undercut_floor
-      if sell_entry ~= nil then
-        floor_price = sell_entry[2]
-      end
-
-      if undercut_price <= 0 then
-        LogInfo("    failed to calculate price, skipping item")
-        CloseItemSell()
-      elseif undercut_price == current_price then
-        LogInfo("    price target unchanged, skipping item")
-        CloseItemSell()
-      elseif undercut_price < floor_price then
-        LogInfo("    new price too low ("..undercut_price.." < "..floor_price..")")
-        if sell_entry ~= nil and sell_entry[3] == true then
-          LogInfo("      using floor price")
-          ApplyPriceUpdateAndClose(floor_price)
-        else
-          LogInfo("      removing listing")
-          CloseItemSell()
-          if return_function(item_index, 5) then
-            returned_count = returned_count + 1
-          end
-          if sell_entry ~= nil then
-            found_items[sell_entry[1]].count = sell_entry[5]
-          end
-        end
-      else
-        ApplyPriceUpdateAndClose(undercut_price)
-        LogInfo("    price updated: "..current_price.." -> "..undercut_price)
-      end
-
-      last_item_name = item_name
-      last_item_price = undercut_price
-      last_sell_entry = sell_entry
-    end
-  end
-  return found_items
-end
-
-function UndercutRetainerItems(retainer_index)
-  if GetNodeText("RetainerList", 2, retainer_index, 5) == "None" then
-    LogDebug("skipping retainer "..retainer_index.." - no items listed")
-    return
-  end
-
-  OpenRetainer(retainer_index)
-  OpenSellListInventory()
-  UndercutItems(ReturnItemToInventory)
-  CloseSellList()
-  CloseRetainer()
-end
-
-function EntrustInventoryItems(sell_table)
-  OpenRetainerInventory()
-  for _, found_item in pairs(FindItemsInInventory(sell_table)) do
-    EntrustSingleItem(found_item)
-  end
-  CloseRetainerInventory()
-end
-
-function SellRetainerItems(retainer_index, sell_table)
-  local retainer_name = GetNodeText("RetainerList", 2, retainer_index, 13)
-  LogInfo("Processing retainer "..retainer_index.." "..retainer_name)
-
-  if sell_table == nil then
-    LogInfo("  Only undercutting items for retainer "..retainer_index)
-    UndercutRetainerItems(retainer_index)
-    return
-  end
-
-  local retainer_config = sell_table[0]
-  if retainer_config.exclude == true then
-    LogInfo("  Skipping excluded retainer  "..retainer_index)
-    return
-  end
-
-  OpenRetainer(retainer_index)
-
-  if retainer_config.entrust == true then
-    LogInfo("  Entrusting items to retainer "..retainer_index.." from inventory")
-    EntrustInventoryItems(sell_table)
-  end
-
+function SellRetainerItems(retainer_index, sell_table, unlist)
   OpenSellListRetainer()
-
   local sale_slots = 0
   local found_items = nil
-  if retainer_config.unlist == true then
+  if unlist then
     LogInfo("  Returning all listed items to retainer "..retainer_index.." inventory")
     ReturnAllItemsToRetainer()
     sale_slots = 20
@@ -977,8 +970,30 @@ function SellRetainerItems(retainer_index, sell_table)
       end
     end
   end
-
   CloseSellList()
+end
+
+-- Actions (Core)
+
+function ARPostUndercutRetainer(retainer_index, sell_table)
+  if sell_table == nil then
+    LogInfo("  Only undercutting items for retainer "..retainer_index)
+    UndercutRetainerItems(retainer_index)
+    return
+  end
+
+  local retainer_config = sell_table[0]
+  if retainer_config.exclude == true then
+    LogInfo("  Skipping excluded retainer  "..retainer_index)
+    return
+  end
+
+  OpenRetainer(retainer_index)
+  if retainer_config.entrust == true then
+    LogInfo("  Entrusting items to retainer "..retainer_index.." from inventory")
+    EntrustInventoryItems(sell_table)
+  end
+  SellRetainerItems(retainer_index, sell_table, retainer_config.unlist == true)
   CloseRetainer()
 end
 
@@ -988,7 +1003,9 @@ function ARPostUndercut()
   yield("/xldisablecollection ARPostUndercutSuppress")
   if OpenRetainerList() then
     for i = 1, retainer_count do
-      SellRetainerItems(i, retainer_sell_tables[i])
+      local retainer_name = GetNodeText("RetainerList", 2, i, 13)
+      LogInfo("Processing retainer "..i.." "..retainer_name)
+      ARPostUndercutRetainer(i, retainer_sell_tables[i])
     end
     CloseRetainerList()
   end
