@@ -1,5 +1,5 @@
 
-local log_level = 1
+local log_level = 2
 local retainer_count = 9
 local game_folder =  "D:\\Documents\\My Games\\FINAL FANTASY XIV - A Realm Reborn"
 local default_undercut_floor = 14500
@@ -16,19 +16,19 @@ local retainer_sell_tables = {
     { 13723,       11500,      false,          2,            3,        0, "Metallic Purple"            },
     { 13716,       11500,      false,          2,            3,        0, "Dark Purple"                },
     { 13721,        9500,      false,          2,            3,        0, "Sky Blue"                   },
-    { 13719,        4500,      false,          2,            3,        0, "Metallic Yellow"            },
-    { 13720,        4500,      false,          2,            3,        0, "Metallic Green"             },
-    { 13717,        4500,      false,          2,            3,        0, "Metallic Red"               },
-    { 13722,        4500,      false,          2,            3,        0, "Metallic Blue"              },
     { 13709,        4500,      false,          2,            3,        0, "Dark Red"                   },
-    { 13713,        4500,      false,          2,            3,        0, "Pastel Blue"                },
+    { 13714,        4500,      false,          2,            3,        0, "Dark Blue"                  },
+    { 13717,        4500,      false,          2,            0,        0, "Metallic Red"               },
+    { 13720,        4500,      false,          2,            0,        0, "Metallic Green"             },
+    { 13722,        4500,      false,          2,            0,        0, "Metallic Blue"              },
+    { 13719,        4500,      false,          2,            0,        0, "Metallic Yellow"            },
+    { 13713,        1500,      false,          2,            0,        0, "Pastel Blue"                },
     { 13715,        1500,      false,          2,            0,        0, "Pastel Purple"              },
-    { 13718,        1500,      false,          2,            0,        0, "Metallic Orange"            },
-    { 13714,        1500,      false,          2,            0,        0, "Dark Blue"                  },
     { 13711,        1500,      false,          2,            0,        0, "Pastel Green"               },
+    { 13718,        1500,      false,          2,            0,        0, "Metallic Orange"            },
     { 13710,        1500,      false,          2,            0,        0, "Dark Brown"                 },
     { 13712,        1500,      false,          2,            0,        0, "Dark Green"                 },
-    { 13719,        1500,      false,          2,            0,        0, "Metallic Yellow"            },
+    {  5728,        1500,      false,          1,            0,        0, "Terebinth"                  },
     {  8841,        1500,      false,          1,            0,        0, "Retainer Fantasia"          },
   },
   [9] = {
@@ -38,78 +38,136 @@ local retainer_sell_tables = {
     { 32798,      249500,      false,          1,            1,        0, "Calfskin Rider's Cap"       },
     { 32801,      249500,      false,          1,            1,        0, "Calfskin Rider's Bottoms"   },
     { 32802,      249500,      false,          1,            1,        0, "Calfskin Rider's Shoes"     },
+    { 32800,      249500,      false,          1,            1,        0, "Calfskin Rider's Gloves"    },
+    { 28590,      249500,      false,          1,            1,        0, "Rebel Coat"                 },
+    { 28591,      249500,      false,          1,            1,        0, "Rebel Boots"                },
     { 28588,      249500,      false,          1,            1,        0, "Urban Coat"                 },
     { 28589,      249500,      false,          1,            1,        0, "Urban Boots"                },
     {  7540,      249500,      false,          1,            1,        0, "Spring Dress"               },
+    { 16600,      249500,      false,          1,            1,        0, "Cashmere Poncho"            },
     { 20477,      249500,      false,          1,            1,        0, "Quan"                       },
+    {  8559,      249500,      false,          1,            1,        0, "Crescent Moon Nightgown"    },
+    {  8557,      249500,      false,          1,            1,        0, "Crescent Moon Cone"         },
+    {  8561,      249500,      false,          1,            1,        0, "Crescent Moon Slippers"     },
     { 33027,       99500,      false,          1,            1,        0, "Calf Leather"               },
     {  7032,       99500,      false,          1,            1,        0, "Lotus Leaf"                 },
+    {  8026,       99500,      false,          1,            1,        0, "Mist Silk"                  },
     { 28905,       99500,      false,          1,            1,        0, "Shell Leather"              },
+    { 27977,       99500,      false,          1,            1,        0, "Enchanted Elm Lumber"       },
+    { 36629,       99500,      false,          1,            1,        0, "Phonograph Plate"           },
     { 40700,       49500,      false,          1,            1,        0, "Malake Karpasos"            },
+    { 20270,       49500,      false,          1,            1,        0, "Nagxian Silk"               },
+    {  7772,       49500,      false,          1,            1,        0, "Mariner Cotton Cloth"       },
+    { 41653,       49500,      false,          1,            1,        0, "Athletikos Cloth"           },
+    {  8560,       49500,      false,          1,            1,        0, "Crescent Moon Bottoms"      },
+    {  8558,       49500,      false,          1,            1,        0, "Crescent Moon Nightcap"     },
     { 41593,       49500,      false,          1,            1,        0, "Martial Artist's Slops"     },
+    { 41594,       49500,      false,          1,            1,        0, "Martial Artist's Plumps"    },
+    { 24006,       49500,      false,          1,            1,        0, "Whisperfine Woolen Boots"   },
+    { 24004,       49500,      false,          1,            1,        0, "Whisperfine Woolen Coat"    },
+    { 24005,       49500,      false,          1,            1,        0, "Whisperfine Woolen Shorts"  },
+    { 15926,       49500,      false,          1,            1,        0, "Moonfire Tanga"             },
     { 15927,       49500,      false,          1,            1,        0, "Moonfire Sandals"           },
+    { 27941,       49500,      false,          1,            1,        0, "Summer Indigo Shirt"        },
     { 40405,       49500,      false,          1,            1,        0, "Plain Pajama Shirt"         },
     { 40407,       49500,      false,          1,            1,        0, "Plain Pajama Slippers"      },
     { 40406,       49500,      false,          1,            1,        0, "Plain Pajama Bottoms"       },
     { 40413,       49500,      false,          1,            1,        0, "Chocobo Pajama Shirt"       },
     { 40414,       49500,      false,          1,            1,        0, "Chocobo Pajama Bottoms"     },
     { 40415,       49500,      false,          1,            1,        0, "Chocobo Pajama Slippers"    },
+    { 40412,       49500,      false,          1,            1,        0, "Chocobo Pajama Eye Mask"    },
+    { 33656,       49500,      false,          1,            1,        0, "Frontier Jacket"            },
     { 33660,       49500,      false,          1,            1,        0, "Frontier Dress"             },
     { 33662,       49500,      false,          1,            1,        0, "Frontier Pumps"             },
+    { 33657,       49500,      false,          1,            1,        0, "Frontier Trousers"          },
     {  7541,       49500,      false,          1,            1,        0, "Spring Skirt"               },
+    { 27939,       49500,      false,          1,            1,        0, "pped Fireglass Leather Slo" },
     { 36837,       49500,      false,          1,            1,        0, "Varsity Flat Cap"           },
-    {  8559,       49500,      false,          1,            1,        0, "Crescent Moon Nightgown"    },
+    { 36839,       49500,      false,          1,            1,        0, "Varsity Bottoms"            },
+    { 36842,       49500,      false,          1,            1,        0, "Varsity Skirt"              },
+    { 21204,       49500,      false,          1,            1,        0, "Hannish Wool Autumn Shirt"  },
+    { 23002,       49500,      false,          1,            1,        0, "Quaintrelle's Ruffled Skir" },
+    { 23373,       49500,      false,          1,            1,        0, "Quaintrelle's Hat"          },
     { 10393,       49500,      false,          1,            1,        0, "Thavnairian Bustier"        },
     { 10395,       49500,      false,          1,            1,        0, "Thavnairian Tights"         },
     { 10392,       49500,      false,          1,            1,        0, "Thavnairian Headdress"      },
     { 10396,       49500,      false,          1,            1,        0, "Thavnairian Sandals"        },
+    { 10394,       49500,      false,          1,            1,        0, "Thavnairian Armlets"        },
+    { 10390,       49500,      false,          1,            1,        0, "Thavnairian Sarouel"        },
     {  8553,       49500,      false,          1,            1,        0, "Coeurl Beach Halter"        },
+    {  8555,       49500,      false,          1,            1,        0, "Coeurl Beach Tanga"         },
     {  7535,       49500,      false,          1,            1,        0, "Sailor Shirt"               },
+    {  7537,       49500,      false,          1,            1,        0, "Sailor Brais"               },
     { 40404,       49500,      false,          1,            1,        0, "Plain Pajama Eye Mask"      },
     { 33869,       49500,      false,          1,            1,        0, "Frontier Cloth"             },
     { 33659,       49500,      false,          1,            1,        0, "Frontier Ribbon"            },
     { 20471,       49500,      false,          1,            1,        0, "Taoist's Shirt"             },
     {  7771,       29500,      false,          1,            1,        0, "Dress Material"             },
+    { 30135,       29500,      false,          1,            1,        0, "Cloth-softening Powder"     },
+    { 12645,       29500,      false,          1,            1,        0, "Thavnairian Leather"        },
     { 40409,       29500,      false,          1,            1,        0, "Cactuar Pajama Shirt"       },
     { 40410,       29500,      false,          1,            1,        0, "Cactuar Pajama Bottoms"     },
     { 40411,       29500,      false,          1,            1,        0, "Cactuar Pajama Slippers"    },
     { 30055,       29500,      false,          1,            1,        0, "Dalmascan Draped Top"       },
     { 30057,       29500,      false,          1,            1,        0, "Dalmascan Leather Shoes"    },
+    { 30755,       29500,      false,          1,            1,        0, "Southern Seas Shirt"        },
+    { 30757,       29500,      false,          1,            1,        0, "Southern Seas Skirt"        },
+    { 30756,       29500,      false,          1,            1,        0, "Southern Seas Trousers"     },
     { 16601,       29500,      false,          1,            1,        0, "Fur-lined Saurian Boots"    },
     { 14940,       29500,      false,          1,            1,        0, "Wind Silk Coatee"           },
+    {  7549,       29500,      false,          1,            1,        0, "Taffeta Loincloth"          },
+    { 20475,       29500,      false,          1,            1,        0, "Non La"                     },
+    { 37299,       29500,      false,          1,            1,        0, "White Byregotia Choker"     },
+    {  6475,       29500,      false,          1,            1,        0, "Moogle Letter Box"          },
     {  6586,       29500,      false,          1,            1,        0, "Manor Candelabra"           },
     { 14835,       29500,      false,          1,            1,        0, "Expeditioner's Pantalettes" },
     { 22569,       29500,      false,          1,            1,        0, "Southern Kitchen"           },
     {  8796,       29500,      false,          1,            1,        0, "Shipping Crate"             },
     { 38243,       19500,      false,          1,            1,        0, "Lawless Enforcer's Hat"     },
     {  9289,       19500,      false,          1,            1,        0, "Plain Long Skirt"           },
-    { 30756,       19500,      false,          1,            1,        0, "Southern Seas Trousers"     },
     { 13769,       19500,      false,          1,            1,        0, "Falconer's Bottoms"         },
+    { 17467,       19500,      false,          1,            1,        0, "Flannel Suspenders"         },
+    { 21937,       19500,      false,          1,            1,        0, "Adventuring Sweater"        },
     { 35869,       19500,      false,          1,            1,        0, "Wristlet of Happiness"      },
-    { 24004,       19500,      false,          1,            1,        0, "Whisperfine Woolen Coat"    },
-    { 24005,       19500,      false,          1,            1,        0, "Whisperfine Woolen Shorts"  },
+    { 35868,       19500,      false,          1,            1,        0, "Cape of Happiness"          },
     { 38244,       19500,      false,          1,            1,        0, "Lawless Enforcer's Jacket"  },
+    { 21202,       19500,      false,          1,            1,        0, "Thavnairian Wool Autumn S"  },
     { 39315,       19500,      false,          1,            1,        0, "Salon Server's Skirt"       },
     { 39309,       19500,      false,          1,            1,        0, "Salon Server's Vest"        },
+    { 39313,       19500,      false,          1,            1,        0, "Salon Server's Dress Vest"  },
     { 13266,       19500,      false,          1,            1,        0, "High House Justaucorps"     },
     { 40408,       19500,      false,          1,            1,        0, "Cactuar Pajama Eye Mask"    },
     {  7547,       19500,      false,          1,            1,        0, "Light Steel Subligar"       },
     {  7546,       19500,      false,          1,            1,        0, "Light Steel Galerus"        },
+    { 14868,       19500,      false,          1,            1,        0, "Uraeus Skirt"               },
     { 35870,       19500,      false,          1,            1,        0, "Hose of Happiness"          },
     { 35575,       19500,      false,          1,            1,        0, "Imitation Wooden Skylight"  },
-    {  8554,       19500,      false,          1,            1,        0, "Coeurl Beach Pareo"         },
-    {  8547,       19500,      false,          1,            1,        0, "Coeurl Beach Maro"          },
     {  9734,       19500,      false,          1,            1,        0, "Oak Low Barrel Planter"     },
     {  9719,       19500,      false,          1,            1,        0, "Oriental Bathtub"           },
     {  8778,       19500,      false,          1,            1,        0, "South Seas Couch"           },
+    { 23893,       19500,      false,          1,            1,        0, "Bathroom Floor Tiles"       },
+    {  8554,       14500,      false,          1,            1,        0, "Coeurl Beach Pareo"         },
+    {  8547,       14500,      false,          1,            1,        0, "Coeurl Beach Maro"          },
+    {  8548,       14500,      false,          1,            1,        0, "Coeurl Beach Briefs"        },
     { 21205,       14500,      false,          1,            1,        0, "Hannish Wool"               },
     { 16625,       14500,      false,          1,            1,        0, "Astral Silk Robe"           },
+    { 16626,       14500,      false,          1,            1,        0, "Griffin Leather Cuffs"      },
     { 33655,       14500,      false,          1,            1,        0, "Frontier Hat"               },
     { 33658,       14500,      false,          1,            1,        0, "Frontier Shoes"             },
+    { 17469,       14500,      false,          1,            1,        0, "Pteroskin Shoes"            },
+    { 13268,       14500,      false,          1,            1,        0, "High House Boots"           },
+    { 13271,       14500,      false,          1,            1,        0, "High House Halfboots"       },
+    { 14930,       14500,      false,          1,            1,        0, "Dhalmelskin Thighboots"     },
     { 13259,       14500,      false,          1,            1,        0, "White Beret"                },
+    {  8564,       14500,      false,          1,            1,        0, "Shaded Spectacles"          },
     {  7548,       14500,      false,          1,            1,        0, "Taffeta Shawl"              },
+    { 14852,       14500,      false,          1,            1,        0, "Gryphonskin Breastguard"    },
     {  8541,       14500,      false,          1,            1,        0, "Straw Capeline"             },
     { 13273,       14500,      false,          1,            1,        0, "Punching Gloves"            },
+    { 20472,       14500,      false,          1,            1,        0, "Taoist's Gloves"            },
+    { 20474,       14500,      false,          1,            1,        0, "Taoist's Shoes"             },
+    { 16597,       14500,      false,          1,            1,        0, "Ramie Poncho"               },
+    { 14929,       14500,      false,          1,            1,        0, "Ramie Pantalettes"          },
     { 38247,       14500,      false,          1,            1,        0, "Lawless Enforcer's Shoes"   },
     { 27991,       14500,      false,          1,            1,        0, "Adventurer's Hooded Vest"   },
     {  9291,       14500,      false,          1,            1,        0, "Gryphonskin Eyepatch"       },
@@ -117,16 +175,15 @@ local retainer_sell_tables = {
     { 13069,       14500,      false,          1,            1,        0, "The Unending Journey"       },
     { 22440,       14500,      false,          1,            1,        0, "Hedge Partition"            },
     { 40630,       14500,      false,          1,            1,        0, "Imitation Moonlit Window"   },
-    { 41816,       14500,      false,          1,            1,        0, "Kitchen Cabinet"            },
     { 17025,       14500,      false,          1,            1,        0, "Ivy Pillar"                 },
     {  6573,       14500,      false,          1,            1,        0, "Riviera Pillar"             },
+    {  6574,       14500,      false,          1,            1,        0, "Glade Pillar"               },
     { 22558,       14500,      false,          1,            1,        0, "Bar Counter"                },
     { 38592,       14500,      false,          1,            1,        0, "Tatami Loft"                },
     { 37360,       14500,      false,          1,            1,        0, "Luminous Wooden Loft"       },
     {  8797,       14500,      false,          1,            1,        0, "Wine Barrel"                },
     {  6670,       14500,      false,          1,            1,        0, "Belah'dian Crystal Lantern" },
     { 30385,       14500,      false,          1,            1,        0, "Wooden Staircase Bookshelf" },
-    { 41833,       14500,      false,          1,            1,        0, "Wooden Garden Gate"         },
     { 15974,       14500,      false,          1,            1,        0, "Mounted Bookshelf"          },
     { 20734,       14500,      false,          1,            1,        0, "Hingan Bookshelf"           },
     { 28639,       14500,      false,          1,            1,        0, "Leather Sofa"               },
@@ -137,6 +194,7 @@ local retainer_sell_tables = {
     {  7109,       14500,      false,          1,            1,        0, "Manor Music Stool"          },
     {  7114,       14500,      false,          1,            1,        0, "Manor Music Stand"          },
     {  6569,       14500,      false,          1,            1,        0, "Manor Bookshelf"            },
+    { 20735,       14500,      false,          1,            1,        0, "Hingan Cupboard"            },
     { 16781,       14500,      false,          1,            1,        0, "Troupe Stage"               },
     { 32224,       14500,      false,          1,            1,        0, "Swag Valance"               },
     { 24525,       14500,      false,          1,            1,        0, "Red Carpet"                 },
@@ -150,7 +208,6 @@ local retainer_sell_tables = {
     { 24526,       14500,      false,          1,            1,        0, "Hanging Planter Shelf"      },
     { 28975,       14500,      false,          1,            1,        0, "Oldrose Wall Planter"       },
     { 22554,       14500,      false,          1,            1,        0, "Portable Stepladder"        },
-    { 14045,       14500,      false,          1,            1,        0, "Orchestrion"                },
     {  6668,       14500,      false,          1,            1,        0, "Nymian Wall Lantern"        },
     { 17954,       14500,      false,          1,            1,        0, "Table Orchestrion"          },
     { 13075,       14500,      false,          1,            1,        0, "Oriental Round Table"       },
@@ -159,6 +216,7 @@ local retainer_sell_tables = {
     { 32226,       14500,      false,          1,            1,        0, "Wood Slat Partition"        },
     {  6595,       14500,      false,          1,            1,        0, "Potted Maguey"              },
     { 41111,       14500,      false,          1,            1,        0, "Field of Hope Rug"          },
+    { 24506,       14500,      false,          1,            1,        0, "Fat Cat Bank"               },
     {  8814,       14500,      false,          1,            1,        0, "Oasis Doormat"              },
     {  6549,       14500,      false,          1,            1,        0, "Riviera Wardrobe"           },
     {  6646,       14500,      false,          1,            1,        0, "Potted Spider Plant"        },
@@ -166,33 +224,35 @@ local retainer_sell_tables = {
     {  6645,       14500,      false,          1,            1,        0, "Potted Azalea"              },
     { 27296,       14500,      false,          1,            1,        0, "Wooden Handrail"            },
     { 38606,       14500,      false,          1,            1,        0, "Natural Wooden Beam"        },
-    { 30403,       14500,      false,          1,            1,        0, "Factory Beam"               },
     { 30405,       14500,      false,          1,            1,        0, "Factory Partition"          },
     {  7958,       14500,      false,          1,            1,        0, "Riviera Wall Shelf"         },
     {  8790,       14500,      false,          1,            1,        0, "Masonwork Stove"            },
+    {  8831,       14500,      false,          1,            1,        0, "Masonwork Interior Wall"    },
     {  6596,       14500,      false,          1,            1,        0, "Astroscope"                 },
     { 17971,       14500,      false,          1,            1,        0, "Easel"                      },
     {  6663,       14500,      false,          1,            1,        0, "Galleass Wheel"             },
     {  6480,       14500,      false,          1,            1,        0, "Mossy Rock"                 },
+    {  7064,       14500,      false,          1,            1,        0, "Summoning Bell"             },
     { 21864,       14500,      false,          1,            1,        0, "Corner Hedge Partition"     },
     {  7978,       14500,      false,          1,            1,        0, "Corner Counter"             },
+    { 17545,       14500,      false,          1,            1,        0, "Pink Cherry Blossom Corsag" },
     { 28809,       14500,      false,          1,            1,        0, " Sky Pirate's Coat of Fend" },
+    { 28834,       14500,      false,          1,            1,        0, " Sky Pirate's Coat of Heal" },
+    { 28839,       14500,      false,          1,            1,        0, " Sky Pirate's Coat of Cast" },
     { 28812,       14500,      false,          1,            1,        0, " Sky Pirate's Boots of Fen" },
+    { 28822,       14500,      false,          1,            1,        0, " Sky Pirate's Boots of Str" },
+    { 28827,       14500,      false,          1,            1,        0, " Sky Pirate's Boots of Aim" },
+    { 28832,       14500,      false,          1,            1,        0, " Sky Pirate's Boots of Sco" },
     { 28841,       14500,      false,          1,            1,        0, " Sky Pirate's Bottoms of C" },
     { 28823,       14500,      false,          1,            1,        0, " Sky Pirate's Beret of Aim" },
     { 28818,       14500,      false,          1,            1,        0, " Sky Pirate's Mask of Stri" },
     { 28828,       14500,      false,          1,            1,        0, " Sky Pirate's Mask of Scou" },
     { 28819,       14500,      false,          1,            1,        0, " Sky Pirate's Jacket of St" },
-    { 38567,       14500,      false,          1,            1,        0, "Black Sweet Pea Necklace"   },
-    { 38566,       14500,      false,          1,            1,        0, "White Sweet Pea Necklace"   },
-    { 38561,       14500,      false,          1,            1,        0, "Blue Sweet Pea Necklace"    },
-    { 44148,        4500,      false,          0,            1,        0, "Sterling Silver Ingot"      },
-    { 44150,        4500,      false,          0,            1,        0, "Blackseed Cotton Cloth"     },
-    { 44151,        4500,      false,          0,            1,        0, "Purussaurus Leather"        },
-    { 44147,        4500,      false,          0,            1,        0, "Maraging Steel Ingot"       },
+    { 28829,       14500,      false,          1,            1,        0, " Sky Pirate's Jacket of Sc" },
+    { 28824,       14500,      false,          1,            1,        0, " Sky Pirate's Vest of Aimi" },
     {  8155,        4500,      false,          0,            1,        0, "Mastercraft Demimateria"    },
     { 16908,        4500,      false,          0,            1,        0, "Tempered Glass"             },
-    {  8028,        4500,      false,          0,            1,        0, "Polarized Glass"            },
+    {  7047,        4500,      false,          0,            1,        0, "Frosted Glass Lens"         },
     { 12913,        4500,      false,          0,            1,        0, "Garlond Steel"              },
     {  7775,        4500,      false,          0,            1,        0, "Glazenut"                   },
     {  2820,        4500,      false,          1,            1,        0, "Red Onion Helm"             },
@@ -213,21 +273,34 @@ function LogError(message) if log_level <= 3 then LogMessage("ERROR: "..message)
 function StringIsEmpty(s) return s == nil or s == "" end
 function RoundUpToNext(x, increment) return math.floor(((x + increment - 1) // increment) * increment + 0.5) end
 
-function SellTableContainsItem(sell_table, item_id)
-  for _, sell_entry in pairs(sell_table) do
-    if sell_entry[1] == item_id then
-      return true
-    end
-  end
-  return false
-end
-
 function GetSellEntryByName(sell_table, item_name)
   if sell_table ~= nil then
     for i, sell_entry in pairs(sell_table) do
       if sell_entry[7] ~= nil and string.find(item_name, sell_entry[7]) then
         return sell_entry
       end
+    end
+  end
+  return nil
+end
+
+function ReadXORData(file, key, bytes)
+  local x = 0
+  for i = 0, bytes - 1 do
+    local data = file:read(1)
+    if data == nil then LogDebug("read nil data") return nil end
+    x = x + ((string.byte(data) ~ key) << (8 * i))
+  end
+  return x
+end
+
+function GetARCharacterData()
+  local char = GetCharacterName(true)
+  local cids = ARGetCharacterCIDs()
+  for i = 0, cids.Count - 1 do
+    local data = ARGetCharacterData(cids[i])
+    if data.Name.."@"..data.World == char then
+      return data
     end
   end
   return nil
@@ -605,38 +678,134 @@ function GetUndercutPrice()
   return CalculateUndercutPrice(p1, p2, p3, hist)
 end
 
+-- ItemODR
+--   ID | Name      | DL | Variable       | Note
+-- -----------------------------------------------------
+-- 0x56 | Unknown   | ?? | ???            | ??
+-- 0x4E | Retainers | 04 | Retainer Count | followed by [Retainer Count] 'Retainer' sections
+-- 0x52 | Retainer  | 08 | Retainer ID    | followed by an 'Inventory' section
+-- 0x6E | Inventory | 04 | Slot Count     | followed by [Slot Count] 'Slot' sections
+-- 0x69 | Slot      | 04 | Slot|Container | 2 shorts: Slot Index, Container Index
+
+function ReadItemODRData(file, bytes)
+  local xor_key = 0x73 -- xor encryption byte for ITEMODR.DAT
+  return ReadXORData(file, xor_key, bytes)
+end
+
+function ReadItemODRSectionHeader(file)
+  return ReadItemODRData(file, 1), ReadItemODRData(file, 1) -- id, length
+end
+
+function ReadItemODRExpectedBlock(file, expected_id, expected_length)
+  local id, length = ReadItemODRSectionHeader(file)
+  if id ~= expected_id or length ~= expected_length then LogDebug("expected block not found") return nil end
+  return ReadItemODRData(file, length)
+end
+
+function ParseItemODRInventory(file, page_offset, count)
+  if count == nil then LogError("nil inventory count") return nil end
+  local inventory = {}
+  for i = 0, count - 1 do
+    local id, length = ReadItemODRSectionHeader(file)
+    if id ~= 0x69 or length ~= 4 then LogError("expected slot not found") return nil end
+    slot = ReadItemODRData(file, 2)
+    page = ReadItemODRData(file, 2)
+    if slot == nil or page == nil then LogError("could not read slot data") return nil end
+    inventory[i] = {
+      internal = { slot = slot, page = page_offset + page },
+      visible = { slot = i % 35, page = i // 35 }
+    }
+  end
+  return inventory
+end
+
+function ParseItemODRRetainers(file, count)
+  local retainers = {}
+  for _ = 1, count do
+    local rid = ReadItemODRExpectedBlock(file, 0x52, 8)
+    if rid == nil then LogError("could not read retainer id") return nil end
+    retainers[rid] = ParseItemODRInventory(file, 10000, ReadItemODRExpectedBlock(file, 0x6E, 4))
+    if retainers[rid] == nil then LogError("could not fetch inventory for retainer "..rid) return nil end
+  end
+  return retainers
+end
+
+function ParseItemODR(cid)
+  local filepath = game_folder.."\\FFXIV_CHR"..string.format("%016X", cid).."\\".."ITEMODR.DAT"
+  LogDebug("parsing item ODR from ".. filepath)
+  local file = assert(io.open(filepath, 'rb'))
+  file:read(17) -- skip first 17 bytes
+
+  local data = {}
+  while data.inventory == nil or data.retainers == nil do
+    local id, length = ReadItemODRSectionHeader(file)
+    if id == nil or length == nil then
+      break
+    elseif id == 0x6E and data.inventory == nil then
+      if length ~= 4 then LogDebug("bad inventory length") break end
+      data.inventory = ParseItemODRInventory(file, 0, ReadItemODRData(file, length))
+      if data.inventory == nil then LogDebug("bad inventory data") break end
+    elseif id == 0x4E and data.retainers == nil then
+      if length ~= 4 then LogDebug("bad retainers length") break end
+      data.retainers = ParseItemODRRetainers(file, ReadItemODRData(file, length))
+      if data.retainers == nil then LogDebug("bad retainers data") break end
+    else
+      file:read(length) -- skip
+    end
+  end
+
+  file:close()
+
+  if data.inventory == nil then LogError("failed to find character inventory data") return nil end
+  if data.retainers == nil then LogError("failed to find retainers inventory data") return nil end
+  return data
+end
+
 -- Inventory
 
-function FindItemsInRetainer(item_id)
-  local item_stacks = {}
-  for container = 10000, 10006 do
-    for container_slot = 0, 24 do
-      if GetItemIdInSlot(container, container_slot) == item_id then
-        local item_slot = (container - 10000) * 25 + container_slot
-        local item_page = item_slot // 35
-        local page_slot = item_slot % 35
-        local item_count = GetItemCountInSlot(container, container_slot)
-        LogDebug("found "..item_count.." items for "..item_id.." at slot "..item_slot.." ("..item_page.."."..page_slot..")")
-        table.insert(item_stacks, { page = item_page, slot = page_slot, count = item_count })
-      end
-    end
+local lazy_inventory_data = {}
+local loaded_inventory_data = false
+function GetLazyInventoryData()
+  if loaded_inventory_data then return lazy_inventory_data end
+  loaded_inventory_data = true
+
+  local char_data = GetARCharacterData()
+  local inv_data = ParseItemODR(char_data.CID)
+  if char_data == nil or inv_data == nil then
+    LogError("failed to load inventory data")
+    return nil
   end
-  return item_stacks
+
+  lazy_inventory_data.inventory = inv_data.inventory
+  lazy_inventory_data.retainers = {}
+  for i = 0, char_data.RetainerData.Count - 1 do
+    local retainer_data = char_data.RetainerData[i]
+    lazy_inventory_data.retainers[retainer_data.Name] = inv_data.retainers[retainer_data.RetainerID]
+  end
+
+  return lazy_inventory_data
 end
 
-function FindItemsInInventory(sell_table)
-  local item_stacks = {}
-  for container = 0, 3 do
-    for container_slot = 0, 34 do
-      local item_id = GetItemIdInSlot(container, container_slot)
-      if SellTableContainsItem(sell_table, item_id) then
-        LogDebug("found "..item_id.." at "..container.."."..container_slot)
-        table.insert(item_stacks, { id = item_id, page = container, slot = container_slot })
-      end
+function FindItemsInInventory(inventory_map)
+  local items = {}
+  for _, mapping in pairs(inventory_map) do
+    local item_id = GetItemIdInSlot(mapping.internal.page, mapping.internal.slot)
+    local item_stack = {
+      page = mapping.visible.page,
+      slot = mapping.visible.slot,
+      count = GetItemCountInSlot(mapping.internal.page, mapping.internal.slot),
+    }
+    if items[item_id] == nil then
+      items[item_id] = { item_stack }
+    else
+      table.insert(items[item_id], item_stack)
     end
   end
-  return item_stacks
+  return items
 end
+
+function FindItemsInRetainerInventory(name) return FindItemsInInventory(GetLazyInventoryData().retainers[name]) end
+function FindItemsInCharacterInventory() return FindItemsInInventory(GetLazyInventoryData().inventory) end
 
 -- Actions (Manage Items)
 
@@ -676,11 +845,11 @@ function ReturnAllItemsToRetainer()
   end
 end
 
-function EntrustSingleItem(item_stack)
-  LogDebug("entrusting item "..item_stack.id.." at "..item_stack.page.."."..item_stack.slot.."to retainer")
+function EntrustSingleItem(item_id, item_stack)
+  LogDebug("entrusting item "..item_id.." at "..item_stack.page.."."..item_stack.slot.." to retainer")
   local retry_timeout = 1
   local fail_timeout = 0
-  while GetItemIdInSlot(item_stack.page, item_stack.slot) == item_stack.id do
+  while GetItemIdInSlot(item_stack.page, item_stack.slot) == item_id do
     if fail_timeout >= 5 then
       LogWarning("failed to entrust item, skipping")
       break
@@ -696,8 +865,11 @@ end
 
 function EntrustInventoryItems(sell_table)
   OpenRetainerInventory()
-  for _, found_item in pairs(FindItemsInInventory(sell_table)) do
-    EntrustSingleItem(found_item)
+  local inventory = FindItemsInCharacterInventory()
+  for _, sell_entry in pairs(sell_table) do
+    local item_id = sell_entry[1]
+    local item_stacks = inventory[item_id] or {}
+    for _, stack in pairs(item_stacks) do EntrustSingleItem(item_id, stack) end
   end
   CloseRetainerInventory()
 end
@@ -724,10 +896,7 @@ function UndercutItems(return_function, sell_table)
   local last_item_price = 0
   local last_sell_entry = nil
   local returned_count = 0
-  local found_items = nil
-  if sell_table ~= nil then
-    found_items = {}
-  end
+  local listed_items = {}
 
   LogInfo("  Found "..item_count.." items listed")
   if item_count > 0 then
@@ -755,10 +924,10 @@ function UndercutItems(return_function, sell_table)
 
       if sell_entry ~= nil then
         local item_id = sell_entry[1]
-        if found_items[item_id] == nil then
-          found_items[item_id] = { count=1, price=undercut_price }
+        if listed_items[item_id] == nil then
+          listed_items[item_id] = { count=1, price=undercut_price }
         else
-          found_items[item_id].count = found_items[item_id].count + 1
+          listed_items[item_id].count = listed_items[item_id].count + 1
         end
       end
 
@@ -785,7 +954,7 @@ function UndercutItems(return_function, sell_table)
             returned_count = returned_count + 1
           end
           if sell_entry ~= nil then
-            found_items[sell_entry[1]].count = sell_entry[5]
+            listed_items[sell_entry[1]].count = sell_entry[5]
           end
         end
       else
@@ -798,7 +967,7 @@ function UndercutItems(return_function, sell_table)
       last_sell_entry = sell_entry
     end
   end
-  return found_items
+  return listed_items
 end
 
 function UndercutRetainerItems(retainer_index)
@@ -871,7 +1040,7 @@ function ListItemForSaleFromStack(item_stack, stack_size, max_slots, price_floor
   return num_listings, list_price
 end
 
-function ListItemForSale(sell_entry, max_slots, found_item)
+function ListItemForSale(sell_entry, max_slots, item_stacks, listed_item)
   local item_id = sell_entry[1]
   local price_floor = sell_entry[2]
   local force_list = sell_entry[3]
@@ -891,9 +1060,9 @@ function ListItemForSale(sell_entry, max_slots, found_item)
   end
 
   local list_price = -1
-  if found_item ~= nil then
-    list_price = found_item.price
-    max_listings = max_listings - found_item.count
+  if listed_item ~= nil then
+    list_price = listed_item.price
+    max_listings = max_listings - listed_item.count
     if max_listings <= 0 then
       LogDebug("max listings already fulfilled, skipping item")
       return 0
@@ -905,8 +1074,9 @@ function ListItemForSale(sell_entry, max_slots, found_item)
   end
 
   local num_listings = 0
-  for _, item_stack in pairs(FindItemsInRetainer(item_id)) do
+  for _, item_stack in pairs(item_stacks) do
     LogDebug("processing stack "..item_stack.count.." at "..item_stack.page.."."..item_stack.slot)
+    local original_count = item_stack.count
     if item_stack.count <= 0 then
       LogDebug("cannot process stack, failed to fetch item count")
     elseif save_count > 0 then
@@ -923,6 +1093,7 @@ function ListItemForSale(sell_entry, max_slots, found_item)
     if item_stack.count > 0 then
       local listings_added = 0
       listings_added, list_price = ListItemForSaleFromStack(item_stack, stack_size, max_slots, price_floor, force_list, list_price)
+      item_stack.count = original_count - (listings_added * stack_size)
       num_listings = num_listings + listings_added
       max_slots = max_slots - listings_added
       if list_price == 0 then
@@ -942,34 +1113,38 @@ function ListItemForSale(sell_entry, max_slots, found_item)
   return num_listings
 end
 
-function SellRetainerItems(retainer_index, sell_table, unlist)
+function SellRetainerItems(retainer_index, retainer_name, sell_table, unlist)
   OpenSellListRetainer()
+
   local sale_slots = 0
-  local found_items = nil
+  local listed_items = {}
   if unlist then
     LogInfo("  Returning all listed items to retainer "..retainer_index.." inventory")
     ReturnAllItemsToRetainer()
     sale_slots = 20
   else
     LogInfo("  Undercutting existing items for retainer "..retainer_index)
-    found_items = UndercutItems(ReturnItemToRetainer, sell_table)
+    listed_items = UndercutItems(ReturnItemToRetainer, sell_table)
     sale_slots = 20 - GetSellListCount()
   end
+
+  local inventory = FindItemsInRetainerInventory(retainer_name)
 
   LogInfo("  Listing sale items for retainer "..retainer_index)
   for i, sell_entry in pairs(sell_table) do
     if i ~= 0 then
-      local found_item = nil
-      if found_items ~= nil then
-        found_item = found_items[sell_entry[1]]
-      end
-      sale_slots = sale_slots - ListItemForSale(sell_entry, sale_slots, found_item)
-      if sale_slots <= 0 then
-        LogDebug("no open slots remaining")
-        break
+      local item_id = sell_entry[1]
+      local item_stacks = inventory[item_id]
+      if item_stacks ~= nil then
+        sale_slots = sale_slots - ListItemForSale(sell_entry, sale_slots, item_stacks, listed_items[item_id])
+        if sale_slots <= 0 then
+          LogDebug("no open slots remaining")
+          break
+        end
       end
     end
   end
+
   CloseSellList()
 end
 
@@ -988,12 +1163,15 @@ function ARPostUndercutRetainer(retainer_index, sell_table)
     return
   end
 
+  local retainer_name = GetNodeText("RetainerList", 2, retainer_index, 13)
+  LogInfo("Processing retainer "..retainer_index.." "..retainer_name)
+
   OpenRetainer(retainer_index)
   if retainer_config.entrust == true then
     LogInfo("  Entrusting items to retainer "..retainer_index.." from inventory")
     EntrustInventoryItems(sell_table)
   end
-  SellRetainerItems(retainer_index, sell_table, retainer_config.unlist == true)
+  SellRetainerItems(retainer_index, retainer_name, sell_table, retainer_config.unlist == true)
   CloseRetainer()
 end
 
@@ -1003,8 +1181,6 @@ function ARPostUndercut()
   yield("/xldisablecollection ARPostUndercutSuppress")
   if OpenRetainerList() then
     for i = 1, retainer_count do
-      local retainer_name = GetNodeText("RetainerList", 2, i, 13)
-      LogInfo("Processing retainer "..i.." "..retainer_name)
       ARPostUndercutRetainer(i, retainer_sell_tables[i])
     end
     CloseRetainerList()
