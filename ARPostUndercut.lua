@@ -1,5 +1,5 @@
 
-local log_level = 2
+local log_level = 0
 local retainer_count = 9
 local game_folder =  "D:\\Documents\\My Games\\FINAL FANTASY XIV - A Realm Reborn"
 local default_undercut_floor = 14500
@@ -16,8 +16,8 @@ local retainer_sell_tables = {
     { 13723,       11500,      false,          2,            3,        0, "Metallic Purple"            },
     { 13716,       11500,      false,          2,            3,        0, "Dark Purple"                },
     { 13721,        9500,      false,          2,            3,        0, "Sky Blue"                   },
-    { 13709,        4500,      false,          2,            3,        0, "Dark Red"                   },
-    { 13714,        4500,      false,          2,            3,        0, "Dark Blue"                  },
+    { 13709,        3500,      false,          2,            3,        0, "Dark Red"                   },
+    { 13714,        3500,      false,          2,            3,        0, "Dark Blue"                  },
     { 13717,        4500,      false,          2,            0,        0, "Metallic Red"               },
     { 13720,        4500,      false,          2,            0,        0, "Metallic Green"             },
     { 13722,        4500,      false,          2,            0,        0, "Metallic Blue"              },
@@ -43,9 +43,11 @@ local retainer_sell_tables = {
     { 28591,      249500,      false,          1,            1,        0, "Rebel Boots"                },
     { 28588,      249500,      false,          1,            1,        0, "Urban Coat"                 },
     { 28589,      249500,      false,          1,            1,        0, "Urban Boots"                },
+    {  7542,       49500,      false,          1,            1,        0, "Spring Dress Shoes"         },
     {  7540,      249500,      false,          1,            1,        0, "Spring Dress"               },
     { 16600,      249500,      false,          1,            1,        0, "Cashmere Poncho"            },
     { 20477,      249500,      false,          1,            1,        0, "Quan"                       },
+    { 20476,      249500,      false,          1,            1,        0, "Ao Dai"                     },
     {  8559,      249500,      false,          1,            1,        0, "Crescent Moon Nightgown"    },
     {  8557,      249500,      false,          1,            1,        0, "Crescent Moon Cone"         },
     {  8561,      249500,      false,          1,            1,        0, "Crescent Moon Slippers"     },
@@ -61,13 +63,18 @@ local retainer_sell_tables = {
     { 41653,       49500,      false,          1,            1,        0, "Athletikos Cloth"           },
     {  8560,       49500,      false,          1,            1,        0, "Crescent Moon Bottoms"      },
     {  8558,       49500,      false,          1,            1,        0, "Crescent Moon Nightcap"     },
+    { 41592,       49500,      false,          1,            1,        0, "Martial Artist's Vest"      },
+    { 41595,       49500,      false,          1,            1,        0, "Martial Artist's Sleeveles" },
     { 41593,       49500,      false,          1,            1,        0, "Martial Artist's Slops"     },
-    { 41594,       49500,      false,          1,            1,        0, "Martial Artist's Plumps"    },
+    { 41594,       49500,      false,          1,            1,        0, "Martial Artist's Pumps"     },
     { 24006,       49500,      false,          1,            1,        0, "Whisperfine Woolen Boots"   },
     { 24004,       49500,      false,          1,            1,        0, "Whisperfine Woolen Coat"    },
     { 24005,       49500,      false,          1,            1,        0, "Whisperfine Woolen Shorts"  },
+    { 30056,       49500,      false,          1,            1,        0, "Dalmascan Draped Bottoms"   },
+    { 30057,       49500,      false,          1,            1,        0, "Dalmascan Leather Shoes"    },
     { 15926,       49500,      false,          1,            1,        0, "Moonfire Tanga"             },
     { 15927,       49500,      false,          1,            1,        0, "Moonfire Sandals"           },
+    { 15925,       49500,      false,          1,            1,        0, "Moonfire Halter"            },
     { 27941,       49500,      false,          1,            1,        0, "Summer Indigo Shirt"        },
     { 40405,       49500,      false,          1,            1,        0, "Plain Pajama Shirt"         },
     { 40407,       49500,      false,          1,            1,        0, "Plain Pajama Slippers"      },
@@ -77,17 +84,24 @@ local retainer_sell_tables = {
     { 40415,       49500,      false,          1,            1,        0, "Chocobo Pajama Slippers"    },
     { 40412,       49500,      false,          1,            1,        0, "Chocobo Pajama Eye Mask"    },
     { 33656,       49500,      false,          1,            1,        0, "Frontier Jacket"            },
+    { 33661,       49500,      false,          1,            1,        0, "Frontier Dress Gloves"      },
     { 33660,       49500,      false,          1,            1,        0, "Frontier Dress"             },
     { 33662,       49500,      false,          1,            1,        0, "Frontier Pumps"             },
     { 33657,       49500,      false,          1,            1,        0, "Frontier Trousers"          },
     {  7541,       49500,      false,          1,            1,        0, "Spring Skirt"               },
     { 27939,       49500,      false,          1,            1,        0, "pped Fireglass Leather Slo" },
+    { 27938,       49500,      false,          1,            1,        0, "oded Fireglass Leather Ves" },
     { 36837,       49500,      false,          1,            1,        0, "Varsity Flat Cap"           },
     { 36839,       49500,      false,          1,            1,        0, "Varsity Bottoms"            },
     { 36842,       49500,      false,          1,            1,        0, "Varsity Skirt"              },
+    { 36838,       49500,      false,          1,            1,        0, "Varsity Jacket"             },
+    { 36840,       49500,      false,          1,            1,        0, "Varsity Shoes"              },
+    { 36841,       49500,      false,          1,            1,        0, "Buttoned Varsity Jacket"    },
     { 21204,       49500,      false,          1,            1,        0, "Hannish Wool Autumn Shirt"  },
     { 23002,       49500,      false,          1,            1,        0, "Quaintrelle's Ruffled Skir" },
+    { 23001,       49500,      false,          1,            1,        0, "Quaintrelle's Ruffled Dres" },
     { 23373,       49500,      false,          1,            1,        0, "Quaintrelle's Hat"          },
+    { 23374,       49500,      false,          1,            1,        0, "Quaintrelle's Dress Shoes"  },
     { 10393,       49500,      false,          1,            1,        0, "Thavnairian Bustier"        },
     { 10395,       49500,      false,          1,            1,        0, "Thavnairian Tights"         },
     { 10392,       49500,      false,          1,            1,        0, "Thavnairian Headdress"      },
@@ -98,77 +112,127 @@ local retainer_sell_tables = {
     {  8555,       49500,      false,          1,            1,        0, "Coeurl Beach Tanga"         },
     {  7535,       49500,      false,          1,            1,        0, "Sailor Shirt"               },
     {  7537,       49500,      false,          1,            1,        0, "Sailor Brais"               },
-    { 40404,       49500,      false,          1,            1,        0, "Plain Pajama Eye Mask"      },
     { 33869,       49500,      false,          1,            1,        0, "Frontier Cloth"             },
     { 33659,       49500,      false,          1,            1,        0, "Frontier Ribbon"            },
     { 20471,       49500,      false,          1,            1,        0, "Taoist's Shirt"             },
+    { 20473,       49500,      false,          1,            1,        0, "Taoist's Slops"             },
+    { 14869,       49500,      false,          1,            1,        0, "Uraeus Coat"                },
     {  7771,       29500,      false,          1,            1,        0, "Dress Material"             },
     { 30135,       29500,      false,          1,            1,        0, "Cloth-softening Powder"     },
+    { 12646,       29500,      false,          1,            1,        0, "Thavnairian Silk"           },
     { 12645,       29500,      false,          1,            1,        0, "Thavnairian Leather"        },
+    { 40404,       29500,      false,          1,            1,        0, "Plain Pajama Eye Mask"      },
     { 40409,       29500,      false,          1,            1,        0, "Cactuar Pajama Shirt"       },
     { 40410,       29500,      false,          1,            1,        0, "Cactuar Pajama Bottoms"     },
     { 40411,       29500,      false,          1,            1,        0, "Cactuar Pajama Slippers"    },
     { 30055,       29500,      false,          1,            1,        0, "Dalmascan Draped Top"       },
-    { 30057,       29500,      false,          1,            1,        0, "Dalmascan Leather Shoes"    },
+    {  6980,       29500,      false,          1,            1,        0, "Highland Mitts"             },
+    {  6979,       29500,      false,          1,            1,        0, "Highland Smock"             },
+    {  6981,       29500,      false,          1,            1,        0, "Highland Boots"             },
+    { 15921,       29500,      false,          1,            1,        0, "Moonfire Hat"               },
     { 30755,       29500,      false,          1,            1,        0, "Southern Seas Shirt"        },
     { 30757,       29500,      false,          1,            1,        0, "Southern Seas Skirt"        },
     { 30756,       29500,      false,          1,            1,        0, "Southern Seas Trousers"     },
+    { 30758,       29500,      false,          1,            1,        0, "Southern Seas Shoes"        },
     { 16601,       29500,      false,          1,            1,        0, "Fur-lined Saurian Boots"    },
     { 14940,       29500,      false,          1,            1,        0, "Wind Silk Coatee"           },
     {  7549,       29500,      false,          1,            1,        0, "Taffeta Loincloth"          },
     { 20475,       29500,      false,          1,            1,        0, "Non La"                     },
+    { 20478,       29500,      false,          1,            1,        0, "Guoc"                       },
     { 37299,       29500,      false,          1,            1,        0, "White Byregotia Choker"     },
     {  6475,       29500,      false,          1,            1,        0, "Moogle Letter Box"          },
     {  6586,       29500,      false,          1,            1,        0, "Manor Candelabra"           },
     { 14835,       29500,      false,          1,            1,        0, "Expeditioner's Pantalettes" },
+    { 14836,       29500,      false,          1,            1,        0, "Expeditioner's Thighboots"  },
     { 22569,       29500,      false,          1,            1,        0, "Southern Kitchen"           },
     {  8796,       29500,      false,          1,            1,        0, "Shipping Crate"             },
     { 38243,       19500,      false,          1,            1,        0, "Lawless Enforcer's Hat"     },
+    { 38244,       19500,      false,          1,            1,        0, "Lawless Enforcer's Jacket"  },
+    { 38245,       19500,      false,          1,            1,        0, "Lawless Enforcer's Gloves"  },
     {  9289,       19500,      false,          1,            1,        0, "Plain Long Skirt"           },
+    { 13272,       19500,      false,          1,            1,        0, "Falconer's Shirt"           },
     { 13769,       19500,      false,          1,            1,        0, "Falconer's Bottoms"         },
+    { 13770,       19500,      false,          1,            1,        0, "Falconer's Boots"           },
     { 17467,       19500,      false,          1,            1,        0, "Flannel Suspenders"         },
+    { 17466,       19500,      false,          1,            1,        0, "Flannel Knit Cap"           },
     { 21937,       19500,      false,          1,            1,        0, "Adventuring Sweater"        },
     { 35869,       19500,      false,          1,            1,        0, "Wristlet of Happiness"      },
     { 35868,       19500,      false,          1,            1,        0, "Cape of Happiness"          },
-    { 38244,       19500,      false,          1,            1,        0, "Lawless Enforcer's Jacket"  },
+    { 35870,       19500,      false,          1,            1,        0, "Hose of Happiness"          },
+    { 35871,       19500,      false,          1,            1,        0, "Boots of Happiness"         },
+    { 15922,       19500,      false,          1,            1,        0, "Moonfire Vest"              },
+    { 24592,       19500,      false,          1,            1,        0, "Raincoat"                   },
     { 21202,       19500,      false,          1,            1,        0, "Thavnairian Wool Autumn S"  },
+    { 21203,       19500,      false,          1,            1,        0, "Thavnairian Wool Autumn D"  },
+    { 10388,       19500,      false,          1,            1,        0, "Thavnairian Bolero"         },
+    { 10389,       19500,      false,          1,            1,        0, "Thavnairian Gloves"         },
+    { 10391,       19500,      false,          1,            1,        0, "Thavnairian Babouches"      },
+    { 39308,       19500,      false,          1,            1,        0, "Salon Server's Hat"         },
     { 39315,       19500,      false,          1,            1,        0, "Salon Server's Skirt"       },
     { 39309,       19500,      false,          1,            1,        0, "Salon Server's Vest"        },
+    { 39312,       19500,      false,          1,            1,        0, "Salon Server's Shoes"       },
     { 39313,       19500,      false,          1,            1,        0, "Salon Server's Dress Vest"  },
+    { 39314,       19500,      false,          1,            1,        0, "Salon Server's Dress Glove" },
     { 13266,       19500,      false,          1,            1,        0, "High House Justaucorps"     },
     { 40408,       19500,      false,          1,            1,        0, "Cactuar Pajama Eye Mask"    },
     {  7547,       19500,      false,          1,            1,        0, "Light Steel Subligar"       },
     {  7546,       19500,      false,          1,            1,        0, "Light Steel Galerus"        },
     { 14868,       19500,      false,          1,            1,        0, "Uraeus Skirt"               },
-    { 35870,       19500,      false,          1,            1,        0, "Hose of Happiness"          },
+    { 35862,       19500,      false,          1,            1,        0, "Red Ribbon"                 },
     { 35575,       19500,      false,          1,            1,        0, "Imitation Wooden Skylight"  },
     {  9734,       19500,      false,          1,            1,        0, "Oak Low Barrel Planter"     },
+    { 23884,       19500,      false,          1,            1,        0, "Mahogany Bunk Bed"          },
+    {  7976,       19500,      false,          1,            1,        0, "Model Star Globe"           },
     {  9719,       19500,      false,          1,            1,        0, "Oriental Bathtub"           },
     {  8778,       19500,      false,          1,            1,        0, "South Seas Couch"           },
     { 23893,       19500,      false,          1,            1,        0, "Bathroom Floor Tiles"       },
+    { 36888,       19500,      false,          1,            1,        0, "Highland Flooring"          },
+    { 15924,       14500,      false,          1,            1,        0, "Moonfire Caligae"           },
     {  8554,       14500,      false,          1,            1,        0, "Coeurl Beach Pareo"         },
     {  8547,       14500,      false,          1,            1,        0, "Coeurl Beach Maro"          },
     {  8548,       14500,      false,          1,            1,        0, "Coeurl Beach Briefs"        },
+    {  8546,       14500,      false,          1,            1,        0, "Coeurl Talisman"            },
+    { 15472,       14500,      false,          1,            1,        0, "Survival Hat"               },
+    { 15473,       14500,      false,          1,            1,        0, "Survival Shirt"             },
+    { 15475,       14500,      false,          1,            1,        0, "Survival Boots"             },
+    {  7539,       14500,      false,          1,            1,        0, "Spring Straw Hat"           },
     { 21205,       14500,      false,          1,            1,        0, "Hannish Wool"               },
     { 16625,       14500,      false,          1,            1,        0, "Astral Silk Robe"           },
     { 16626,       14500,      false,          1,            1,        0, "Griffin Leather Cuffs"      },
     { 33655,       14500,      false,          1,            1,        0, "Frontier Hat"               },
     { 33658,       14500,      false,          1,            1,        0, "Frontier Shoes"             },
     { 17469,       14500,      false,          1,            1,        0, "Pteroskin Shoes"            },
+    {  6983,       14500,      false,          1,            1,        0, "Glacial Boots"              },
+    { 15463,       14500,      false,          1,            1,        0, "New World Jacket"           },
+    { 14850,       14500,      false,          1,            1,        0, "Uraeis Body Armor"          },
+    { 21936,       14500,      false,          1,            1,        0, "Winter Sweater"             },
+    { 24593,       14500,      false,          1,            1,        0, "Rain Boots"                 },
+    { 13269,       14500,      false,          1,            1,        0, "High House Cloche"          },
+    { 13270,       14500,      false,          1,            1,        0, "High House Bustle"          },
     { 13268,       14500,      false,          1,            1,        0, "High House Boots"           },
     { 13271,       14500,      false,          1,            1,        0, "High House Halfboots"       },
+    { 14830,       14500,      false,          1,            1,        0, "Expeditioner's Coat"        },
+    { 14833,       14500,      false,          1,            1,        0, "Expeditioner's Tabard"      },
+    { 14832,       14500,      false,          1,            1,        0, "Expeditioner's Moccasins"   },
+    { 14834,       14500,      false,          1,            1,        0, "Expeditioner's Gloves"      },
+    { 39310,       14500,      false,          1,            1,        0, "Salon Server's Gloves"      },
     { 14930,       14500,      false,          1,            1,        0, "Dhalmelskin Thighboots"     },
     { 13259,       14500,      false,          1,            1,        0, "White Beret"                },
     {  8564,       14500,      false,          1,            1,        0, "Shaded Spectacles"          },
+    {  9298,       14500,      false,          1,            1,        0, "Classic Spectacles"         },
     {  7548,       14500,      false,          1,            1,        0, "Taffeta Shawl"              },
     { 14852,       14500,      false,          1,            1,        0, "Gryphonskin Breastguard"    },
     {  8541,       14500,      false,          1,            1,        0, "Straw Capeline"             },
     { 13273,       14500,      false,          1,            1,        0, "Punching Gloves"            },
+    { 13687,       14500,      false,          1,            1,        0, "Archaeoskin Halfboots"      },
+    { 20470,       14500,      false,          1,            1,        0, "Taoist's Cap"               },
     { 20472,       14500,      false,          1,            1,        0, "Taoist's Gloves"            },
     { 20474,       14500,      false,          1,            1,        0, "Taoist's Shoes"             },
     { 16597,       14500,      false,          1,            1,        0, "Ramie Poncho"               },
     { 14929,       14500,      false,          1,            1,        0, "Ramie Pantalettes"          },
     { 38247,       14500,      false,          1,            1,        0, "Lawless Enforcer's Shoes"   },
+    {  7538,       14500,      false,          1,            1,        0, "Sailor Deck Shoes"          },
+    { 13682,       14500,      false,          1,            1,        0, "Rainbow Justaucorps"        },
     { 27991,       14500,      false,          1,            1,        0, "Adventurer's Hooded Vest"   },
     {  9291,       14500,      false,          1,            1,        0, "Gryphonskin Eyepatch"       },
     { 37359,       14500,      false,          1,            1,        0, "Ivy Curtain"                },
@@ -178,6 +242,7 @@ local retainer_sell_tables = {
     { 17025,       14500,      false,          1,            1,        0, "Ivy Pillar"                 },
     {  6573,       14500,      false,          1,            1,        0, "Riviera Pillar"             },
     {  6574,       14500,      false,          1,            1,        0, "Glade Pillar"               },
+    {  8004,       14500,      false,          1,            1,        0, "Glade Hedgewall"            },
     { 22558,       14500,      false,          1,            1,        0, "Bar Counter"                },
     { 38592,       14500,      false,          1,            1,        0, "Tatami Loft"                },
     { 37360,       14500,      false,          1,            1,        0, "Luminous Wooden Loft"       },
@@ -186,6 +251,7 @@ local retainer_sell_tables = {
     { 30385,       14500,      false,          1,            1,        0, "Wooden Staircase Bookshelf" },
     { 15974,       14500,      false,          1,            1,        0, "Mounted Bookshelf"          },
     { 20734,       14500,      false,          1,            1,        0, "Hingan Bookshelf"           },
+    {  6559,       14500,      false,          1,            1,        0, "Company Chest"              },
     { 28639,       14500,      false,          1,            1,        0, "Leather Sofa"               },
     {  6590,       14500,      false,          1,            1,        0, "Deluxe Manor Fireplace"     },
     {  6535,       14500,      false,          1,            1,        0, "Manor Couch"                },
@@ -215,13 +281,14 @@ local retainer_sell_tables = {
     { 14068,       14500,      false,          1,            1,        0, "Alpine Chandelier"          },
     { 32226,       14500,      false,          1,            1,        0, "Wood Slat Partition"        },
     {  6595,       14500,      false,          1,            1,        0, "Potted Maguey"              },
+    {  6646,       14500,      false,          1,            1,        0, "Potted Spider Plant"        },
+    {  7975,       14500,      false,          1,            1,        0, "Potted Dragon Tree"         },
+    {  6645,       14500,      false,          1,            1,        0, "Potted Azalea"              },
     { 41111,       14500,      false,          1,            1,        0, "Field of Hope Rug"          },
     { 24506,       14500,      false,          1,            1,        0, "Fat Cat Bank"               },
     {  8814,       14500,      false,          1,            1,        0, "Oasis Doormat"              },
     {  6549,       14500,      false,          1,            1,        0, "Riviera Wardrobe"           },
-    {  6646,       14500,      false,          1,            1,        0, "Potted Spider Plant"        },
     { 24508,       14500,      false,          1,            1,        0, "Botanist's Dried Herbs"     },
-    {  6645,       14500,      false,          1,            1,        0, "Potted Azalea"              },
     { 27296,       14500,      false,          1,            1,        0, "Wooden Handrail"            },
     { 38606,       14500,      false,          1,            1,        0, "Natural Wooden Beam"        },
     { 30405,       14500,      false,          1,            1,        0, "Factory Partition"          },
@@ -236,20 +303,34 @@ local retainer_sell_tables = {
     { 21864,       14500,      false,          1,            1,        0, "Corner Hedge Partition"     },
     {  7978,       14500,      false,          1,            1,        0, "Corner Counter"             },
     { 17545,       14500,      false,          1,            1,        0, "Pink Cherry Blossom Corsag" },
-    { 28809,       14500,      false,          1,            1,        0, " Sky Pirate's Coat of Fend" },
-    { 28834,       14500,      false,          1,            1,        0, " Sky Pirate's Coat of Heal" },
-    { 28839,       14500,      false,          1,            1,        0, " Sky Pirate's Coat of Cast" },
-    { 28812,       14500,      false,          1,            1,        0, " Sky Pirate's Boots of Fen" },
-    { 28822,       14500,      false,          1,            1,        0, " Sky Pirate's Boots of Str" },
-    { 28827,       14500,      false,          1,            1,        0, " Sky Pirate's Boots of Aim" },
-    { 28832,       14500,      false,          1,            1,        0, " Sky Pirate's Boots of Sco" },
-    { 28841,       14500,      false,          1,            1,        0, " Sky Pirate's Bottoms of C" },
-    { 28823,       14500,      false,          1,            1,        0, " Sky Pirate's Beret of Aim" },
-    { 28818,       14500,      false,          1,            1,        0, " Sky Pirate's Mask of Stri" },
-    { 28828,       14500,      false,          1,            1,        0, " Sky Pirate's Mask of Scou" },
-    { 28819,       14500,      false,          1,            1,        0, " Sky Pirate's Jacket of St" },
-    { 28829,       14500,      false,          1,            1,        0, " Sky Pirate's Jacket of Sc" },
-    { 28824,       14500,      false,          1,            1,        0, " Sky Pirate's Vest of Aimi" },
+    { 38566,       14500,      false,          1,            1,        0, "White Sweet Pea Necklace"   },
+    { 38567,       14500,      false,          1,            1,        0, "Black Sweet Pea Necklace"   },
+    { 28809,        9500,      false,          1,            1,        0, " Sky Pirate's Coat of Fend" },
+    { 28834,        9500,      false,          1,            1,        0, " Sky Pirate's Coat of Heal" },
+    { 28839,        9500,      false,          1,            1,        0, " Sky Pirate's Coat of Cast" },
+    { 28814,        9500,      false,          1,            1,        0, " Sky Pirate's Coat of Maim" },
+    { 28812,        9500,      false,          1,            1,        0, " Sky Pirate's Boots of Fen" },
+    { 28822,        9500,      false,          1,            1,        0, " Sky Pirate's Boots of Str" },
+    { 28827,        9500,      false,          1,            1,        0, " Sky Pirate's Boots of Aim" },
+    { 28832,        9500,      false,          1,            1,        0, " Sky Pirate's Boots of Sco" },
+    { 28817,        9500,      false,          1,            1,        0, " Sky Pirate's Boots of Mai" },
+    { 28837,        9500,      false,          1,            1,        0, " Sky Pirate's Shoes of Hea" },
+    { 28842,        9500,      false,          1,            1,        0, " Sky Pirate's Shoes of Cas" },
+    { 28841,        9500,      false,          1,            1,        0, " Sky Pirate's Bottoms of C" },
+    { 28823,        9500,      false,          1,            1,        0, " Sky Pirate's Beret of Aim" },
+    { 28818,        9500,      false,          1,            1,        0, " Sky Pirate's Mask of Stri" },
+    { 28828,        9500,      false,          1,            1,        0, " Sky Pirate's Mask of Scou" },
+    { 28819,        9500,      false,          1,            1,        0, " Sky Pirate's Jacket of St" },
+    { 28829,        9500,      false,          1,            1,        0, " Sky Pirate's Jacket of Sc" },
+    { 28824,        9500,      false,          1,            1,        0, " Sky Pirate's Vest of Aimi" },
+    { 28813,        9500,      false,          1,            1,        0, " Sky Pirate's Helm of Maim" },
+    { 28830,        9500,      false,          1,            1,        0, " Sky Pirate's Gloves of Sc" },
+    { 28825,        9500,      false,          1,            1,        0, " Sky Pirate's Gloves of Ai" },
+    { 28835,        9500,      false,          1,            1,        0, " Sky Pirate's Gloves of He" },
+    { 28840,        9500,      false,          1,            1,        0, " Sky Pirate's Gloves of Ca" },
+    { 28820,        9500,      false,          1,            1,        0, " Sky Pirate's Gloves of St" },
+    { 28815,        9500,      false,          1,            1,        0, "ky Pirate's Gauntlets of M" },
+    { 28810,        9500,      false,          1,            1,        0, "ky Pirate's Gauntlets of F" },
     {  8155,        4500,      false,          0,            1,        0, "Mastercraft Demimateria"    },
     { 16908,        4500,      false,          0,            1,        0, "Tempered Glass"             },
     {  7047,        4500,      false,          0,            1,        0, "Frosted Glass Lens"         },
@@ -295,11 +376,12 @@ function ReadXORData(file, key, bytes)
 end
 
 function GetARCharacterData()
+  LogDebug("fetching AR character data")
   local char = GetCharacterName(true)
   local cids = ARGetCharacterCIDs()
   for i = 0, cids.Count - 1 do
     local data = ARGetCharacterData(cids[i])
-    if data.Name.."@"..data.World == char then
+    if data ~= nil and type(data) == "userdata" and data.Name.."@"..data.World == char then
       return data
     end
   end
@@ -347,12 +429,12 @@ function AwaitAddonReady(addon_name, timeout)
   if timeout == nil or timeout <= 0 then
     -- /waitaddon slows things down a lot, but might be more reliable
     -- yield("/waitaddon "..addon_name)
-    while not IsAddonReady(addon_name) or not IsAddonVisible(addon_name) do
+    while not IsAddonReady(addon_name) do
       yield("/wait 0.1")
     end
   else
     local timeout_count = 0
-    while not IsAddonReady(addon_name) or not IsAddonVisible(addon_name) do
+    while not IsAddonReady(addon_name) do
       yield("/wait 0.1")
       timeout_count = timeout_count + 0.1
       if timeout_count >= timeout then
@@ -364,7 +446,7 @@ function AwaitAddonReady(addon_name, timeout)
 end
 
 function AwaitAddonGone(addon_name)
-  while IsAddonReady(addon_name) or IsAddonVisible(addon_name) do
+  while IsAddonVisible(addon_name) do
     yield("/wait 0.1")
   end
 end
@@ -376,8 +458,8 @@ function CloseAndAwaitOther(addon_name, other_addon_name)
 end
 
 function ClearTalkAndAwait(addon_name)
-  while not IsAddonVisible(addon_name) do
-    if IsAddonVisible("Talk") and IsAddonReady("Talk") then
+  while not IsAddonReady(addon_name) do
+    if IsAddonReady("Talk") then
       Callback("Talk", true, 1)
     end
     yield("/wait 0.1")
@@ -443,8 +525,8 @@ end
 function CloseSellList()
   LogDebug("closing retainer sell list")
   Callback("RetainerSellList", true, -1)
-  while IsAddonReady("RetainerSellList") or IsAddonVisible("RetainerSellList") do
-    if IsAddonReady("SelectYesno") or IsAddonVisible("SelectYesno") then
+  while IsAddonReady("RetainerSellList") do
+    if IsAddonReady("SelectYesno") then
       Callback("SelectYesno", true, 0)
       break
     end
@@ -501,18 +583,18 @@ function OpenItemListings(attempts)
 
   for i = 1, attempts do
     Callback("RetainerSell", true, 4)
-    AwaitAddonReady("ItemSearchResult")
-
-    for wait_time = 1, 120 do
-      if string.find(GetNodeText("ItemSearchResult", 2), "hit") then
-        return true
+    if AwaitAddonReady("ItemSearchResult", 2) then
+      for wait_time = 1, 100 do
+        if string.find(GetNodeText("ItemSearchResult", 2), "hit") then
+          return true
+        end
+        if string.find(GetNodeText("ItemSearchResult", 26), "Please wait") then
+          break
+        end
+        yield("/wait 0.1")
       end
-      if string.find(GetNodeText("ItemSearchResult", 26), "Please wait") then
-        break
-      end
-      yield("/wait 0.1")
+      CloseItemListings()
     end
-    CloseItemListings()
     yield("/wait 0.5")
   end
 
@@ -574,12 +656,28 @@ function GetCurrentItemSellCount()
   return tonumber(GetNodeText("RetainerSell", 11, 4))
 end
 
+function GetRetainerName(retainer_index)
+  local name = nil
+  local retry_count = 3
+  for i = 1, retry_count do
+    name = GetNodeText("RetainerList", 2, retainer_index, 13)
+    if not StringIsEmpty(name) then
+      break
+    end
+    yield("/wait 0.5")
+  end
+  return name
+end
+
 -- Calcs
 
 function GetItemHistoryTrimmedMean()
   LogDebug("fetching item history")
   Callback("ItemSearchResult", true, 0)
-  AwaitAddonReady("ItemHistory")
+  if not AwaitAddonReady("ItemHistory", 5) then
+    LogDebug("failed to open item history")
+    return 0
+  end
 
   local history_list = { GetItemHistoryPrice(1) }
   while history_list[1] == 0 do
@@ -766,14 +864,26 @@ end
 local lazy_inventory_data = {}
 local loaded_inventory_data = false
 function GetLazyInventoryData()
-  if loaded_inventory_data then return lazy_inventory_data end
-  loaded_inventory_data = true
+  local retry_count = 3
+  while not loaded_inventory_data and retry_count > 0 do
+    LoadLazyInventoryData()
+    retry_count = retry_count - 1
+  end
 
+  return lazy_inventory_data
+end
+
+function LoadLazyInventoryData()
+  LogDebug("attempting to load inventory data")
   local char_data = GetARCharacterData()
+  if char_data == nil or char_data.RetainerData.Count <= 0 then
+    LogError("failed to load character data")
+    return
+  end
   local inv_data = ParseItemODR(char_data.CID)
-  if char_data == nil or inv_data == nil then
+  if inv_data == nil then
     LogError("failed to load inventory data")
-    return nil
+    return
   end
 
   lazy_inventory_data.inventory = inv_data.inventory
@@ -783,11 +893,16 @@ function GetLazyInventoryData()
     lazy_inventory_data.retainers[retainer_data.Name] = inv_data.retainers[retainer_data.RetainerID]
   end
 
-  return lazy_inventory_data
+  LogDebug("inventory data loaded")
+  loaded_inventory_data = true
 end
 
 function FindItemsInInventory(inventory_map)
+  LogDebug("searching for items in inventory")
   local items = {}
+  if inventory_map == nil then
+    return items
+  end
   for _, mapping in pairs(inventory_map) do
     local item_id = GetItemIdInSlot(mapping.internal.page, mapping.internal.slot)
     local item_stack = {
@@ -1163,7 +1278,11 @@ function ARPostUndercutRetainer(retainer_index, sell_table)
     return
   end
 
-  local retainer_name = GetNodeText("RetainerList", 2, retainer_index, 13)
+  local retainer_name = GetRetainerName(retainer_index)
+  if StringIsEmpty(retainer_name) then
+    LogError("  Failed to fetch name for retainer "..retainer_index)
+    return
+  end
   LogInfo("Processing retainer "..retainer_index.." "..retainer_name)
 
   OpenRetainer(retainer_index)
@@ -1186,6 +1305,7 @@ function ARPostUndercut()
     CloseRetainerList()
   end
   yield("/xlenablecollection ARPostUndercutSuppress")
+  yield("/wait 2")
   ARSetSuppressed(false)
 end
 
