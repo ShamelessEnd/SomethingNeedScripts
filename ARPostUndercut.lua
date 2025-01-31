@@ -193,6 +193,7 @@ local retainer_sell_tables = {
     {  8548,       14500,      false,          1,            1,        0, "Coeurl Beach Briefs"        },
     {  8546,       14500,      false,          1,            1,        0, "Coeurl Talisman"            },
     { 15472,       14500,      false,          1,            1,        0, "Survival Hat"               },
+    { 15476,       14500,      false,          1,            1,        0, "Extreme Survival Shirt"     },
     { 15473,       14500,      false,          1,            1,        0, "Survival Shirt"             },
     { 15475,       14500,      false,          1,            1,        0, "Survival Boots"             },
     {  7539,       14500,      false,          1,            1,        0, "Spring Straw Hat"           },
@@ -202,8 +203,10 @@ local retainer_sell_tables = {
     { 33655,       14500,      false,          1,            1,        0, "Frontier Hat"               },
     { 33658,       14500,      false,          1,            1,        0, "Frontier Shoes"             },
     { 17469,       14500,      false,          1,            1,        0, "Pteroskin Shoes"            },
+    {  6982,       14500,      false,          1,            1,        0, "Glacial Coat"               },
     {  6983,       14500,      false,          1,            1,        0, "Glacial Boots"              },
     { 15463,       14500,      false,          1,            1,        0, "New World Jacket"           },
+    { 15464,       14500,      false,          1,            1,        0, "New World Armlets"          },
     { 14850,       14500,      false,          1,            1,        0, "Uraeis Body Armor"          },
     { 21936,       14500,      false,          1,            1,        0, "Winter Sweater"             },
     { 24593,       14500,      false,          1,            1,        0, "Rain Boots"                 },
@@ -240,6 +243,7 @@ local retainer_sell_tables = {
     { 22440,       14500,      false,          1,            1,        0, "Hedge Partition"            },
     { 40630,       14500,      false,          1,            1,        0, "Imitation Moonlit Window"   },
     { 17025,       14500,      false,          1,            1,        0, "Ivy Pillar"                 },
+    {  7970,       14500,      false,          1,            1,        0, "Wall Planter"               },
     {  6573,       14500,      false,          1,            1,        0, "Riviera Pillar"             },
     {  6574,       14500,      false,          1,            1,        0, "Glade Pillar"               },
     {  8004,       14500,      false,          1,            1,        0, "Glade Hedgewall"            },
@@ -445,15 +449,28 @@ function AwaitAddonReady(addon_name, timeout)
   return true
 end
 
-function AwaitAddonGone(addon_name)
-  while IsAddonVisible(addon_name) do
-    yield("/wait 0.1")
+function AwaitAddonGone(addon_name, timeout)
+  if timeout == nil or timeout <= 0 then
+    while IsAddonVisible(addon_name) do
+      yield("/wait 0.1")
+    end
+  else
+    local timeout_count = 0
+    while IsAddonVisible(addon_name) do
+      yield("/wait 0.1")
+      timeout_count = timeout_count + 0.1
+      if timeout_count >= timeout then
+        return false
+      end
+    end
   end
+  return true
 end
 
 function CloseAndAwaitOther(addon_name, other_addon_name)
-  Callback(addon_name, true, -1)
-  AwaitAddonGone(addon_name)
+  repeat
+    Callback(addon_name, true, -1)
+  until AwaitAddonGone(addon_name, 2)
   AwaitAddonReady(other_addon_name)
 end
 
@@ -585,11 +602,11 @@ function OpenItemListings(attempts)
     Callback("RetainerSell", true, 4)
     if AwaitAddonReady("ItemSearchResult", 2) then
       for wait_time = 1, 100 do
-        if string.find(GetNodeText("ItemSearchResult", 2), "hit") then
-          return true
-        end
         if string.find(GetNodeText("ItemSearchResult", 26), "Please wait") then
           break
+        end
+        if string.find(GetNodeText("ItemSearchResult", 2), "hit") then
+          return true
         end
         yield("/wait 0.1")
       end
@@ -757,12 +774,28 @@ function GetUndercutPrice()
   end
 
   local p1 = GetItemListingPrice(1)
+  local timeout_count = 0
   while p1 == 0 do
+    if timeout_count > 10 then
+      CloseItemListings()
+      LogError("failed to get item list price")
+      return 0
+    end
+    if string.find(GetNodeText("ItemSearchResult", 26), "Please wait") then
+      CloseItemListings()
+      LogWarning("failed to load item listings")
+      if not OpenItemListings(1) then
+        LogError("failed to reopen item listings")
+        return 0
+      end
+      timeout_count = 0
+    end
     if string.find(GetNodeText("ItemSearchResult", 26), "No items found") then
       LogDebug("no listings")
       break
     end
     yield("/wait 0.1")
+    timeout_count = timeout_count + 0.1
     p1 = GetItemListingPrice(1)
   end
 
