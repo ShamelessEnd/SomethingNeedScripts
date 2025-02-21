@@ -1,0 +1,66 @@
+require "ItemODR"
+require "Logging"
+require "ARUtils"
+
+local lazy_inventory_data = {}
+local loaded_inventory_data = false
+function GetLazyInventoryData()
+  local retry_count = 3
+  while not loaded_inventory_data and retry_count > 0 do
+    LoadLazyInventoryData()
+    retry_count = retry_count - 1
+  end
+
+  return lazy_inventory_data
+end
+
+---@diagnostic disable: undefined-field
+function LoadLazyInventoryData()
+  LogDebug("attempting to load inventory data")
+  local char_data = GetARCharacterData()
+  if char_data == nil or char_data.RetainerData.Count <= 0 then
+    LogError("failed to load character data")
+    return
+  end
+  local inv_data = ParseItemODR(char_data.CID)
+  if inv_data == nil then
+    LogError("failed to load inventory data")
+    return
+  end
+
+  lazy_inventory_data.inventory = inv_data.inventory
+  lazy_inventory_data.retainers = {}
+  for i = 0, char_data.RetainerData.Count - 1 do
+    local retainer_data = char_data.RetainerData[i]
+    lazy_inventory_data.retainers[retainer_data.Name] = inv_data.retainers[retainer_data.RetainerID]
+  end
+
+  LogDebug("inventory data loaded")
+  loaded_inventory_data = true
+end
+---@diagnostic enable: undefined-field
+
+function FindItemsInInventory(inventory_map)
+  LogDebug("searching for items in inventory")
+  local items = {}
+  if inventory_map == nil then
+    return items
+  end
+  for _, mapping in pairs(inventory_map) do
+    local item_id = GetItemIdInSlot(mapping.internal.page, mapping.internal.slot)
+    local item_stack = {
+      page = mapping.visible.page,
+      slot = mapping.visible.slot,
+      count = GetItemCountInSlot(mapping.internal.page, mapping.internal.slot),
+    }
+    if items[item_id] == nil then
+      items[item_id] = { item_stack }
+    else
+      table.insert(items[item_id], item_stack)
+    end
+  end
+  return items
+end
+
+function FindItemsInRetainerInventory(name) return FindItemsInInventory(GetLazyInventoryData().retainers[name]) end
+function FindItemsInCharacterInventory() return FindItemsInInventory(GetLazyInventoryData().inventory) end

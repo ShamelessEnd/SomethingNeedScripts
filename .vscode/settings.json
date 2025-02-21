@@ -1,0 +1,31 @@
+{
+    "Lua.diagnostics.globals": [
+        "yield",
+        "DeliverooIsTurnInRunning",
+        "GetPlayerGC",
+        "IsInZone",
+        "NavIsReady",
+        "IsPlayerAvailable",
+        "LifestreamAbort",
+        "ARSetSuppressed",
+        "GetInventoryFreeSlotCount",
+        "GetItemCount",
+        "ARGetRegisteredEnabledCharacters",
+        "GetCharacterName",
+        "ARGetCharacterData",
+        "GetPlayerContentId",
+        "IsAddonReady",
+        "GetItemIdInSlot",
+        "GetItemCountInSlot",
+        "IsNodeVisible",
+        "GetNodeText",
+        "GetTargetName",
+        "IsAddonVisible",
+        "GetDistanceToTarget",
+        "ExecuteGeneralAction",
+        "LifestreamIsBusy",
+        "GetHomeWorld",
+        "LifestreamTeleport",
+        "GetDistanceToObject"
+    ]
+}
