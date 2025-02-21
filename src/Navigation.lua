@@ -1,7 +1,8 @@
+require "ARUtils"
 require "Logging"
+require "Utils"
 
-local _apartment_bell_overrides = { 78 } -- Behemoth
-function SetApartmentBellOverrides(overrides) _apartment_bell_overrides = overrides end
+function Sprint() ExecuteGeneralAction(4) end
 
 function IsInHousingDistrict()
   return IsInZone(341) or IsInZone(340) or IsInZone(339) or IsInZone(641) or IsInZone(979)
@@ -13,6 +14,12 @@ end
 
 function IsInCompanyWorkshop()
   return IsInZone(423) or IsInZone(424) or IsInZone(425) or IsInZone(653) or IsInZone(984);
+end
+
+function WaitForNavReady()
+  while not NavIsReady() do
+    yield("/wait 0.1")
+  end
 end
 
 function WalkToTarget(target)
@@ -41,25 +48,78 @@ function WalkToTarget(target)
   yield("/wait 0.1")
 end
 
-function TeleportToBellZone()
-  local home_world = GetHomeWorld()
-  for _, world in pairs(_apartment_bell_overrides) do
-    if home_world == world then
-      yield("/li Apartment")
-      yield("/wait 7")
-      return
-    end
+function NavigateToTarget(target, stop_dist, fly, timeout)
+  yield("/target "..target)
+  if GetTargetName() ~= target then
+    return false
   end
-  yield("/li fc")
-  yield("/wait 1")
-  if LifestreamIsBusy() == false then
-    LogInfo("no registered fc or override, falling back to Hawkers")
+
+  WaitForNavReady()
+  local target_x = GetTargetRawXPos()
+  local target_y = GetTargetRawYPos()
+  local target_z = GetTargetRawZPos()
+  PathfindAndMoveTo(target_x, target_y, target_z, fly)
+  Sprint()
+
+  local timeout_count = 0
+  while GetDistanceToPoint(target_x, target_y, target_z) > stop_dist do
+    if timeout_count > timeout then
+      PathStop()
+      return false
+    end
+    timeout_count = timeout_count + 0.1
+    yield("/wait 0.1")
+  end
+
+  PathStop()
+  yield("/target "..target)
+  return GetTargetName() == target
+end
+
+function GoToMarketBoard()
+  if IsInCompanyWorkshop() then
+    ReturnToBell()
+  end
+  if NavigateToTarget("Market Board", 3, false, 20) then
+    return true
+  end
+  ReturnToBell()
+  NavRebuild()
+  return NavigateToTarget("Market Board", 3, false, 30)
+end
+
+function TeleportToBellZone()
+  if GetARCharacterData().WorkshopEnabled then
+    LifestreamTeleportToFC()
+    yield("/wait 7")
+    return
+  end
+
+  local apt_dist = GetDistanceToObject("Apartment Building Entrance")
+  if apt_dist ~= nil and apt_dist < 20 then
+    return
+  end
+
+  LifestreamTeleportToApartment()
+  yield("/wait 3")
+
+  if not IsCasting() then
+    LogInfo("no registered fc or apartment, falling back to Hawkers")
     LifestreamTeleport(8, 0)
     yield("/wait 7")
+  else
+    yield("/wait 5")
   end
 end
 
 function ReturnToBell()
+  local bell_target = "Summoning Bell"
+  local bell_dist = GetDistanceToObject(bell_target)
+  if bell_dist ~= nil and bell_dist < 3 then
+    yield("/target "..bell_target)
+    return
+  end
+
   TeleportToBellZone()
   local timeout = 0
   while LifestreamIsBusy() == true or (IsInZone(129) == false and IsInHousingDistrict() == false) or NavIsReady() == false or IsPlayerAvailable() == false do
@@ -88,7 +148,7 @@ function ReturnToBell()
   end
   if IsInHousingDistrict() == false or GetDistanceToObject("Apartment Building Entrance") < 20 then
     -- walk to bell if at hawkers or apartment
-    WalkToTarget("Summoning Bell")
+    WalkToTarget(bell_target)
   end
 end
 
@@ -109,7 +169,7 @@ function GoToGCHQ()
     end
   end
 
-  ExecuteGeneralAction(4) -- sprint
+  Sprint()
   timeout = 0
   while LifestreamIsBusy() == true do
     yield("/wait 1")
