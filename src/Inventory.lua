@@ -14,7 +14,6 @@ function GetLazyInventoryData()
   return lazy_inventory_data
 end
 
----@diagnostic disable: undefined-field
 function LoadLazyInventoryData()
   LogDebug("attempting to load inventory data")
   local char_data = GetARCharacterData()
@@ -38,7 +37,6 @@ function LoadLazyInventoryData()
   LogDebug("inventory data loaded")
   loaded_inventory_data = true
 end
----@diagnostic enable: undefined-field
 
 function FindItemsInInventory(inventory_map)
   LogDebug("searching for items in inventory")

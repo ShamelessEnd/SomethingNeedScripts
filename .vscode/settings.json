@@ -26,6 +26,19 @@
         "LifestreamIsBusy",
         "GetHomeWorld",
         "LifestreamTeleport",
-        "GetDistanceToObject"
+        "GetDistanceToObject",
+        "GetTargetRawXPos",
+        "GetTargetRawYPos",
+        "GetTargetRawZPos",
+        "PathfindAndMoveTo",
+        "GetDistanceToPoint",
+        "PathStop",
+        "NavRebuild",
+        "LifestreamTeleportToFC",
+        "LifestreamTeleportToApartment",
+        "GetCharacterCondition"
+    ],
+    "Lua.diagnostics.disable": [
+        "undefined-field"
     ]
 }
