@@ -4,7 +4,15 @@ function CallbackCommand(target, update, ...)
   -- even with all these checks, /callback will randomly crash, so fallback to /pcall
   local command = "/pcall "..target.." "..tostring(update)
   for _, arg in pairs({...}) do
-    command = command.." "..tostring(arg)
+    if type(arg) == "string"then
+      if string.find(arg, " ") then
+        command = command.." \""..arg.."\""
+      else
+        command = command.." "..arg
+      end
+    else
+        command = command.." "..tostring(arg)
+    end
   end
   LogTrace(command)
   return command
