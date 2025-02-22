@@ -3,6 +3,10 @@ require "Logging"
 require "UINav"
 require "Utils"
 
+function OpenMarketBoard()
+  return InteractWith("Market Board", "ItemSearch")
+end
+
 function GetItemListingPrice(listing_index)
   local price_text = string.gsub(GetNodeText("ItemSearchResult", 5, listing_index, 10), "%D", "")
   if StringIsEmpty(price_text) then

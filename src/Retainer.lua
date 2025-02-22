@@ -7,27 +7,7 @@ require "Utils"
 -- Navigation
 
 function OpenRetainerList()
-  LogDebug("opening RetainerList")
-  if IsAddonVisible("RetainerList") then
-    return AwaitAddonReady("RetainerList", 5)
-  end
-
-  yield("/target Summoning Bell")
-  if GetTargetName() ~= "Summoning Bell" or GetDistanceToTarget() > 4.6 then
-    LogError("not in range of Summoning Bell")
-    return false
-  end
-
-  local attempt_count = 0
-  repeat
-    attempt_count = attempt_count + 1
-    if attempt_count > 3 then
-      LogError("could not open Summoning Bell")
-      return false
-    end
-    yield("/interact")
-  until AwaitAddonReady("RetainerList", 3)
-  return true
+  return InteractWith("Summoning Bell", "RetainerList")
 end
 
 function CloseRetainerList()
