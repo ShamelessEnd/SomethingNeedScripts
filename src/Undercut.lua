@@ -36,44 +36,19 @@ end
 
 function GetUndercutPrice()
   LogDebug("calculating suggested price")
-  if not OpenItemListings(10) then
+  if not OpenItemListings(10, "RetainerSell", 4) then
     LogError("failed to open item listings")
     return 0
   end
 
   local p1 = GetItemListingPrice(1)
-  local timeout_count = 0
-  while p1 == 0 do
-    if timeout_count > 10 then
-      CloseItemListings()
-      LogError("failed to get item list price")
-      return 0
-    end
-    if string.find(GetNodeText("ItemSearchResult", 26), "Please wait") then
-      CloseItemListings()
-      LogWarning("failed to load item listings")
-      if not OpenItemListings(1) then
-        LogError("failed to reopen item listings")
-        return 0
-      end
-      timeout_count = 0
-    end
-    if string.find(GetNodeText("ItemSearchResult", 26), "No items found") then
-      LogDebug("no listings")
-      break
-    end
-    yield("/wait 0.1")
-    timeout_count = timeout_count + 0.1
-    p1 = GetItemListingPrice(1)
-  end
-
   local p2 = GetItemListingPrice(2)
   local p3 = GetItemListingPrice(3)
   LogDebug("list prices: "..p1..", "..p2..", "..p3)
 
   local hist = GetItemHistoryTrimmedMean()
 
-  CloseItemListings()
+  CloseItemListings("RetainerSell")
   return CalculateUndercutPrice(p1, p2, p3, hist)
 end
 

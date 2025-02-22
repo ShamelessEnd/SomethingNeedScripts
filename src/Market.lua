@@ -7,6 +7,40 @@ function OpenMarketBoard()
   return InteractWith("Market Board", "ItemSearch")
 end
 
+function CloseItemListings(other)
+  LogTrace("closing item listings")
+  CloseAndAwaitOther("ItemSearchResult", other)
+end
+
+function OpenItemListings(attempts, addon, ...)
+  LogTrace("opening item listings")
+
+  for i = 1, attempts do
+    Callback(addon, true, ...)
+    if AwaitAddonReady("ItemSearchResult", 2) then
+      for wait_time = 1, 100 do
+        local msg_text = GetNodeText("ItemSearchResult", 26)
+        if string.find(msg_text, "Please wait") then
+          break
+        end
+        if string.find(msg_text, "No items found") then
+          return true
+        end
+        if string.find(GetNodeText("ItemSearchResult", 2), "hit") then
+          if not StringIsEmpty(GetNodeText("ItemSearchResult", 5, 1, 10)) then
+            return true
+          end
+        end
+        yield("/wait 0.1")
+      end
+      CloseItemListings(addon)
+    end
+    yield("/wait 0.5")
+  end
+
+  return false
+end
+
 function GetItemListingPrice(listing_index)
   local price_text = string.gsub(GetNodeText("ItemSearchResult", 5, listing_index, 10), "%D", "")
   if StringIsEmpty(price_text) then

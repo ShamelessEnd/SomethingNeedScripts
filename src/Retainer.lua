@@ -91,34 +91,6 @@ function CloseItemSell()
   CloseAndAwaitOther("RetainerSell", "RetainerSellList")
 end
 
-function CloseItemListings()
-  LogDebug("closing item listings")
-  CloseAndAwaitOther("ItemSearchResult", "RetainerSell")
-end
-
-function OpenItemListings(attempts)
-  LogDebug("opening item listings")
-
-  for i = 1, attempts do
-    Callback("RetainerSell", true, 4)
-    if AwaitAddonReady("ItemSearchResult", 2) then
-      for wait_time = 1, 100 do
-        if string.find(GetNodeText("ItemSearchResult", 26), "Please wait") then
-          break
-        end
-        if string.find(GetNodeText("ItemSearchResult", 2), "hit") then
-          return true
-        end
-        yield("/wait 0.1")
-      end
-      CloseItemListings()
-    end
-    yield("/wait 0.5")
-  end
-
-  return false
-end
-
 function OpenItemRetainerSell(item_page, page_slot)
   LogDebug("opening item from page "..item_page.." slot "..page_slot.." of retainer inventory")
   AwaitAddonReady("RetainerSellList")
