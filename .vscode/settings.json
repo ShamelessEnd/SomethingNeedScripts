@@ -36,7 +36,9 @@
         "NavRebuild",
         "LifestreamTeleportToFC",
         "LifestreamTeleportToApartment",
-        "GetCharacterCondition"
+        "GetCharacterCondition",
+        "LogDebug",
+        "Logging"
     ],
     "Lua.diagnostics.disable": [
         "undefined-field"

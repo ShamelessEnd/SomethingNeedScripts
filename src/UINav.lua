@@ -57,14 +57,14 @@ function ClearTalkAndAwait(addon_name)
 end
 
 function InteractWith(target, addon)
-  LogDebug("opening "..target.." - "..addon)
+  Logging.Debug("opening "..target.." - "..addon)
   if IsAddonVisible(addon) then
     return AwaitAddonReady(addon, 5)
   end
 
   yield("/target "..target)
   if GetTargetName() ~= target or GetDistanceToTarget() > 4.597 then
-    LogError("not in range of "..target)
+    Logging.Error("not in range of "..target)
     return false
   end
 
@@ -72,7 +72,7 @@ function InteractWith(target, addon)
   repeat
     attempt_count = attempt_count + 1
     if attempt_count > 3 then
-      LogError("could not open "..target)
+      Logging.Error("could not open "..target)
       return false
     end
     yield("/interact")

@@ -14,7 +14,7 @@ function CallbackCommand(target, update, ...)
         command = command.." "..tostring(arg)
     end
   end
-  LogTrace(command)
+  Logging.Trace(command)
   return command
 end
 
@@ -37,6 +37,6 @@ function CallbackTimeout(timeout, target, update, ...)
     yield("/wait 0.1")
     timeout_count = timeout_count + 0.1
   end
-  LogError("callback command timed out: "..command)
+  Logging.Error("callback command timed out: "..command)
   return false
 end

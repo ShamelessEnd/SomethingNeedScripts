@@ -361,26 +361,26 @@ local retainer_sell_tables = {
 
 function ARPostUndercutRetainer(retainer_index, retainer_table)
   if retainer_table == nil then
-    LogInfo("  Only undercutting items for retainer "..retainer_index)
+    Logging.Info("  Only undercutting items for retainer "..retainer_index)
     UndercutRetainerItems(retainer_index)
     return
   end
 
   if retainer_table.config.exclude then
-    LogInfo("  Skipping excluded retainer  "..retainer_index)
+    Logging.Info("  Skipping excluded retainer  "..retainer_index)
     return
   end
 
   local retainer_name = GetRetainerName(retainer_index)
   if StringIsEmpty(retainer_name) then
-    LogError("  Failed to fetch name for retainer "..retainer_index)
+    Logging.Error("  Failed to fetch name for retainer "..retainer_index)
     return
   end
-  LogInfo("Processing retainer "..retainer_index.." "..retainer_name)
+  Logging.Info("Processing retainer "..retainer_index.." "..retainer_name)
 
   OpenRetainer(retainer_index)
   if retainer_table.config.entrust then
-    LogInfo("  Entrusting items to retainer "..retainer_index.." from inventory")
+    Logging.Info("  Entrusting items to retainer "..retainer_index.." from inventory")
     EntrustInventoryItems(retainer_table.sell_table)
   end
   SellRetainerItems(retainer_index, retainer_name, retainer_table.sell_table, retainer_table.config.unlist)
@@ -388,7 +388,7 @@ function ARPostUndercutRetainer(retainer_index, retainer_table)
 end
 
 function ARPostUndercut()
-  LogInfo("ARPostUndercut")
+  Logging.Info("ARPostUndercut")
   ARSetSuppressed(true)
   yield("/xldisablecollection ARPostUndercutSuppress")
   if OpenRetainerList() then

@@ -11,37 +11,37 @@ function OpenRetainerList()
 end
 
 function CloseRetainerList()
-  LogDebug("closing RetainerList")
+  Logging.Debug("closing RetainerList")
   Callback("RetainerList", true, -1)
   yield("/wait 1")
 end
 
 function OpenRetainer(retainer_index)
-  LogDebug("opening retainer "..retainer_index)
+  Logging.Debug("opening retainer "..retainer_index)
   Callback("RetainerList", true, 2, retainer_index - 1)
   ClearTalkAndAwait("SelectString")
 end
 
 function CloseRetainer()
-  LogDebug("closing retainer")
+  Logging.Debug("closing retainer")
   Callback("SelectString", true, -1)
   ClearTalkAndAwait("RetainerList")
 end
 
 function OpenSellListRetainer()
-  LogDebug("opening retainer inventory sell list")
+  Logging.Debug("opening retainer inventory sell list")
   Callback("SelectString", true, 3)
   AwaitAddonReady("RetainerSellList")
 end
 
 function OpenSellListInventory()
-  LogDebug("opening player inventory sell list")
+  Logging.Debug("opening player inventory sell list")
   Callback("SelectString", true, 2)
   AwaitAddonReady("RetainerSellList")
 end
 
 function CloseSellList()
-  LogDebug("closing retainer sell list")
+  Logging.Debug("closing retainer sell list")
   Callback("RetainerSellList", true, -1)
   while IsAddonReady("RetainerSellList") do
     if IsAddonReady("SelectYesno") then
@@ -54,20 +54,20 @@ function CloseSellList()
 end
 
 function OpenRetainerInventory()
-  LogDebug("opening retainer inventory")
+  Logging.Debug("opening retainer inventory")
   Callback("SelectString", true, 0)
   AwaitAddonReady("InventoryRetainerLarge")
 end
 
 function CloseRetainerInventory()
-  LogDebug("closing retainer inventory")
+  Logging.Debug("closing retainer inventory")
   CloseAndAwaitOther("InventoryRetainerLarge", "SelectString")
 end
 
 function OpenSellListItemContext(item_index, timeout)
   -- this is flaky if you're moving/clicking the mouse at the same time
   -- hence the timeout/retry logic
-  LogDebug("opening item "..item_index.." context menu")
+  Logging.Debug("opening item "..item_index.." context menu")
   Callback("RetainerSellList", true, 0, item_index - 1, 1)
   return AwaitAddonReady("ContextMenu", timeout)
 end
@@ -75,7 +75,7 @@ end
 function OpenItemSell(item_index, attempts)
   for i = 1, attempts do
     if OpenSellListItemContext(item_index, 1) then
-      LogDebug("opening item "..item_index.." sell menu")
+      Logging.Debug("opening item "..item_index.." sell menu")
       if CallbackTimeout(1, "ContextMenu", true, 0, 0) then
         if AwaitAddonReady("RetainerSell", 1) then
           return true
@@ -87,12 +87,12 @@ function OpenItemSell(item_index, attempts)
 end
 
 function CloseItemSell()
-  LogDebug("closing item sell menu")
+  Logging.Debug("closing item sell menu")
   CloseAndAwaitOther("RetainerSell", "RetainerSellList")
 end
 
 function OpenItemRetainerSell(item_page, page_slot)
-  LogDebug("opening item from page "..item_page.." slot "..page_slot.." of retainer inventory")
+  Logging.Debug("opening item from page "..item_page.." slot "..page_slot.." of retainer inventory")
   AwaitAddonReady("RetainerSellList")
   Callback("RetainerSellList", true, 2, 52 + item_page, page_slot)
   AwaitAddonReady("RetainerSell")
@@ -114,7 +114,7 @@ function GetSellListCount()
     count_start, count_end = string.find(item_full_text, "%d+")
   end
   local item_count = string.sub(item_full_text, count_start, count_end - count_start + 1)
-  LogDebug("found "..item_count.." items for sale on retainer ("..item_full_text..")")
+  Logging.Debug("found "..item_count.." items for sale on retainer ("..item_full_text..")")
   return tonumber(item_count)
 end
 
@@ -164,12 +164,12 @@ function ReturnItemToTarget(item_index, target_id, attempts)
 end
 
 function ReturnItemToInventory(item_index, attempts)
-  LogDebug("returning item "..item_index.." to inventory")
+  Logging.Debug("returning item "..item_index.." to inventory")
   return ReturnItemToTarget(item_index, 2, attempts)
 end
 
 function ReturnItemToRetainer(item_index, attempts)
-  LogDebug("returning item"..item_index.." to retainer")
+  Logging.Debug("returning item"..item_index.." to retainer")
   return ReturnItemToTarget(item_index, 1, attempts)
 end
 
@@ -180,12 +180,12 @@ function ReturnAllItemsToRetainer()
 end
 
 function EntrustSingleItem(item_id, item_stack)
-  LogDebug("entrusting item "..item_id.." at "..item_stack.page.."."..item_stack.slot.." to retainer")
+  Logging.Debug("entrusting item "..item_id.." at "..item_stack.page.."."..item_stack.slot.." to retainer")
   local retry_timeout = 1
   local fail_timeout = 0
   while GetItemIdInSlot(item_stack.page, item_stack.slot) == item_id do
     if fail_timeout >= 5 then
-      LogWarning("failed to entrust item, skipping")
+      Logging.Warning("failed to entrust item, skipping")
       break
     elseif retry_timeout >= 1 then
       Callback("InventoryExpansion", true, 14, 48 + item_stack.page, item_stack.slot)
@@ -211,13 +211,13 @@ end
 -- Sell Items
 
 function ApplyItemSellCount(new_count)
-  LogDebug("applying item sell count "..new_count)
+  Logging.Debug("applying item sell count "..new_count)
   AwaitAddonReady("RetainerSell")
   Callback("RetainerSell", true, 3, new_count)
 end
 
 function ApplyPriceUpdateAndClose(new_price)
-  LogDebug("applying new price "..new_price)
+  Logging.Debug("applying new price "..new_price)
   AwaitAddonReady("RetainerSell")
   Callback("RetainerSell", true, 2, string.format("%.0f", new_price))
   ConfirmItemSellAndClose()

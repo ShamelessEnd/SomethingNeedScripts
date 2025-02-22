@@ -10,7 +10,7 @@ function ReadXORData(file, key, bytes)
   local x = 0
   for i = 0, bytes - 1 do
     local data = file:read(1)
-    if data == nil then LogDebug("read nil data") return nil end
+    if data == nil then Logging.Debug("read nil data") return nil end
     x = x + ((string.byte(data) ~ key) << (8 * i))
   end
   return x

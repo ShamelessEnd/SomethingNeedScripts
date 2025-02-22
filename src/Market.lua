@@ -8,12 +8,12 @@ function OpenMarketBoard()
 end
 
 function CloseItemListings(other)
-  LogTrace("closing item listings")
+  Logging.Trace("closing item listings")
   CloseAndAwaitOther("ItemSearchResult", other)
 end
 
 function OpenItemListings(attempts, addon, ...)
-  LogTrace("opening item listings")
+  Logging.Trace("opening item listings")
 
   for i = 1, attempts do
     Callback(addon, true, ...)
@@ -60,17 +60,17 @@ function GetItemHistoryPrice(history_index)
 end
 
 function GetItemHistoryTrimmedMean()
-  LogDebug("fetching item history")
+  Logging.Debug("fetching item history")
   Callback("ItemSearchResult", true, 0)
   if not AwaitAddonReady("ItemHistory", 5) then
-    LogDebug("failed to open item history")
+    Logging.Debug("failed to open item history")
     return 0
   end
 
   local history_list = { GetItemHistoryPrice(1) }
   while history_list[1] == 0 do
     if IsNodeVisible("ItemHistory", 1, 11) and string.find(GetNodeText("ItemHistory", 2), "No items found") then
-      LogDebug("no history")
+      Logging.Debug("no history")
       return 0
     end
     yield("/wait 0.1")
@@ -104,7 +104,7 @@ function GetItemHistoryTrimmedMean()
   end
 
   local history_trimmed_mean = history_total / history_count
-  LogDebug("history_trimmed_mean: "..history_trimmed_mean)
+  Logging.Debug("history_trimmed_mean: "..history_trimmed_mean)
 
   CloseAndAwaitOther("ItemHistory", "ItemSearchResult")
   return history_trimmed_mean

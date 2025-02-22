@@ -1,6 +1,6 @@
+require "ARUtils"
 require "ItemODR"
 require "Logging"
-require "ARUtils"
 
 local lazy_inventory_data = {}
 local loaded_inventory_data = false
@@ -15,15 +15,15 @@ function GetLazyInventoryData()
 end
 
 function LoadLazyInventoryData()
-  LogDebug("attempting to load inventory data")
+  Logging.Debug("attempting to load inventory data")
   local char_data = GetARCharacterData()
   if char_data == nil or char_data.RetainerData.Count <= 0 then
-    LogError("failed to load character data")
+    Logging.Error("failed to load character data")
     return
   end
   local inv_data = ParseItemODR(char_data.CID)
   if inv_data == nil then
-    LogError("failed to load inventory data")
+    Logging.Error("failed to load inventory data")
     return
   end
 
@@ -34,12 +34,12 @@ function LoadLazyInventoryData()
     lazy_inventory_data.retainers[retainer_data.Name] = inv_data.retainers[retainer_data.RetainerID]
   end
 
-  LogDebug("inventory data loaded")
+  Logging.Debug("inventory data loaded")
   loaded_inventory_data = true
 end
 
 function FindItemsInInventory(inventory_map)
-  LogDebug("searching for items in inventory")
+  Logging.Debug("searching for items in inventory")
   local items = {}
   if inventory_map == nil then
     return items

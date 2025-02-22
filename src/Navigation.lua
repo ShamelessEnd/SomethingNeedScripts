@@ -104,7 +104,7 @@ function TeleportToBellZone()
   yield("/wait 3")
 
   if not IsCasting() then
-    LogInfo("no registered fc or apartment, falling back to Hawkers")
+    Logging.Info("no registered fc or apartment, falling back to Hawkers")
     LifestreamTeleport(8, 0)
     yield("/wait 7")
   else
@@ -126,13 +126,13 @@ function ReturnToBell()
     yield("/wait 1")
     timeout = timeout + 1
     if timeout == 18 then
-      LogWarning("teleport to bell zone timed out, retrying")
+      Logging.Warning("teleport to bell zone timed out, retrying")
       LifestreamAbort()
       yield("/wait 1")
       TeleportToBellZone()
     end
     if timeout > 36 then
-      LogError("failed to teleport to bell zone")
+      Logging.Error("failed to teleport to bell zone")
       LifestreamAbort()
       return
     end
