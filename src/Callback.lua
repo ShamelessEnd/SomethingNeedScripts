@@ -18,6 +18,13 @@ function CallbackCommand(target, update, ...)
   return command
 end
 
+function TryCallback(target, update, ...)
+  local command = CallbackCommand(target, update, ...)
+  if IsAddonReady(target) then
+    yield(command)
+  end
+end
+
 function Callback(target, update, ...)
   local command = CallbackCommand(target, update, ...)
   while not IsAddonReady(target) do
