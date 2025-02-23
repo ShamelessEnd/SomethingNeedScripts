@@ -42,8 +42,8 @@ end
 function CloseAddon(addon_name, await_other)
   Logging.Trace("closing addon "..addon_name.." and awaiting "..tostring(await_other))
   repeat
-    Callback(addon_name, true, -1)
-  until AwaitAddonGone(addon_name, 2)
+    TryCallback(addon_name, true, -1)
+  until AwaitAddonGone(addon_name, 1)
   if await_other then
     AwaitAddonReady(await_other)
   else
