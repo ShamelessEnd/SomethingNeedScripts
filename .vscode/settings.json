@@ -39,7 +39,8 @@
         "GetCharacterCondition",
         "LogDebug",
         "Logging",
-        "GetGil"
+        "GetGil",
+        "GetCurrentWorld"
     ],
     "Lua.diagnostics.disable": [
         "undefined-field"
