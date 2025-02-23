@@ -1,3 +1,4 @@
+require "Logging"
 
 ServerNavTable = {
   JP = {
@@ -117,17 +118,17 @@ ServerNavTable = {
   },
 }
 
-function GetServerData(server_index)
-  if not server_index then
-    server_index = GetCurrentWorld()
+function GetServerData(server_id)
+  if not server_id then
+    server_id = GetCurrentWorld()
   end
 
   for region, region_table in pairs(ServerNavTable) do
     for data_center, data_center_table in pairs(region_table) do
-      local server_name = data_center_table[server_index]
+      local server_name = data_center_table[server_id]
       if server_name then
         return {
-          id = server_index,
+          id = server_id,
           region = region,
           dc = data_center,
           name = server_name,
@@ -135,4 +136,7 @@ function GetServerData(server_index)
       end
     end
   end
+  Logging.Error("server_id not found "..server_id)
 end
+
+function GetHomeServerData() return GetServerData(GetHomeWorld()) end
