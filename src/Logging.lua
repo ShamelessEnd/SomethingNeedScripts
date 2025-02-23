@@ -21,7 +21,17 @@ local function sTable(data)
   return str.." }"
 end
 
-Logging.Echo = function (msg) msg = sTable(msg) if msg then yield("/e "..msg) end end
+local function sTrunc(str)
+  local str_lim = 500
+  local str_len = string.len(str)
+  if str_len > str_lim then
+    Logging.Warning("message too long ("..str_len.."), truncating to limit ("..str_lim..")")
+    return string.sub(str, 1, 500)
+  end
+  return str
+end
+
+Logging.Echo = function (msg) msg = sTable(msg) if msg then yield(sTrunc("/e "..msg)) end end
 Logging.Message = function (level, prefix, msg)
   msg = sTable(msg)
   if msg and level >= Logging.Level then
