@@ -123,3 +123,69 @@ function GetItemHistoryTrimmedMean()
   CloseAddon("ItemHistory", "ItemSearchResult")
   return history_trimmed_mean
 end
+
+function OpenMarketItem(item_index)
+  Logging.Trace("OpenMarketItem "..item_index)
+  return OpenItemListings(10, "ItemSearch", 5, item_index - 1)
+end
+
+function MarketSearchItem(item_name)
+  Logging.Trace("MarketSearchItem")
+  Callback("ItemSearch", true, 7, -1, 0, -1, -1, -1, -1, -1)
+  while IsNodeVisible("ItemSearch", 1, 142, 148) do
+    yield("/wait 0.1")
+  end
+  Callback("ItemSearch", true, 0, -1, 0, item_name, item_name, 100, 100, 34)
+end
+
+function FindMarketItem(item_name)
+  if not IsAddonReady("ItemSearch") then
+    return nil
+  end
+
+  MarketSearchItem(item_name)
+  while not IsNodeVisible("ItemSearch", 1, 142, 148) or IsNodeVisible("ItemSearch", 1, 140) do
+    if IsNodeVisible("ItemSearch", 1, 140) then
+      local msg_text = GetNodeText("ItemSearch", 10)
+      if string.find(msg_text, "Please wait") then
+        MarketSearchItem(item_name)
+      elseif string.find(msg_text, "No matching items") then
+        return nil
+      end
+    end
+    yield("/wait 0.1")
+  end
+  yield("/wait 0.1")
+
+  local count_text = string.gsub(GetNodeText("ItemSearch", 3), "[%d]+-", "")
+  for i = 1, tonumber(count_text) do
+    if GetNodeText("ItemSearch", 11, i, 4) == item_name then
+      return i
+    end
+  end
+  return nil
+end
+
+function BuyMarketItem(list_index)
+  Logging.Trace("buying item listing at "..list_index)
+  Callback("ItemSearchResult", true, 2, list_index - 1)
+  if not AwaitAddonReady("SelectYesno", 3) then
+    return false
+  end
+
+  local gil_before = GetGil()
+  Callback("SelectYesno", true, 0)
+  AwaitAddonGone("SelectYesno")
+
+  local timeout_count = 0
+  while GetGil() == gil_before do
+    timeout_count = timeout_count + 0.1
+    if timeout_count > 3 then
+      return false
+    end
+    yield("/wait 0.1")
+  end
+  yield("/wait 0.5")
+
+  return true
+end
