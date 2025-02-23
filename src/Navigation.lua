@@ -29,9 +29,13 @@ function IsInHomeWorld()
 end
 
 function WaitForNavReady()
-  while not NavIsReady() or not IsPlayerAvailable() do
-    yield("/wait 0.1")
-  end
+  WaitUntil(function () return NavIsReady() and IsPlayerAvailable() end)
+end
+
+function RebuildNavMesh()
+  NavRebuild()
+  yield("/wait 3")
+  WaitUntil(function () return NavBuildProgress() < 0 end)
 end
 
 function WalkToTarget(target)
@@ -67,14 +71,23 @@ function NavToPoint(x, y, z, stop_dist, fly, timeout)
   end
 
   PathfindAndMoveTo(x, y, z, fly)
+  yield("/wait 0.3")
+  WaitWhile(function () return PathfindInProgress() end)
+
   if distance > 20 then Sprint() end
 
   local timeout_count = 0
+  local rebuild_once = true
   while GetDistanceToPoint(x, y, z) > stop_dist do
     if timeout_count > timeout then
       PathStop()
       Logging.Warning("nav to point failed "..x..", "..y..", "..z)
       return false
+    end
+    if rebuild_once and timeout_count > 1 and not PathIsRunning() then
+      RebuildNavMesh()
+      rebuild_once = false
+      PathfindAndMoveTo(x, y, z, fly)
     end
     timeout_count = timeout_count + 0.1
     yield("/wait 0.1")
@@ -122,20 +135,12 @@ function NavToObject(object, stop_dist, fly, timeout)
 end
 
 function NavToMarketBoard()
-  local start_x = GetPlayerRawXPos()
-  local start_y = GetPlayerRawYPos()
-  local start_z = GetPlayerRawZPos()
-
-  if NavToObject("Market Board", 3, false, 20) then
+  if NavToObject("Market Board", 3.3, false, 30) then
     return true
   end
-
-  if GetDistanceToPoint(start_x, start_y, start_z) > 1 then
-    ReturnToBell()
-  end
-
-  NavRebuild()
-  return NavToObject("Market Board", 3, false, 30)
+  ReturnToBell()
+  RebuildNavMesh()
+  return NavToObject("Market Board", 3.3, false, 30)
 end
 
 function NavToAetheryte()

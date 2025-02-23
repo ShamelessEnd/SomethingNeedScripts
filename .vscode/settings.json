@@ -48,7 +48,10 @@
         "GetObjectRawZPos",
         "GetPlayerRawXPos",
         "GetPlayerRawYPos",
-        "GetPlayerRawZPos"
+        "GetPlayerRawZPos",
+        "NavBuildProgress",
+        "PathIsRunning",
+        "PathfindInProgress"
     ],
     "Lua.diagnostics.disable": [
         "undefined-field"
