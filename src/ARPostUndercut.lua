@@ -3,7 +3,7 @@ require "Retainer"
 require "Undercut"
 require "Utils"
 
-local retainer_sell_tables = {
+local _retainer_sell_tables = {
   [1] = nil,
   [2] = {
     config = { exclude=false, unlist=false, entrust=true },
@@ -392,7 +392,7 @@ function ARPostUndercut()
   ARSetSuppressed(true)
   yield("/xldisablecollection ARPostUndercutSuppress")
   if OpenRetainerList() then
-    for i, retainer_table in pairs(retainer_sell_tables) do
+    for i, retainer_table in pairs(_retainer_sell_tables) do
       ARPostUndercutRetainer(i, retainer_table)
     end
     CloseRetainerList()

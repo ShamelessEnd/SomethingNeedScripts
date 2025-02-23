@@ -7,6 +7,12 @@ function OpenMarketBoard()
   return InteractWith("Market Board", "ItemSearch")
 end
 
+function CloseMarketBoard()
+  Logging.Trace("closing ItemSearch")
+  Callback("ItemSearch", true, -1)
+  yield("/wait 1")
+end
+
 function CloseItemListings(other)
   Logging.Trace("closing item listings")
   CloseAndAwaitOther("ItemSearchResult", other)
@@ -18,6 +24,7 @@ function OpenItemListings(attempts, addon, ...)
   for i = 1, attempts do
     Callback(addon, true, ...)
     if AwaitAddonReady("ItemSearchResult", 2) then
+      yield("/wait 0.5")
       for wait_time = 1, 100 do
         local msg_text = GetNodeText("ItemSearchResult", 26)
         if string.find(msg_text, "Please wait") then
@@ -47,6 +54,15 @@ function GetItemListingPrice(listing_index)
     return 0
   else
     return tonumber(price_text)
+  end
+end
+
+function GetItemListingCount(listing_index)
+  local count_text = string.gsub(GetNodeText("ItemSearchResult", 5, listing_index, 9), "%D", "")
+  if StringIsEmpty(count_text) then
+    return 0
+  else
+    return tonumber(count_text)
   end
 end
 

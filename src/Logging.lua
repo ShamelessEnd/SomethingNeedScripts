@@ -1,11 +1,16 @@
 
-Logging = { Level = 0 }
+Logging = {
+  Level = 0,
+  EchoOn = false,
+}
 
 Logging.Echo = function (msg) if msg then yield("/e "..msg) end end
 Logging.Message = function (level, prefix, msg)
   if msg and level >= Logging.Level then
     local log_msg = prefix..msg
-    -- Logging.Echo(log_msg)
+    if Logging.EchoOn then
+      Logging.Echo(log_msg)
+    end
     LogDebug("[SomethingNeedScripts] "..log_msg)
   end
 end

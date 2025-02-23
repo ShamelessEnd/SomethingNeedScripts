@@ -16,8 +16,18 @@ function IsInCompanyWorkshop()
   return IsInZone(423) or IsInZone(424) or IsInZone(425) or IsInZone(653) or IsInZone(984);
 end
 
+function IsInLimsa()
+  return IsInZone(129)
+end
+
+function TeleportToLimsa()
+  LifestreamTeleport(8, 0)
+  yield("/wait 7")
+  WaitForNavReady()
+end
+
 function WaitForNavReady()
-  while not NavIsReady() do
+  while not NavIsReady() or not IsPlayerAvailable() do
     yield("/wait 0.1")
   end
 end
@@ -58,6 +68,10 @@ function NavigateToTarget(target, stop_dist, fly, timeout)
   local target_x = GetTargetRawXPos()
   local target_y = GetTargetRawYPos()
   local target_z = GetTargetRawZPos()
+  if GetDistanceToPoint(target_x, target_y, target_z) <= stop_dist then
+    return true
+  end
+
   PathfindAndMoveTo(target_x, target_y, target_z, fly)
   Sprint()
 
@@ -105,8 +119,7 @@ function TeleportToBellZone()
 
   if not IsCasting() then
     Logging.Info("no registered fc or apartment, falling back to Hawkers")
-    LifestreamTeleport(8, 0)
-    yield("/wait 7")
+    TeleportToLimsa()
   else
     yield("/wait 5")
   end

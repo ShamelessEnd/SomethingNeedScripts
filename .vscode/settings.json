@@ -38,7 +38,8 @@
         "LifestreamTeleportToApartment",
         "GetCharacterCondition",
         "LogDebug",
-        "Logging"
+        "Logging",
+        "GetGil"
     ],
     "Lua.diagnostics.disable": [
         "undefined-field"
