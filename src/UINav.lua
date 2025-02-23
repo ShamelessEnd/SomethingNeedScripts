@@ -56,15 +56,17 @@ function ClearTalkAndAwait(addon_name)
   AwaitAddonReady(addon_name)
 end
 
-function InteractWith(target, addon)
+function InteractWith(target, addon, range)
+  if not range then range = 4.597 end
+
   Logging.Debug("opening "..target.." - "..addon)
   if IsAddonVisible(addon) then
     return AwaitAddonReady(addon, 5)
   end
 
   yield("/target "..target)
-  if GetTargetName() ~= target or GetDistanceToTarget() > 4.597 then
-    Logging.Error("not in range of "..target)
+  if GetTargetName() ~= target or GetDistanceToTarget() > range then
+    Logging.Error("not in range ("..range..") of "..target)
     return false
   end
 
