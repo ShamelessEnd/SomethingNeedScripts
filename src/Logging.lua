@@ -4,8 +4,26 @@ Logging = {
   EchoOn = false,
 }
 
-Logging.Echo = function (msg) if msg then yield("/e "..msg) end end
+local function sTable(data)
+  if type(data) ~= "table" then
+    return data
+  end
+  local str = "{"
+  local first = true
+  for k,v in pairs(data) do
+    if first then
+      first = false
+    else
+      str = str..","
+    end
+    str = str.." "..k..": "..sTable(v)
+  end
+  return str.." }"
+end
+
+Logging.Echo = function (msg) msg = sTable(msg) if msg then yield("/e "..msg) end end
 Logging.Message = function (level, prefix, msg)
+  msg = sTable(msg)
   if msg and level >= Logging.Level then
     local log_msg = prefix..msg
     if Logging.EchoOn then
