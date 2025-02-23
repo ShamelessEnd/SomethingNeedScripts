@@ -2,8 +2,6 @@ require "ARUtils"
 require "Logging"
 require "Utils"
 
-function Sprint() ExecuteGeneralAction(4) end
-
 function IsInHousingDistrict()
   return IsInZone(341) or IsInZone(340) or IsInZone(339) or IsInZone(641) or IsInZone(979)
 end
@@ -24,6 +22,10 @@ function TeleportToLimsa()
   LifestreamTeleport(8, 0)
   yield("/wait 7")
   WaitForNavReady()
+end
+
+function IsInHomeWorld()
+  return GetCurrentWorld() == GetHomeWorld()
 end
 
 function WaitForNavReady()
@@ -110,6 +112,99 @@ function InteractWithAetheryte()
   return InteractWith("aetheryte", "SelectString", 11.165)
 end
 
+function WorldVisitTo(server_name)
+  if not NavToAetheryte() then
+    TeleportToLimsa()
+    if not NavToAetheryte() then
+      Logging.Error("failed to nav to aetheryte")
+      return false
+    end
+  end
+
+  if not InteractWithAetheryte() then
+    Logging.Error("failed to interact with aetheryte")
+    return false
+  end
+  Callback("SelectString", true, 2)
+  AwaitAddonReady("WorldTravelSelect")
+
+  local curr_world = ""
+  repeat
+    yield("/wait 0.1")
+    curr_world = GetNodeText("WorldTravelSelect", 7)
+  until not StringIsEmpty(curr_world)
+  if curr_world == server_name then
+    Logging.Info("already on "..server_name)
+    CloseAddon("WorldTravelSelect")
+    return true
+  end
+
+  local dest_index = 3
+  local dest_name = ""
+  repeat
+    yield("/wait 0.1")
+    dest_name = GetNodeText("WorldTravelSelect", 4, dest_index, 4)
+  until not StringIsEmpty(dest_name)
+
+  local function doTravelToWorld(index)
+    local start_world = GetCurrentWorld()
+  
+    Callback("WorldTravelSelect", true, index)
+    AwaitAddonReady("SelectYesno")
+    Callback("SelectYesno", true, 0)
+  
+    local same_world = function () return GetCurrentWorld() == start_world end
+    if not WaitWhile(same_world, 600) then return false end
+    WaitForNavReady()
+    return true
+  end
+
+  repeat
+    if dest_name == server_name then
+      Logging.Debug("travelling to world "..server_name)
+      return doTravelToWorld(dest_index - 1)
+    end
+    dest_index = dest_index + 1
+    dest_name = GetNodeText("WorldTravelSelect", 4, dest_index, 4)
+  until StringIsEmpty(dest_name)
+
+  Logging.Error("failed to find server in list "..server_name)
+  return false
+end
+
+function DCTravelTo(region, dc_name)
+  if GetServerData().dc == dc_name then
+    return true
+  end
+
+  LifestreamExecuteCommand(dc_name)
+
+  local dest_servers = ServerNavTable[region][dc_name]
+  local arrived = function () return not LifestreamIsBusy() and dest_servers[GetCurrentWorld()] end
+  if not WaitUntil(arrived, 900, 1) then return false end
+  WaitForNavReady()
+  return true
+end
+
+function ReturnToHomeWorld()
+  if IsInHomeWorld() then
+    return true
+  end
+
+  local current_data = GetServerData()
+  local home_data = GetHomeServerData()
+
+  if current_data.dc == home_data.dc and WorldVisitTo(home_data.name) then
+    return true
+  end
+
+  LifestreamExecuteCommand(home_data.name)
+  local arrived = function () return not LifestreamIsBusy() and GetCurrentWorld() == home_data.id end
+  if not WaitUntil(arrived, 900, 1) then return false end
+  WaitForNavReady()
+  return true
+end
+
 function TeleportToBellZone()
   if GetARCharacterData().WorkshopEnabled then
     LifestreamTeleportToFC()
@@ -134,6 +229,11 @@ function TeleportToBellZone()
 end
 
 function ReturnToBell()
+  if not ReturnToHomeWorld() then
+    Logging.Error("failed to return to home world")
+    return
+  end
+
   local bell_target = "Summoning Bell"
   local bell_dist = GetDistanceToObject(bell_target)
   if bell_dist ~= nil and bell_dist < 3 then

@@ -8,6 +8,8 @@ function RoundUpToNext(x, increment) return math.floor(((x + increment - 1) // i
 
 function IsCasting() return GetCharacterCondition(27) end
 
+function Sprint() ExecuteGeneralAction(4) end
+
 function ReadXORData(file, key, bytes)
   local x = 0
   for i = 0, bytes - 1 do
@@ -22,10 +24,12 @@ function WaitWhile(condition, timeout, sleep)
   if not sleep then sleep = 0.1 end
   local timeout_count = 0
   while condition() do
-    if timeout_count > timeout then
-      return false
+    if timeout then
+      if timeout_count > timeout then
+        return false
+      end
+      timeout_count = timeout_count + sleep
     end
-    timeout_count = timeout_count + sleep
     yield("/wait "..sleep)
   end
   return true
