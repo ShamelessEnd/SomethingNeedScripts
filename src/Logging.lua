@@ -1,7 +1,7 @@
 
 Logging = {
-  Level = 0,
-  EchoOn = false,
+  LogLevel = 0,
+  EchoLevel = 2,
 }
 
 local function sTable(data)
@@ -31,15 +31,16 @@ local function sTrunc(str)
   return str
 end
 
-Logging.Echo = function (msg) msg = sTable(msg) if msg then yield(sTrunc("/e "..msg)) end end
+Logging.Echo = function (msg) if msg then yield(sTrunc("/e "..sTable(msg))) end end
 Logging.Message = function (level, prefix, msg)
-  msg = sTable(msg)
-  if msg and level >= Logging.Level then
-    local log_msg = prefix..msg
-    if Logging.EchoOn then
-      Logging.Echo(log_msg)
-    end
-    LogDebug("[SomethingNeedScripts] "..log_msg)
+  if not msg then return end
+
+  msg = prefix..sTable(msg)
+  if level >= Logging.LogLevel then
+    LogDebug("[SomethingNeedScripts] "..msg)
+  end
+  if level >= Logging.EchoLevel then
+    Logging.Echo(msg)
   end
 end
 
