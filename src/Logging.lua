@@ -4,9 +4,9 @@ Logging = {
   EchoLevel = 2,
 }
 
-local function sTable(data)
+local function sFix(data)
   if type(data) ~= "table" then
-    return data
+    return tostring(data)
   end
   local str = "{"
   local first = true
@@ -16,7 +16,7 @@ local function sTable(data)
     else
       str = str..","
     end
-    str = str.." "..k..": "..sTable(v)
+    str = str.." "..k..": "..sFix(v)
   end
   return str.." }"
 end
@@ -31,11 +31,11 @@ local function sTrunc(str)
   return str
 end
 
-Logging.Echo = function (msg) if msg then yield(sTrunc("/e "..sTable(msg))) end end
+Logging.Echo = function (msg) if msg ~= nil then yield(sTrunc("/e "..sFix(msg))) end end
 Logging.Message = function (level, prefix, msg)
-  if not msg then return end
+  if msg == nil then return end
 
-  msg = prefix..sTable(msg)
+  msg = prefix..sFix(msg)
   if level >= Logging.LogLevel then
     LogDebug("[SomethingNeedScripts] "..msg)
   end
