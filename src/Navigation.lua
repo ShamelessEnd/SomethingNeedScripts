@@ -1,5 +1,7 @@
 require "ARUtils"
 require "Logging"
+require "ServerNav"
+require "UINav"
 require "Utils"
 
 function IsInHousingDistrict()
@@ -144,7 +146,7 @@ function NavToMarketBoard()
 end
 
 function NavToAetheryte()
-  return NavToTarget("aetheryte", 10, false, 9)
+  return NavToTarget("aetheryte", 15, false, 9)
 end
 
 function InteractWithAetheryte()
