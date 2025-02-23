@@ -42,7 +42,13 @@
         "GetGil",
         "GetCurrentWorld",
         "LifestreamExecuteCommand",
-        "GetItemName"
+        "GetItemName",
+        "GetObjectRawXPos",
+        "GetObjectRawYPos",
+        "GetObjectRawZPos",
+        "GetPlayerRawXPos",
+        "GetPlayerRawYPos",
+        "GetPlayerRawZPos"
     ],
     "Lua.diagnostics.disable": [
         "undefined-field"

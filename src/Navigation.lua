@@ -60,27 +60,20 @@ function WalkToTarget(target)
   yield("/wait 0.1")
 end
 
-function NavToTarget(target, stop_dist, fly, timeout)
-  yield("/target "..target)
-  if GetTargetName() ~= target then
-    return false
-  end
-
-  WaitForNavReady()
-  local target_x = GetTargetRawXPos()
-  local target_y = GetTargetRawYPos()
-  local target_z = GetTargetRawZPos()
-  if GetDistanceToPoint(target_x, target_y, target_z) <= stop_dist then
+function NavToPoint(x, y, z, stop_dist, fly, timeout)
+  local distance = GetDistanceToPoint(x, y, z)
+  if distance <= stop_dist then
     return true
   end
 
-  PathfindAndMoveTo(target_x, target_y, target_z, fly)
-  Sprint()
+  PathfindAndMoveTo(x, y, z, fly)
+  if distance > 20 then Sprint() end
 
   local timeout_count = 0
-  while GetDistanceToPoint(target_x, target_y, target_z) > stop_dist do
+  while GetDistanceToPoint(x, y, z) > stop_dist do
     if timeout_count > timeout then
       PathStop()
+      Logging.Warning("nav to point failed "..x..", "..y..", "..z)
       return false
     end
     timeout_count = timeout_count + 0.1
@@ -88,20 +81,61 @@ function NavToTarget(target, stop_dist, fly, timeout)
   end
 
   PathStop()
+  return true
+end
+
+function NavToTarget(target, stop_dist, fly, timeout)
+  yield("/target "..target)
+  if GetTargetName() ~= target then
+    return false
+  end
+
+  WaitForNavReady()
+  local x = GetTargetRawXPos()
+  local y = GetTargetRawYPos()
+  local z = GetTargetRawZPos()
+
+  if not NavToPoint(x, y, z, stop_dist, fly, timeout) then
+    return false
+  end
+
   yield("/target "..target)
   return GetTargetName() == target
 end
 
-function NavToMarketBoard()
-  if IsInCompanyWorkshop() then
-    ReturnToBell()
+function NavToObject(object, stop_dist, fly, timeout)
+  if not GetDistanceToObject(object) then
+    return false
   end
-  if NavToTarget("Market Board", 3, false, 20) then
+
+  WaitForNavReady()
+  local x = GetObjectRawXPos(object)
+  local y = GetObjectRawYPos(object)
+  local z = GetObjectRawZPos(object)
+
+  if not NavToPoint(x, y, z, stop_dist, fly, timeout) then
+    return false
+  end
+
+  yield("/target "..object)
+  return true
+end
+
+function NavToMarketBoard()
+  local start_x = GetPlayerRawXPos()
+  local start_y = GetPlayerRawYPos()
+  local start_z = GetPlayerRawZPos()
+
+  if NavToObject("Market Board", 3, false, 20) then
     return true
   end
-  ReturnToBell()
+
+  if GetDistanceToPoint(start_x, start_y, start_z) > 1 then
+    ReturnToBell()
+  end
+
   NavRebuild()
-  return NavToTarget("Market Board", 3, false, 30)
+  return NavToObject("Market Board", 3, false, 30)
 end
 
 function NavToAetheryte()
@@ -226,6 +260,12 @@ function TeleportToBellZone()
   else
     yield("/wait 5")
   end
+end
+
+function ReturnToFC()
+  LifestreamTeleportToFC()
+  yield("/wait 7")
+  WaitWhile(LifestreamIsBusy)
 end
 
 function ReturnToBell()
