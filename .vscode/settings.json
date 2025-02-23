@@ -41,7 +41,8 @@
         "Logging",
         "GetGil",
         "GetCurrentWorld",
-        "LifestreamExecuteCommand"
+        "LifestreamExecuteCommand",
+        "GetItemName"
     ],
     "Lua.diagnostics.disable": [
         "undefined-field"

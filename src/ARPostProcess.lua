@@ -33,7 +33,8 @@ function ARPostProcess(thresholds)
   if ar_data.WorkshopEnabled == true then
     local lacks_repairs = thresholds.repair ~= nil and GetItemCount(10373) < thresholds.repair
     if lacks_repairs then
-      ARPostPurchase()
+      GoPurchaseSubRepairMats()
+      ReturnToBell()
     end
   end
 end
