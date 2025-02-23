@@ -8,14 +8,12 @@ function OpenMarketBoard()
 end
 
 function CloseMarketBoard()
-  Logging.Trace("closing ItemSearch")
-  Callback("ItemSearch", true, -1)
-  yield("/wait 1")
+  CloseAddon("ItemSearch")
 end
 
 function CloseItemListings(other)
   Logging.Trace("closing item listings")
-  CloseAndAwaitOther("ItemSearchResult", other)
+  CloseAddon("ItemSearchResult", other)
 end
 
 function OpenItemListings(attempts, addon, ...)
@@ -122,6 +120,6 @@ function GetItemHistoryTrimmedMean()
   local history_trimmed_mean = history_total / history_count
   Logging.Debug("history_trimmed_mean: "..history_trimmed_mean)
 
-  CloseAndAwaitOther("ItemHistory", "ItemSearchResult")
+  CloseAddon("ItemHistory", "ItemSearchResult")
   return history_trimmed_mean
 end

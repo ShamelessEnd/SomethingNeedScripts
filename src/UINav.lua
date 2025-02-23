@@ -39,11 +39,16 @@ function AwaitAddonGone(addon_name, timeout)
   return true
 end
 
-function CloseAndAwaitOther(addon_name, other_addon_name)
+function CloseAddon(addon_name, await_other)
+  Logging.Trace("closing addon "..addon_name.." and awaiting "..tostring(await_other))
   repeat
     Callback(addon_name, true, -1)
   until AwaitAddonGone(addon_name, 2)
-  AwaitAddonReady(other_addon_name)
+  if await_other then
+    AwaitAddonReady(await_other)
+  else
+    yield("/wait 1")
+  end
 end
 
 function ClearTalkAndAwait(addon_name)

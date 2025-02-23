@@ -11,9 +11,7 @@ function OpenRetainerList()
 end
 
 function CloseRetainerList()
-  Logging.Debug("closing RetainerList")
-  Callback("RetainerList", true, -1)
-  yield("/wait 1")
+  CloseAddon("RetainerList")
 end
 
 function OpenRetainer(retainer_index)
@@ -61,7 +59,7 @@ end
 
 function CloseRetainerInventory()
   Logging.Debug("closing retainer inventory")
-  CloseAndAwaitOther("InventoryRetainerLarge", "SelectString")
+  CloseAddon("InventoryRetainerLarge", "SelectString")
 end
 
 function OpenSellListItemContext(item_index, timeout)
@@ -88,7 +86,7 @@ end
 
 function CloseItemSell()
   Logging.Debug("closing item sell menu")
-  CloseAndAwaitOther("RetainerSell", "RetainerSellList")
+  CloseAddon("RetainerSell", "RetainerSellList")
 end
 
 function OpenItemRetainerSell(item_page, page_slot)
