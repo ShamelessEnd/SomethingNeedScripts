@@ -146,7 +146,7 @@ function NavToMarketBoard()
 end
 
 function NavToAetheryte()
-  return NavToTarget("aetheryte", 15, false, 9)
+  return NavToTarget("aetheryte", 9, false, 15)
 end
 
 function InteractWithAetheryte()
