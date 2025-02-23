@@ -4,12 +4,12 @@ require "ServerNav"
 
 local _materia_table = {
   --   id, count, price
-  { 41759,  9900,  4000 }, -- Crit 11
-  { 41772,   900, 13000 }, -- Crit 12
-  { 41758,  9900,  5000 }, -- Dhit 11
-  { 41771,   900, 14000 }, -- Dhit 12
-  { 41760,  9900,  4000 }, -- Det  11
-  { 41773,   900, 13000 }, -- Det  12
+  { 41759,  7900,  4000 }, -- Crit 11
+  { 41772,  1900, 12500 }, -- Crit 12
+  { 41758, 12900,  4500 }, -- Dhit 11
+  { 41771,  1900, 14500 }, -- Dhit 12
+  { 41760,  7900,  4000 }, -- Det  11
+  { 41773,  1900, 14000 }, -- Det  12
 }
 function GoPurchaseMateria(gil_floor) GoPurchaseAllItems(_materia_table, gil_floor) end
 
@@ -178,6 +178,6 @@ function GoPurchaseAllItems(buy_tables, gil_floor)
     end
   end
 
-  ReturnToHomeWorld()
+  ReturnToBell()
   return true
 end
