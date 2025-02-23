@@ -1,24 +1,19 @@
-require "ARPostPurchase"
 require "ARPostUndercut"
 require "ARUtils"
 require "Navigation"
+require "Purchase"
 require "GCTurnIn"
 
 local _default_thresholds = {
   inv = 40,
   venture = nil,
-  repair = nil,
+  repair = 200,
 }
 
 function ARPostProcess(thresholds)
   local ar_data = GetARCharacterData()
-  if ar_data == nil then
-    return
-  end
-
-  if thresholds == nil then
-    thresholds = _default_thresholds
-  end
+  if not ar_data then return end
+  if not thresholds then thresholds = _default_thresholds end
 
   if ar_data.Enabled == true then
     ARPostUndercut()
@@ -32,8 +27,8 @@ function ARPostProcess(thresholds)
 
   if ar_data.WorkshopEnabled == true then
     local lacks_repairs = thresholds.repair ~= nil and GetItemCount(10373) < thresholds.repair
-    if lacks_repairs then    
-      if IsInCompanyWorkshop() then
+    if lacks_repairs then
+      if not IsInHousingDistrict() then
         ReturnToFC()
       end
       GoPurchaseSubRepairMats()
