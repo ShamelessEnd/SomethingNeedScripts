@@ -58,7 +58,7 @@ function WalkToTarget(target)
   yield("/wait 0.1")
 end
 
-function NavigateToTarget(target, stop_dist, fly, timeout)
+function NavToTarget(target, stop_dist, fly, timeout)
   yield("/target "..target)
   if GetTargetName() ~= target then
     return false
@@ -90,16 +90,24 @@ function NavigateToTarget(target, stop_dist, fly, timeout)
   return GetTargetName() == target
 end
 
-function GoToMarketBoard()
+function NavToMarketBoard()
   if IsInCompanyWorkshop() then
     ReturnToBell()
   end
-  if NavigateToTarget("Market Board", 3, false, 20) then
+  if NavToTarget("Market Board", 3, false, 20) then
     return true
   end
   ReturnToBell()
   NavRebuild()
-  return NavigateToTarget("Market Board", 3, false, 30)
+  return NavToTarget("Market Board", 3, false, 30)
+end
+
+function NavToAetheryte()
+  return NavToTarget("aetheryte", 10, false, 9)
+end
+
+function InteractWithAetheryte()
+  return InteractWith("aetheryte", "SelectString", 11.165)
 end
 
 function TeleportToBellZone()
