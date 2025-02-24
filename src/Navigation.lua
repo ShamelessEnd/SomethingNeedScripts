@@ -222,17 +222,19 @@ function DCTravelTo(region, dc_name)
     return true
   end
 
-  LifestreamExecuteCommand(dc_name)
-
   local dest_servers = ServerNavTable[region][dc_name]
   if not dest_servers then
     Logging.Error("invalid region.dc "..region.."."..dc_name)
     return false
   end
 
+  Logging.Debug("travelling to dc "..dc_name.." ("..region..")")
+  LifestreamExecuteCommand(dc_name)
+
   local arrived = function () return dest_servers[GetCurrentWorld()] end
   if not WaitUntil(arrived, 900, 0.5) then return false end
   LifestreamAbort() -- it might try to swap servers again if the one it randomly chose was congested
+  Logging.Debug("arrived in world "..GetServerData().name)
   WaitForNavReady()
   return true
 end
