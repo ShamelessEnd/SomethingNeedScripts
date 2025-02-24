@@ -105,15 +105,23 @@ end
 
 -- Read UI
 
-function GetSellListCount()
-  local item_full_text = GetNodeText("RetainerSellList", 3)
-  local count_start, count_end
-  while count_start == nil or count_end == nil do
-    count_start, count_end = string.find(item_full_text, "%d+")
-  end
-  local item_count = string.sub(item_full_text, count_start, count_end - count_start + 1)
-  Logging.Debug("found "..item_count.." items for sale on retainer ("..item_full_text..")")
-  return tonumber(item_count)
+function GetSellListCount(timeout)
+  local timeout_count = 0
+  repeat
+    local full_text = GetNodeText("RetainerSellList", 3)
+    local slash_index, _ = string.find(full_text, "/")
+    if slash_index and slash_index > 1 then
+      local count_text = string.sub(full_text, 1, slash_index - 1)
+      if count_text then
+        Logging.Debug("found "..count_text.." items for sale on retainer ("..full_text..")")
+        return tonumber(count_text)
+      end
+    end
+    yield("/wait 0.1")
+    timeout_count = timeout_count + 0.1
+  until timeout and timeout_count > timeout
+  Logging.Error("GetSellListCount timed out")
+  return nil
 end
 
 function GetCurrentItemSellPrice()

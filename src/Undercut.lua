@@ -65,81 +65,81 @@ end
 
 function UndercutItems(return_function, sell_table)
   Logging.Debug("undercutting all items")
-  local item_count = GetSellListCount()
+
+  local item_count = GetSellListCount(5)
+  if not item_count or item_count <= 0 then return {} end
+  Logging.Info("  Found "..item_count.." items listed")
+
   local last_item_name = ""
   local last_item_price = 0
   local last_sell_entry = nil
   local returned_count = 0
   local listed_items = {}
-
-  Logging.Info("  Found "..item_count.." items listed")
-  if item_count > 0 then
-    for item_number = 1, item_count do
-      local item_index = item_number - returned_count
-      if not OpenItemSell(item_index, 5) then
-        Logging.Error("failed to open ItemSell, aborting")
-        break
-      end
-
-      local item_name = GetNodeText("RetainerSell", 18)
-      local current_price = GetCurrentItemSellPrice()
-      Logging.Info("  Undercutting item "..item_number.." "..item_name)
-      Logging.Debug("    current_price: "..current_price)
-
-      local undercut_price = 0
-      local sell_entry = nil
-      if last_item_name == item_name then
-        undercut_price = last_item_price
-        sell_entry = last_sell_entry
-      else
-        undercut_price = GetUndercutPrice()
-        sell_entry = GetSellEntryByName(sell_table, item_name)
-      end
-
-      if sell_entry ~= nil then
-        local item_id = sell_entry[1]
-        if listed_items[item_id] == nil then
-          listed_items[item_id] = { count=1, price=undercut_price }
-        else
-          listed_items[item_id].count = listed_items[item_id].count + 1
-        end
-      end
-
-      local floor_price = _default_floor_price
-      if sell_entry ~= nil then
-        floor_price = sell_entry[2]
-      end
-
-      if undercut_price <= 0 then
-        Logging.Info("    failed to calculate price, skipping item")
-        CloseItemSell()
-      elseif undercut_price == current_price then
-        Logging.Info("    price target unchanged, skipping item")
-        CloseItemSell()
-      elseif undercut_price < floor_price then
-        Logging.Info("    new price too low ("..undercut_price.." < "..floor_price..")")
-        if sell_entry ~= nil and sell_entry[3] == true then
-          Logging.Info("      using floor price")
-          ApplyPriceUpdateAndClose(floor_price)
-        else
-          Logging.Info("      removing listing")
-          CloseItemSell()
-          if return_function(item_index, 5) then
-            returned_count = returned_count + 1
-          end
-          if sell_entry ~= nil then
-            listed_items[sell_entry[1]].count = sell_entry[5]
-          end
-        end
-      else
-        ApplyPriceUpdateAndClose(undercut_price)
-        Logging.Info("    price updated: "..current_price.." -> "..undercut_price)
-      end
-
-      last_item_name = item_name
-      last_item_price = undercut_price
-      last_sell_entry = sell_entry
+  for item_number = 1, item_count do
+    local item_index = item_number - returned_count
+    if not OpenItemSell(item_index, 5) then
+      Logging.Error("failed to open ItemSell, aborting")
+      break
     end
+
+    local item_name = GetNodeText("RetainerSell", 18)
+    local current_price = GetCurrentItemSellPrice()
+    Logging.Info("  Undercutting item "..item_number.." "..item_name)
+    Logging.Debug("    current_price: "..current_price)
+
+    local undercut_price = 0
+    local sell_entry = nil
+    if last_item_name == item_name then
+      undercut_price = last_item_price
+      sell_entry = last_sell_entry
+    else
+      undercut_price = GetUndercutPrice()
+      sell_entry = GetSellEntryByName(sell_table, item_name)
+    end
+
+    if sell_entry ~= nil then
+      local item_id = sell_entry[1]
+      if listed_items[item_id] == nil then
+        listed_items[item_id] = { count=1, price=undercut_price }
+      else
+        listed_items[item_id].count = listed_items[item_id].count + 1
+      end
+    end
+
+    local floor_price = _default_floor_price
+    if sell_entry ~= nil then
+      floor_price = sell_entry[2]
+    end
+
+    if undercut_price <= 0 then
+      Logging.Info("    failed to calculate price, skipping item")
+      CloseItemSell()
+    elseif undercut_price == current_price then
+      Logging.Info("    price target unchanged, skipping item")
+      CloseItemSell()
+    elseif undercut_price < floor_price then
+      Logging.Info("    new price too low ("..undercut_price.." < "..floor_price..")")
+      if sell_entry ~= nil and sell_entry[3] == true then
+        Logging.Info("      using floor price")
+        ApplyPriceUpdateAndClose(floor_price)
+      else
+        Logging.Info("      removing listing")
+        CloseItemSell()
+        if return_function(item_index, 5) then
+          returned_count = returned_count + 1
+        end
+        if sell_entry ~= nil then
+          listed_items[sell_entry[1]].count = sell_entry[5]
+        end
+      end
+    else
+      ApplyPriceUpdateAndClose(undercut_price)
+      Logging.Info("    price updated: "..current_price.." -> "..undercut_price)
+    end
+
+    last_item_name = item_name
+    last_item_price = undercut_price
+    last_sell_entry = sell_entry
   end
   return listed_items
 end
