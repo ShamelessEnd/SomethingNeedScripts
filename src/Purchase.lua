@@ -136,11 +136,16 @@ function GoPurchaseDCItems(buy_tables, gil_floor)
   if not GoPurchaseItems(buy_tables, gil_floor) then return false end
   for dest_id, dest_name in pairs(server_list) do
     if dest_id ~= start_server.id then
-      if not WorldVisitTo(dest_name) then
+      local world_visit_result = WorldVisitTo(dest_name)
+      if world_visit_result == false then
         Logging.Error("failed to travel to server "..dest_name)
         return false
+      elseif world_visit_result == nil then
+        Logging.Warning("error while travelling to server "..dest_name..": \""..GetErrorText().."\", skipping")
+        WaitWhile(function () return GetErrorText() end)
+      else
+        if not GoPurchaseItems(buy_tables, gil_floor) then return false end
       end
-      if not GoPurchaseItems(buy_tables, gil_floor) then return false end
     end
   end
 

@@ -86,3 +86,11 @@ function InteractWith(target, addon, range)
   until AwaitAddonReady(addon, 3)
   return true
 end
+
+function GetErrorText()
+  if IsAddonVisible("_TextError") then
+    local text = GetNodeText("_TextError", 1)
+    if not StringIsEmpty(text) then return text end
+  end
+  return nil
+end

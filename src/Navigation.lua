@@ -146,7 +146,7 @@ function NavToMarketBoard()
 end
 
 function NavToAetheryte()
-  return NavToTarget("aetheryte", 9, false, 15)
+  return NavToObject("aetheryte", 9, false, 15)
 end
 
 function InteractWithAetheryte()
@@ -193,9 +193,13 @@ function WorldVisitTo(server_name)
     Callback("WorldTravelSelect", true, index)
     AwaitAddonReady("SelectYesno")
     Callback("SelectYesno", true, 0)
-  
+
+    local in_queue = function () return not IsAddonVisible("WorldTravelFinderReady") and not GetErrorText() end
+    if not WaitWhile(in_queue, 600) then return false end
+    if GetErrorText() then return nil end
+
     local same_world = function () return GetCurrentWorld() == start_world end
-    if not WaitWhile(same_world, 600) then return false end
+    if not WaitWhile(same_world, 60) then return false end
     WaitForNavReady()
     return true
   end
