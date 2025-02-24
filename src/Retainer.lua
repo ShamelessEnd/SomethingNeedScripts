@@ -203,17 +203,6 @@ function EntrustSingleItem(item_id, item_stack)
   end
 end
 
-function EntrustInventoryItems(sell_table)
-  OpenRetainerInventory()
-  local inventory = FindItemsInCharacterInventory()
-  for _, sell_entry in pairs(sell_table) do
-    local item_id = sell_entry[1]
-    local item_stacks = inventory[item_id] or {}
-    for _, stack in pairs(item_stacks) do EntrustSingleItem(item_id, stack) end
-  end
-  CloseRetainerInventory()
-end
-
 -- Sell Items
 
 function ApplyItemSellCount(new_count)

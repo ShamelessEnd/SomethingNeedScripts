@@ -2,22 +2,14 @@ require "Market"
 require "Navigation"
 require "ServerNav"
 
-local _materia_table = {
-  --   id, count, price
-  { 41759,  7900,  4000 }, -- Crit 11
-  { 41772,  1900, 12500 }, -- Crit 12
-  { 41758, 12900,  4500 }, -- Dhit 11
-  { 41771,  1900, 14500 }, -- Dhit 12
-  { 41760,  7900,  4000 }, -- Det  11
-  { 41773,  1900, 14000 }, -- Det  12
-}
-function GoPurchaseMateria(gil_floor) GoPurchaseAllItems(_materia_table, gil_floor) end
+--[[
 
-local _submarine_table = {
-  --   id, count, price
-  { 10373,   900,  3400 }, -- Repair Mats
+buy_table = {
+  { id, count, price },
+  ...
 }
-function GoPurchaseSubRepairMats(gil_floor) GoPurchaseItems(_submarine_table, gil_floor) end
+
+]]--
 
 function ShouldBuyMarketItem(list_index, max_price, gil_floor)
   if not AwaitAddonReady("ItemSearchResult", 1) then
@@ -102,21 +94,21 @@ function PurchaseItem(item_table, gil_floor)
   return true
 end
 
-function GoPurchaseItems(buy_tables, gil_floor)
-  local reduced_buy_tables = {}
-  for _, item_table in pairs(buy_tables) do
+function GoPurchaseItems(buy_table, gil_floor)
+  local reduced_buy_table = {}
+  for _, item_table in pairs(buy_table) do
     if GetItemCount(item_table[1]) < item_table[2] then
-      table.insert(reduced_buy_tables, item_table)
+      table.insert(reduced_buy_table, item_table)
     end
   end
 
-  if TableIsEmpty(reduced_buy_tables) then
+  if TableIsEmpty(reduced_buy_table) then
     return false
   end
 
   if not NavToMarketBoard() then return false end
   if not OpenMarketBoard() then return false end
-  for _, item_table in pairs(reduced_buy_tables) do
+  for _, item_table in pairs(reduced_buy_table) do
     if not PurchaseItem(item_table, gil_floor) then
       CloseMarketBoard()
       return false
@@ -126,14 +118,14 @@ function GoPurchaseItems(buy_tables, gil_floor)
   return true
 end
 
-function GoPurchaseDCItems(buy_tables, gil_floor)
+function GoPurchaseDCItems(buy_table, gil_floor)
   Logging.Trace("purchasing items in current dc")
   if not IsInLimsa() then TeleportToLimsa() end
 
   local start_server = GetServerData()
   local server_list = ServerNavTable[start_server.region][start_server.dc]
 
-  if not GoPurchaseItems(buy_tables, gil_floor) then return false end
+  if not GoPurchaseItems(buy_table, gil_floor) then return false end
   for dest_id, dest_name in pairs(server_list) do
     if dest_id ~= start_server.id then
       local world_visit_result = WorldVisitTo(dest_name)
@@ -144,7 +136,7 @@ function GoPurchaseDCItems(buy_tables, gil_floor)
         Logging.Warning("error while travelling to server "..dest_name..": \""..GetErrorText().."\", skipping")
         WaitWhile(function () return GetErrorText() end)
       else
-        if not GoPurchaseItems(buy_tables, gil_floor) then return false end
+        if not GoPurchaseItems(buy_table, gil_floor) then return false end
       end
     end
   end
@@ -158,9 +150,9 @@ function GoPurchaseDCItems(buy_tables, gil_floor)
   return true
 end
 
-function GoPurchaseAllItems(buy_tables, gil_floor)
+function GoPurchaseAllItems(buy_table, gil_floor, include_oce)
   local start_dc = GetServerData().dc
-  if not GoPurchaseDCItems(buy_tables, gil_floor) then return false end
+  if not GoPurchaseDCItems(buy_table, gil_floor) then return false end
 
   local doPurchaseAllItems = function (region, dc_name)
     if dc_name ~= start_dc then
@@ -168,7 +160,7 @@ function GoPurchaseAllItems(buy_tables, gil_floor)
         Logging.Error("failed to DC travel to "..dc_name)
         return false
       end
-      if not GoPurchaseDCItems(buy_tables, gil_floor) then return false end
+      if not GoPurchaseDCItems(buy_table, gil_floor) then return false end
     end
     return true
   end
@@ -177,7 +169,7 @@ function GoPurchaseAllItems(buy_tables, gil_floor)
   for dc_name, _ in pairs(ServerNavTable[home_region]) do
     if not doPurchaseAllItems(home_region, dc_name) then return false end
   end
-  if home_region ~= "OCE" then
+  if include_oce and home_region ~= "OCE" then
     for dc_name, _ in pairs(ServerNavTable.OCE) do
       if not doPurchaseAllItems("OCE", dc_name) then return false end
     end

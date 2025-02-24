@@ -1,9 +1,4 @@
-require "Logging"
-require "Retainer"
-require "Undercut"
-require "Utils"
-
-local _retainer_sell_tables = {
+VentureSellTable = {
   [1] = nil,
   [2] = {
     config = { exclude=false, unlist=false, entrust=true },
@@ -358,46 +353,3 @@ local _retainer_sell_tables = {
     }
   }
 }
-
-function ARPostUndercutRetainer(retainer_index, retainer_table)
-  if retainer_table == nil then
-    Logging.Info("  Only undercutting items for retainer "..retainer_index)
-    UndercutRetainerItems(retainer_index)
-    return
-  end
-
-  if retainer_table.config.exclude then
-    Logging.Info("  Skipping excluded retainer  "..retainer_index)
-    return
-  end
-
-  local retainer_name = GetRetainerName(retainer_index)
-  if StringIsEmpty(retainer_name) then
-    Logging.Error("  Failed to fetch name for retainer "..retainer_index)
-    return
-  end
-  Logging.Info("Processing retainer "..retainer_index.." "..retainer_name)
-
-  OpenRetainer(retainer_index)
-  if retainer_table.config.entrust then
-    Logging.Info("  Entrusting items to retainer "..retainer_index.." from inventory")
-    EntrustInventoryItems(retainer_table.sell_table)
-  end
-  SellRetainerItems(retainer_index, retainer_name, retainer_table.sell_table, retainer_table.config.unlist)
-  CloseRetainer()
-end
-
-function ARPostUndercut()
-  Logging.Info("ARPostUndercut")
-  ARSetSuppressed(true)
-  yield("/xldisablecollection ARPostUndercutSuppress")
-  if OpenRetainerList() then
-    for i, retainer_table in pairs(_retainer_sell_tables) do
-      ARPostUndercutRetainer(i, retainer_table)
-    end
-    CloseRetainerList()
-  end
-  yield("/xlenablecollection ARPostUndercutSuppress")
-  yield("/wait 2")
-  ARSetSuppressed(false)
-end

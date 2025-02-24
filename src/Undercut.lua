@@ -4,6 +4,27 @@ require "Market"
 require "Retainer"
 require "Utils"
 
+--[[
+
+sell_table = {
+  { id, price_floor, force_list, stack_size, max_listings, min_keep, name },
+  ...
+}
+
+retainer_table = {
+  config = { exclude=boolean, unlist=boolean, entrust=boolean },
+  sell_table = sell_table
+}
+
+retainer_tables = {
+  [retainer_index] = retainer_table | nil,
+  ...
+}
+  explicitly set nil to undercut only, without a sell table, using _default_floor_price
+  exclude retainer from list to skip entirely
+
+]]--
+
 local _default_floor_price = 14500
 function SetDefaultFloorPrice(price) _default_floor_price = price end
 
@@ -318,4 +339,58 @@ function SellRetainerItems(retainer_index, retainer_name, sell_table, unlist)
   end
 
   CloseSellList()
+end
+
+function EntrustSellTableItems(sell_table)
+  OpenRetainerInventory()
+  local inventory = FindItemsInCharacterInventory()
+  for _, sell_entry in pairs(sell_table) do
+    local item_id = sell_entry[1]
+    local item_stacks = inventory[item_id] or {}
+    for _, stack in pairs(item_stacks) do EntrustSingleItem(item_id, stack) end
+  end
+  CloseRetainerInventory()
+end
+
+function UndercutAndSellRetainerItems(retainer_index, retainer_table)
+  if retainer_table == nil then
+    Logging.Info("  Only undercutting items for retainer "..retainer_index)
+    UndercutRetainerItems(retainer_index)
+    return
+  end
+
+  if retainer_table.config.exclude then
+    Logging.Info("  Skipping excluded retainer  "..retainer_index)
+    return
+  end
+
+  local retainer_name = GetRetainerName(retainer_index)
+  if StringIsEmpty(retainer_name) then
+    Logging.Error("  Failed to fetch name for retainer "..retainer_index)
+    return
+  end
+  Logging.Info("Processing retainer "..retainer_index.." "..retainer_name)
+
+  OpenRetainer(retainer_index)
+  if retainer_table.config.entrust then
+    Logging.Info("  Entrusting items to retainer "..retainer_index.." from inventory")
+    EntrustSellTableItems(retainer_table.sell_table)
+  end
+  SellRetainerItems(retainer_index, retainer_name, retainer_table.sell_table, retainer_table.config.unlist)
+  CloseRetainer()
+end
+
+function UndercutAndSellAllRetainers(retainer_tables)
+  Logging.Info("UndercutAndSellAllRetainerss")
+  ARSetSuppressed(true)
+  yield("/xldisablecollection UndercutAndSellAllRetainers")
+  if OpenRetainerList() then
+    for i, retainer_table in pairs(retainer_tables) do
+      UndercutAndSellRetainerItems(i, retainer_table)
+    end
+    CloseRetainerList()
+  end
+  yield("/xlenablecollection UndercutAndSellAllRetainers")
+  yield("/wait 1")
+  ARSetSuppressed(false)
 end
