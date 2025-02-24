@@ -1,6 +1,7 @@
 require "Market"
 require "Navigation"
-require "ServerNav"
+require "ServerData"
+require "Utils"
 
 --[[
 
@@ -123,7 +124,7 @@ function GoPurchaseDCItems(buy_table, gil_floor)
   if not IsInLimsa() then TeleportToLimsa() end
 
   local start_server = GetServerData()
-  local server_list = ServerNavTable[start_server.region][start_server.dc]
+  local server_list = ServerDataTable[start_server.region][start_server.dc]
 
   if not GoPurchaseItems(buy_table, gil_floor) then return false end
   for dest_id, dest_name in pairs(server_list) do
@@ -166,11 +167,11 @@ function GoPurchaseAllItems(buy_table, gil_floor, include_oce)
   end
 
   local home_region = GetHomeServerData().region
-  for dc_name, _ in pairs(ServerNavTable[home_region]) do
+  for dc_name, _ in pairs(ServerDataTable[home_region]) do
     if not doPurchaseAllItems(home_region, dc_name) then return false end
   end
   if include_oce and home_region ~= "OCE" then
-    for dc_name, _ in pairs(ServerNavTable.OCE) do
+    for dc_name, _ in pairs(ServerDataTable.OCE) do
       if not doPurchaseAllItems("OCE", dc_name) then return false end
     end
   end

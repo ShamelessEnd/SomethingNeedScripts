@@ -1,5 +1,6 @@
 require "Callback"
 require "Logging"
+require "Utils"
 
 function AwaitAddonReady(addon_name, timeout)
   if timeout == nil or timeout <= 0 then

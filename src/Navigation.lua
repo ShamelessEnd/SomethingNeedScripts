@@ -1,6 +1,6 @@
 require "ARUtils"
 require "Logging"
-require "ServerNav"
+require "ServerData"
 require "UINav"
 require "Utils"
 
@@ -222,7 +222,7 @@ function DCTravelTo(region, dc_name)
     return true
   end
 
-  local dest_servers = ServerNavTable[region][dc_name]
+  local dest_servers = ServerDataTable[region][dc_name]
   if not dest_servers then
     Logging.Error("invalid region.dc "..region.."."..dc_name)
     return false

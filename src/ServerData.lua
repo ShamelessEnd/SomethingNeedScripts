@@ -1,6 +1,6 @@
 require "Logging"
 
-ServerNavTable = {
+ServerDataTable = {
   JP = {
     Elemental = {
       [90]  = "Aegis",
@@ -123,7 +123,7 @@ function GetServerData(server_id)
     server_id = GetCurrentWorld()
   end
 
-  for region, region_table in pairs(ServerNavTable) do
+  for region, region_table in pairs(ServerDataTable) do
     for data_center, data_center_table in pairs(region_table) do
       local server_name = data_center_table[server_id]
       if server_name then
