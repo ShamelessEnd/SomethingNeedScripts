@@ -7,7 +7,7 @@ require "Utils"
 --[[
 
 sell_table = {
-  { id, price_floor, force_list, stack_size, max_listings, min_keep, name },
+  { id, price_floor, force_list, stack_size, max_listings, min_keep },
   ...
 }
 
@@ -76,7 +76,10 @@ end
 function GetSellEntryByName(sell_table, item_name)
   if sell_table ~= nil then
     for i, sell_entry in pairs(sell_table) do
-      if sell_entry[7] ~= nil and string.find(item_name, sell_entry[7]) then
+      if sell_entry.item_name == nil then
+        sell_entry.item_name = GetItemName(sell_entry[1])
+      end
+      if item_name == sell_entry.item_name then
         return sell_entry
       end
     end
