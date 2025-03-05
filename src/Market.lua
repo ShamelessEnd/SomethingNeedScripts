@@ -73,31 +73,36 @@ function GetItemHistoryPrice(history_index)
   end
 end
 
-function GetItemHistoryTrimmedMean()
-  Logging.Debug("fetching item history")
-  Callback("ItemSearchResult", true, 0)
-  if not AwaitAddonReady("ItemHistory", 5) then
-    Logging.Debug("failed to open item history")
-    return 0
+function IsItemHistoryMannequin(history_index)
+  local history_list_index = 41000 + history_index - 1
+  if history_index <= 1 then
+    history_list_index = 4
   end
+  return IsNodeVisible("ItemHistory", 1, 10, history_list_index, 8, 9)
+end
 
-  local history_list = { GetItemHistoryPrice(1) }
-  while history_list[1] == 0 do
+function GetItemHistoryPriceList(count)
+  while GetItemHistoryPrice(1) == 0 do
     if IsNodeVisible("ItemHistory", 1, 11) and string.find(GetNodeText("ItemHistory", 2), "No items found") then
       Logging.Debug("no history")
-      return 0
+      return {}, 0
     end
     yield("/wait 0.1")
-    history_list[1] = GetItemHistoryPrice(1)
   end
 
-  local history_count = 1
-  for i = 2, 10 do
-    history_list[i] = GetItemHistoryPrice(i)
-    if (history_list[i] <= 0) then
+  local history_list = {}
+  local history_count = 0
+  for i = 1, 20 do
+    if history_count >= count then
       break
-    else
+    end
+    if not IsItemHistoryMannequin(i) then
+      local next_history_price = GetItemHistoryPrice(i)
+      if next_history_price <= 0 then
+        break
+      end
       history_count = history_count + 1
+      history_list[history_count] = next_history_price
     end
   end
 
@@ -111,6 +116,19 @@ function GetItemHistoryTrimmedMean()
       break
     end
   end
+
+  return history_list, history_count
+end
+
+function GetItemHistoryTrimmedMean()
+  Logging.Debug("fetching item history")
+  Callback("ItemSearchResult", true, 0)
+  if not AwaitAddonReady("ItemHistory", 5) then
+    Logging.Debug("failed to open item history")
+    return 0
+  end
+
+  local history_list, history_count = GetItemHistoryPriceList(10)
 
   local history_total = 0
   for _, history_price in pairs(history_list) do
