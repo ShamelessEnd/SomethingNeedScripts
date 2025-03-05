@@ -12,6 +12,10 @@ function IsInGCTown()
   return (GetPlayerGC() == 1 and IsInZone(129)) or (GetPlayerGC() == 2 and IsInZone(132)) or (GetPlayerGC() == 3 and IsInZone(130))
 end
 
+function IsInTown()
+  return IsInZone(129) or IsInZone(132) or IsInZone(130)
+end
+
 function IsInCompanyWorkshop()
   return IsInZone(423) or IsInZone(424) or IsInZone(425) or IsInZone(653) or IsInZone(984);
 end
@@ -154,7 +158,7 @@ function InteractWithAetheryte()
 end
 
 function WorldVisitTo(server_name)
-  if not NavToAetheryte() then
+  if not IsInTown() or not NavToAetheryte() then
     TeleportToLimsa()
     if not NavToAetheryte() then
       Logging.Error("failed to nav to aetheryte")
