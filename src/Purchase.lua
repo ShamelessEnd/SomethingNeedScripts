@@ -104,7 +104,8 @@ function GoPurchaseItems(buy_table, gil_floor)
   end
 
   if TableIsEmpty(reduced_buy_table) then
-    return false
+    Logging.Info("no items to purchase")
+    return nil
   end
 
   if not NavToMarketBoard() then return false end
@@ -126,7 +127,25 @@ function GoPurchaseDCItems(buy_table, gil_floor)
   local start_server = GetServerData()
   local server_list = ServerDataTable[start_server.region][start_server.dc]
 
-  if not GoPurchaseItems(buy_table, gil_floor) then return false end
+  local go_home_server = function ()
+    local home_server = GetHomeServerData()
+    if not IsInHomeWorld() and start_server.dc == home_server.dc then
+      WorldVisitTo(home_server.name)
+    end
+  end
+
+  local on_fail = function (result)
+    if result == nil then
+      go_home_server()
+      Logging.Info("all requested items purchased (DC)")
+      return nil
+    end
+    Logging.Debug("error while purchasing items")
+    return false
+  end
+
+  local purchase_result = GoPurchaseItems(buy_table, gil_floor)
+  if not purchase_result then return on_fail(purchase_result) end
   for dest_id, dest_name in pairs(server_list) do
     if dest_id ~= start_server.id then
       local world_visit_result = WorldVisitTo(dest_name)
@@ -137,23 +156,32 @@ function GoPurchaseDCItems(buy_table, gil_floor)
         Logging.Warning("error while travelling to server "..dest_name..": \""..GetErrorText().."\", skipping")
         WaitWhile(function () return GetErrorText() end)
       else
-        if not GoPurchaseItems(buy_table, gil_floor) then return false end
+        purchase_result = GoPurchaseItems(buy_table, gil_floor)
+        if not purchase_result then return on_fail(purchase_result) end
       end
     end
   end
 
-  local home_server = GetHomeServerData()
-  if not IsInHomeWorld() and start_server.dc == home_server.dc then
-    WorldVisitTo(home_server.name)
-  end
+  go_home_server()
 
   Logging.Trace("purchasing complete")
   return true
 end
 
 function GoPurchaseAllItems(buy_table, gil_floor, include_oce)
+  local on_fail = function (result)
+    if result == nil then
+      ReturnToBell()
+      Logging.Info("all requested items purchased (All)")
+      return nil
+    end
+    Logging.Debug("error while purchasing items from dc")
+    return false
+  end
+
   local start_dc = GetServerData().dc
-  if not GoPurchaseDCItems(buy_table, gil_floor) then return false end
+  local purchase_result = GoPurchaseDCItems(buy_table, gil_floor)
+  if not purchase_result then return on_fail(purchase_result) end
 
   local doPurchaseAllItems = function (region, dc_name)
     if dc_name ~= start_dc then
@@ -161,18 +189,21 @@ function GoPurchaseAllItems(buy_table, gil_floor, include_oce)
         Logging.Error("failed to DC travel to "..dc_name)
         return false
       end
-      if not GoPurchaseDCItems(buy_table, gil_floor) then return false end
+      local go_purchase_result = GoPurchaseDCItems(buy_table, gil_floor)
+      if not go_purchase_result then return on_fail(go_purchase_result) end
     end
     return true
   end
 
   local home_region = GetHomeServerData().region
   for dc_name, _ in pairs(ServerDataTable[home_region]) do
-    if not doPurchaseAllItems(home_region, dc_name) then return false end
+    local do_purchase_result = doPurchaseAllItems(home_region, dc_name)
+    if not do_purchase_result then return do_purchase_result end
   end
   if include_oce and home_region ~= "OCE" then
     for dc_name, _ in pairs(ServerDataTable.OCE) do
-      if not doPurchaseAllItems("OCE", dc_name) then return false end
+      local do_purchase_result = doPurchaseAllItems("OCE", dc_name)
+      if not do_purchase_result then return do_purchase_result end
     end
   end
 
