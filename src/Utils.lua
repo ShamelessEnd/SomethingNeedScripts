@@ -2,6 +2,10 @@ require "Logging"
 
 function StringIsEmpty(s) return s == nil or s == "" end
 
+function StringStartsWith(s, prefix) return string.sub(s, 1, string.len(prefix)) == prefix end
+
+function IsInCombat() return GetCharacterCondition(26) end
+
 function TableIsEmpty(t) return next(t) == nil end
 
 function RoundUpToNext(x, increment) return math.floor(((x + increment - 1) // increment) * increment + 0.5) end

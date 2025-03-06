@@ -30,6 +30,27 @@ function TeleportToLimsa()
   WaitForNavReady()
 end
 
+function TeleportToGridania()
+  LifestreamTeleport(2, 0)
+  yield("/wait 7")
+  WaitForNavReady()
+end
+
+function TeleportToUldah()
+  LifestreamTeleport(9, 0)
+  yield("/wait 7")
+  WaitForNavReady()
+end
+
+function DoReturn()
+  yield("/ac return")
+  if AwaitAddonReady("SelectYesno", 5) then
+    Callback("SelectYesno", true, 0)
+    yield("/wait 7")
+    WaitForNavReady()
+  end
+end
+
 function IsInHomeWorld()
   return GetCurrentWorld() == GetHomeWorld()
 end

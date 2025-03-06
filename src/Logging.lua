@@ -32,6 +32,7 @@ local function sTrunc(str)
 end
 
 Logging.Echo = function (msg) if msg ~= nil then yield(sTrunc("/e "..sFix(msg))) end end
+Logging.Notify = function (msg) Logging.Echo("[Notification] "..sFix(msg)) end
 Logging.Message = function (level, prefix, msg)
   if msg == nil then return end
 
