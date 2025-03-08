@@ -51,7 +51,17 @@
         "GetPlayerRawZPos",
         "NavBuildProgress",
         "PathIsRunning",
-        "PathfindInProgress"
+        "PathfindInProgress",
+        "GetLevel",
+        "IsPlayerDead",
+        "ADIsStopped",
+        "IsPlayerOccupied",
+        "QuestionableIsRunning",
+        "IsAetheryteUnlocked",
+        "GetZoneID",
+        "GetZoneName",
+        "GetAetherytesInZone",
+        "IsQuestAccepted"
     ],
     "Lua.diagnostics.disable": [
         "undefined-field"
