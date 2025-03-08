@@ -24,22 +24,30 @@ function IsInLimsa()
   return IsInZone(129)
 end
 
-function TeleportToLimsa()
-  LifestreamTeleport(8, 0)
-  yield("/wait 7")
-  WaitForNavReady()
+function TeleportToAetheryte(aetheryte)
+  if IsAetheryteUnlocked(aetheryte) then
+    LifestreamTeleport(aetheryte, 0)
+    yield("/wait 7")
+    WaitForNavReady()
+    return true
+  end
+  return false
 end
 
-function TeleportToGridania()
-  LifestreamTeleport(2, 0)
-  yield("/wait 7")
-  WaitForNavReady()
-end
+function TeleportToLimsa() TeleportToAetheryte(8) end
 
-function TeleportToUldah()
-  LifestreamTeleport(9, 0)
-  yield("/wait 7")
-  WaitForNavReady()
+function TeleportToGridania() TeleportToAetheryte(2) end
+
+function TeleportToUldah() TeleportToAetheryte(9) end
+
+function TeleportToZone(zone)
+  local aetherytes = GetAetherytesInZone(zone)
+  for i = 0, aetherytes.Count -1 do
+    if TeleportToAetheryte(aetherytes[i]) then
+      return true
+    end
+  end
+  return false
 end
 
 function DoReturn()
@@ -48,7 +56,9 @@ function DoReturn()
     Callback("SelectYesno", true, 0)
     yield("/wait 7")
     WaitForNavReady()
+    return true
   end
+  return false
 end
 
 function IsInHomeWorld()
@@ -144,6 +154,9 @@ function NavToTarget(target, stop_dist, fly, timeout)
 end
 
 function NavToObject(object, stop_dist, fly, timeout)
+  if not stop_dist then stop_dist = 4.597 end
+  if fly == nil then fly = false end
+
   if not GetDistanceToObject(object) then
     return false
   end
