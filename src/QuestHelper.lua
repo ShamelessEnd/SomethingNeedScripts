@@ -8,6 +8,7 @@ function GetGridaniaQuests()
 end
 
 local function buyChocoboIssuanceAdder()
+  WaitUntil(IsPlayerAvailable)
   InteractWith("Serpent Quartermaster", "GrandCompanyExchange")
   Callback("GrandCompanyExchange", true, 2, 1)
   yield("/wait 1")
@@ -16,14 +17,15 @@ local function buyChocoboIssuanceAdder()
   Callback("SelectYesno", true, 0)
   AwaitAddonGone("SelectYesno")
   CloseAddon("GrandCompanyExchange")
-  yield("/wait 1")
+  yield("/wait 5")
 end
 
 local function nameChocoboAdder()
+  WaitUntil(IsPlayerAvailable)
   yield("/at n")
   NavToPoint(32.3, -0.05, 70.3, 3, false, 60)
   yield("/at y")
-  if not AwaitAddonReady("InputString", 5) then
+  if not AwaitAddonReady("InputString", 20) then
     InteractWith("Chocobo", "InputString")
   end
   Callback("InputString", true, 0, "Choco", "")
@@ -59,10 +61,12 @@ function QuestWatch(target_level, silent)
   local stuck_count = 0
   local stop_count = 0
   local dead_count = 0
+  local duty_count = 0
   local function resetCounts(isFail)
     stuck_count = 0
     stop_count = 0
     dead_count = 0
+    duty_count = 0
     if isFail then
       fail_count = fail_count + 1
       good_count = 0
@@ -77,6 +81,7 @@ function QuestWatch(target_level, silent)
   local last_x = 0
   local last_y = 0
   local last_z = 0
+  local coffer_opened = false
   while not target_level or GetLevel() < target_level do
     if IsPlayerDead() and IsAddonVisible("SelectYesno") and StringStartsWith(GetNodeText("SelectYesno", 15), "Return to ") then
       Logging.Info("player dead, attempting to recover")
@@ -93,7 +98,17 @@ function QuestWatch(target_level, silent)
       yield("/wait 1")
     end
 
-    if IsInCombat() or IsPlayerDead() or IsPlayerOccupied() or not ADIsStopped() or not NavIsReady() or not IsPlayerAvailable() or NavBuildProgress() > 0 then
+    if not coffer_opened and GetItemCount(31329) > 0 then
+      yield("/qst stop")
+      yield("/wait 5")
+      WaitUntil(IsPlayerAvailable)
+      yield("/item "..GetItemName(31329))
+      coffer_opened = true
+      yield("/wait 5")
+      yield("/qst start")
+    end
+
+    if IsInCombat() or IsPlayerDead() or IsPlayerOccupied() or not NavIsReady() or not IsPlayerAvailable() or NavBuildProgress() > 0 then
       last_x = 0
       last_y = 0
       last_z = 0
@@ -107,6 +122,18 @@ function QuestWatch(target_level, silent)
           RebuildNavMesh()
           yield("/qst start")
           resetCounts(true)
+        end
+      elseif not ADIsStopped() then
+        duty_count = duty_count + 1
+        if duty_count > 60 then
+          Logging.Error("duty dead, aborting")
+          Logging.Notify("failed to complete questing")
+          yield("/qst stop")
+          LeaveDuty()
+          yield("/wait 5")
+          WaitForNavReady()
+          returnOrGridania()
+          return
         end
       elseif not QuestionableIsRunning() then
         stop_count = stop_count + 1
@@ -148,6 +175,7 @@ function QuestWatch(target_level, silent)
     if fail_count > 5 then
       Logging.Error("repeated failures, aborting")
       Logging.Notify("failed to complete questing")
+      yield("/qst stop")
       returnOrGridania()
       return
     end
@@ -157,6 +185,7 @@ function QuestWatch(target_level, silent)
 
   yield("/qst stop")
   if not silent then Logging.Notify("questing complete") end
+  return true
 end
 
 function QuestMulti(chars, level)
@@ -167,10 +196,13 @@ function QuestMulti(chars, level)
       WaitForNavReady()
     end
     if GetCharacterName(true) == character then
-      QuestWatch(level, true)
+      if QuestWatch(level, true) then
+        Logging.Info("levelling complete for "..character)
+      else
+        Logging.Info("levelling failed for "..character)
+      end
       yield("/wait 5")
       returnOrGridania()
-      Logging.Info("levelling complete for "..character)
       yield("/wait 1")
     else
       Logging.Error("failed to find character "..character)

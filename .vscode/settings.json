@@ -61,7 +61,8 @@
         "GetZoneID",
         "GetZoneName",
         "GetAetherytesInZone",
-        "IsQuestAccepted"
+        "IsQuestAccepted",
+        "LeaveDuty"
     ],
     "Lua.diagnostics.disable": [
         "undefined-field"
