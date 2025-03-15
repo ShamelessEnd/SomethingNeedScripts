@@ -210,3 +210,14 @@ function QuestMulti(chars, level)
   end
   Logging.Notify("multi questing complete")
 end
+
+function UnlockTeleport()
+  if IsInZone(132) then
+    PathfindAndMoveTo(155, -13, 159, false)
+  end
+  WaitUntil(function () return IsPlayerAvailable() and NavIsReady() and GetZoneID() == 148 end)
+  NavToPoint(13.08, 0.56, 35.90, 7, false, 300)
+  yield("/target aetheryte")
+  yield("/wait 0.2")
+  yield("/interact")
+end
