@@ -62,7 +62,23 @@
         "GetZoneName",
         "GetAetherytesInZone",
         "IsQuestAccepted",
-        "LeaveDuty"
+        "LeaveDuty",
+        "TargetClosestEnemy",
+        "HasTarget",
+        "GetPartyMemberName",
+        "GetDistanceToPartyMember",
+        "ClearTarget",
+        "IsTargetMounted",
+        "GetPartyLeadIndex",
+        "GetPartyMemberHP",
+        "IsPartyMemberInCombat",
+        "GetTargetFateID",
+        "IsTargetInCombat",
+        "GetHP",
+        "GetMaxHP",
+        "GetPartyMemberHPP",
+        "OpenRegularDuty",
+        "SetDFUnrestricted"
     ],
     "Lua.diagnostics.disable": [
         "undefined-field"
