@@ -118,8 +118,12 @@ function NavToPoint(x, y, z, stop_dist, fly, timeout)
   while GetDistanceToPoint(x, y, z) > stop_dist do
     if timeout_count > timeout then
       PathStop()
-      Logging.Warning("nav to point failed "..x..", "..y..", "..z)
-      return false
+      if rebuild_once then
+        timeout_count = 2
+      else
+        Logging.Warning("nav to point failed "..x..", "..y..", "..z)
+        return false
+      end
     end
     if rebuild_once and timeout_count > 1 and not PathIsRunning() then
       RebuildNavMesh()
