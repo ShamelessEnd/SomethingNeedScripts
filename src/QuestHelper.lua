@@ -519,6 +519,7 @@ function HuntingLogPrereqs()
   unlockAetheryte(137, -18.4, 72.7, 3.8)
 
   -- Bronze Lake
+  mountChocobo()
   NavToPoint(79, 80, -114, 5, false, 120)
   PathfindAndMoveTo(77, 80, -121, false)
   unlockAetheryte(139, 437.4, 5.5, 94.6)
@@ -586,4 +587,6 @@ function DoHuntingLogCarry()
   GoToKillMobsMulti(1245, nil, -8, -11, -156, { ["Coliseum Python"] = 1, ["Scythe Mantis"] = 2 })
   GoToKillMobsMulti(1245, nil, -83, -11, -100, { ["Coliseum Python"] = 1, ["Scythe Mantis"] = 2 })
   LeaveDuty()
+
+  Logging.Notify("hunting log complete")
 end
