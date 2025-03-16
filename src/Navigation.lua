@@ -101,6 +101,21 @@ function WalkToTarget(target)
   yield("/wait 0.1")
 end
 
+function PathToNearestGroundPoint(x_t, y_t, z_t)
+  local x_g
+  local y_g
+  local z_g
+  local extent = 0
+  while not x_g or not y_g or not z_g do
+    x_g = QueryMeshPointOnFloorX(x_t, y_t, z_t, false, extent)
+    y_g = QueryMeshPointOnFloorY(x_t, y_t, z_t, false, extent)
+    z_g = QueryMeshPointOnFloorZ(x_t, y_t, z_t, false, extent)
+    extent = extent + 1
+  end
+
+  PathfindAndMoveTo(x_g, y_g, z_g, false)
+end
+
 function NavToPoint(x, y, z, stop_dist, fly, timeout)
   local distance = GetDistanceToPoint(x, y, z)
   if distance <= stop_dist then

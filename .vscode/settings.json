@@ -78,7 +78,18 @@
         "GetMaxHP",
         "GetPartyMemberHPP",
         "OpenRegularDuty",
-        "SetDFUnrestricted"
+        "SetDFUnrestricted",
+        "TerritorySupportsMounting",
+        "QueryMeshPointOnFloorX",
+        "QueryMeshPointOnFloorY",
+        "QueryMeshPointOnFloorZ",
+        "GetPartyMemberWorldName",
+        "IsInFate",
+        "GetFateMaxLevel",
+        "GetNearestFate",
+        "GetPartyMemberRawXPos",
+        "GetPartyMemberRawYPos",
+        "GetPartyMemberRawZPos"
     ],
     "Lua.diagnostics.disable": [
         "undefined-field"

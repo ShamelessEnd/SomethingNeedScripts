@@ -16,6 +16,13 @@ function IsCasting() return GetCharacterCondition(27) end
 
 function Sprint() ExecuteGeneralAction(4) end
 
+function Dismount()
+  while IsMounted() do
+    yield("/mount")
+    yield("/wait 0.1")
+  end
+end
+
 function ReadXORData(file, key, bytes)
   local x = 0
   for i = 0, bytes - 1 do
