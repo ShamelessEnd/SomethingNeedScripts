@@ -230,6 +230,53 @@ local function enterAetherialFlow()
   WaitUntil(function () return IsPlayerAvailable() and NavIsReady() and IsInZone(1245) end)
 end
 
+function FollowPartyLeaderFate()
+  local function mountFenrir() while not IsMounted() and not IsInCombat() do PathStop() yield("/mount \"SDS Fenrir\"") WaitUntil(IsMounted, 3) end end
+  while true do
+    local lead_index = GetPartyLeadIndex()
+    local x_t = GetPartyMemberRawXPos(lead_index)
+    local y_t = GetPartyMemberRawYPos(lead_index)
+    local z_t = GetPartyMemberRawZPos(lead_index)
+
+    if IsPlayerDead() and IsAddonVisible("SelectYesno") and StringStartsWith(GetNodeText("SelectYesno", 15), "Return to ") then
+      Logging.Info("player dead, attempting to recover")
+      Callback("SelectYesno", true, 0)
+      AwaitAddonGone("SelectYesno")
+      yield("/wait 3")
+      WaitForNavReady()
+    elseif GetDistanceToPoint(x_t, y_t, z_t) < 20 and IsInFate() then
+      if IsMounted() then
+        PathStop()
+        Dismount()
+      end
+      if GetFateMaxLevel(GetNearestFate()) < GetLevel() then
+        yield("/levelsync on")
+      end
+      if GetDistanceToPoint(x_t, y_t, z_t) > 5 then
+        PathfindAndMoveTo(x_t, y_t, z_t)
+      end
+      yield("/wait 1")
+    else
+      mountFenrir()
+      if GetDistanceToPoint(x_t, y_t, z_t) > 5 then
+        if IsMounted() then
+          PathfindAndMoveTo(x_t, y_t+3, z_t, true)
+        else
+          PathfindAndMoveTo(x_t, y_t, z_t, false)
+        end
+        for i = 0,50 do
+          yield("/wait 0.1")
+          if not PathIsRunning() then
+            break
+          end
+        end
+      else
+        yield("/wait 1")
+      end
+    end
+  end
+end
+
 function FollowPartyLeader()
   while true do
     WaitForNavReady()
@@ -285,18 +332,17 @@ function MountAndWaitPillion()
   WaitUntil(function () return isPartyMounted() end)
 end
 
-function IsPartyInCombat()
-  if IsInCombat() then return true end
+function IsPartyInCombat(skipSelf)
+  if not skipSelf and IsInCombat() then return true end
   local own_name = GetCharacterName()
   for i = 0,7 do
     local name = GetPartyMemberName(i)
     if not StringIsEmpty(name) and name ~= own_name then
+      local old_target = GetTargetName()
       yield("/target "..name)
-      if GetTargetName() == name then
-        local inCombat = IsTargetInCombat()
-        ClearTarget()
-        if inCombat then return true end
-      end
+      local inCombat = GetTargetName() == name and IsTargetInCombat()
+      if StringIsEmpty(old_target) then ClearTarget() else yield("/target "..old_target) end
+      if inCombat then return true end
     end
   end
   return false
@@ -379,10 +425,8 @@ local function goToMobLocation(zone, aetheryte, x, y, z)
   end
   NavToPoint(x, y, z, 1, TerritorySupportsMounting(), 300)
   yield("/wait 0.2")
-  while IsMounted() do
-    yield("/mount")
-    yield("/wait 0.5")
-  end
+  Dismount()
+  yield("/wait 0.2")
 end
 
 function ResPartyMembers()
@@ -485,6 +529,10 @@ function DoHuntingLogCarried()
 end
 
 function DoHuntingLogCarry()
+  -- Upper La'No
+  GoToKillMobs(139, 15, -483, 27, 56, "Kobold Pickman", 2)
+  GoToKillMobs(139, 15, -398, 36, 34, "Kobold Pickman", 1)
+
   -- East Than
   GoToKillMobs(145, 18, -49, -27, 330, "Amalj'aa Javelinier", 1)
   GoToKillMobs(145, 18, -91, -29, 285, "Amalj'aa Javelinier", 2)
@@ -535,5 +583,4 @@ function DoHuntingLogCarry()
   GoToKillMobsMulti(1245, nil, -8, -11, -156, { ["Coliseum Python"] = 1, ["Scythe Mantis"] = 2 })
   GoToKillMobsMulti(1245, nil, -83, -11, -100, { ["Coliseum Python"] = 1, ["Scythe Mantis"] = 2 })
   LeaveDuty()
-
 end
