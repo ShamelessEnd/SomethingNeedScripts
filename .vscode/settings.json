@@ -89,7 +89,8 @@
         "GetNearestFate",
         "GetPartyMemberRawXPos",
         "GetPartyMemberRawYPos",
-        "GetPartyMemberRawZPos"
+        "GetPartyMemberRawZPos",
+        "GetPartyMemberMaxHP"
     ],
     "Lua.diagnostics.disable": [
         "undefined-field"

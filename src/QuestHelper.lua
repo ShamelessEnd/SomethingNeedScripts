@@ -433,7 +433,7 @@ function ResPartyMembers()
   local resd = false
   for i = 0,7 do
     local name = GetPartyMemberName(i)
-    if not StringIsEmpty(name) and GetPartyMemberHP(i) <= 0.1 then
+    if not StringIsEmpty(name) and (GetPartyMemberHP(i) < 0.1 and GetPartyMemberMaxHP(i) > 0.1) then
       yield("/target "..name)
       yield("/wait 0.2")
       yield("/ac Swiftcast <wait.1>")
@@ -476,14 +476,16 @@ function HuntingLogPrereqs()
   -- Halatali
   yield("/at n")
   WaitUntil(IsPlayerAvailable)
-  yield("/item "..GetItemName(30362))
+  while not IsCasting() do
+    yield("/item "..GetItemName(30362))
+    yield("/wait 0.1")
+  end
   waitZoneTransfer(140)
   mountChocobo()
   NavToPoint(-472.5, 23, -355, 3, false, 60)
+  Dismount()
   yield("/at y")
-  yield("/target Nedrick Ironheart")
-  yield("/wait 0.2")
-  yield("/interact")
+  InteractWith("Nedrick Ironheart", "SelectIconString", 5)
   if AwaitAddonReady("SelectIconString", 5) then
     Callback("SelectIconString", true, 0)
     yield("/wait 2")
@@ -498,6 +500,7 @@ function HuntingLogPrereqs()
   waitZoneTransfer(145)
   mountChocobo()
   NavToPoint(-331, -22.5, 434.9, 3, false, 120)
+  Dismount()
   yield("/at y")
   yield("/wait 3")
   WaitForNavReady()
@@ -523,8 +526,8 @@ end
 
 function DoHuntingLogCarried()
   HuntingLogPrereqs()
-  TeleportToAetheryte(18)
-  WaitUntil(function () return IsPlayerAvailable() and NavIsReady() and IsInZone(145) end)
+  TeleportToAetheryte(15)
+  WaitUntil(function () return IsPlayerAvailable() and NavIsReady() and IsInZone(139) end)
   FollowPartyLeader()
 end
 
