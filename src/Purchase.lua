@@ -20,8 +20,13 @@ function ShouldBuyMarketItem(list_index, max_price, gil_floor)
 
   local list_price = GetItemListingPrice(list_index)
   if list_price <= 0 then
-    Logging.Error("failed to fetch listing price")
-    return nil
+    if string.find(GetNodeText("ItemSearchResult", 26), "No items found") then
+      Logging.Trace("no item listings")
+      return nil
+    else
+      Logging.Error("failed to fetch listing price")
+      return nil
+    end
   end
   if list_price > max_price then
     Logging.Trace("cant buy item: price "..list_price.." > "..max_price)
@@ -69,7 +74,7 @@ function PurchaseItem(item_table, gil_floor)
   local buy_count = 0
   local next_purchase = ShouldBuyMarketItem(1, max_price, gil_floor)
   local fail_count = 0
-  while next_purchase and GetItemCount(item_id) < max_count do
+  while next_purchase and GetItemCount(item_id) < max_count and GetInventoryFreeSlotCount() > 0 do
     if BuyMarketItem(1) then
       buy_count = buy_count + next_purchase
     else
@@ -106,6 +111,9 @@ function GoPurchaseItems(buy_table, gil_floor)
   if TableIsEmpty(reduced_buy_table) then
     Logging.Info("no items to purchase")
     return nil
+  elseif GetInventoryFreeSlotCount() <= 0 then
+    Logging.Info("no free inventory slots")
+    return nil
   end
 
   if not NavToMarketBoard() then return false end
@@ -114,6 +122,10 @@ function GoPurchaseItems(buy_table, gil_floor)
     if not PurchaseItem(item_table, gil_floor) then
       CloseMarketBoard()
       return false
+    elseif GetInventoryFreeSlotCount() <= 0 then
+      Logging.Info("no free inventory slots")
+      CloseMarketBoard()
+      return nil
     end
   end
   CloseMarketBoard()
