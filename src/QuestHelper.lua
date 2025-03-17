@@ -224,7 +224,7 @@ end
 
 local function enterAetherialFlow()
   NavToObject("Aetherial Flow", 3, false, 10)
-  InteractWith("Aetherial Flow", "SelectYesno", 5)
+  while not InteractWith("Aetherial Flow", "SelectYesno", 5) do yield("/wait 1") end
   Callback("SelectYesno", true, 0)
   yield("/wait 3")
   WaitUntil(function () return IsPlayerAvailable() and NavIsReady() and IsInZone(1245) end)
@@ -414,7 +414,7 @@ function KillMobs(targets)
   end
 end
 
-local function goToMobLocation(zone, aetheryte, x, y, z)
+local function goToMobLocation(zone, aetheryte, x, y, z, timeout)
   KillMobs({})
   ResPartyMembers()
   if not IsInZone(zone) then
@@ -423,7 +423,7 @@ local function goToMobLocation(zone, aetheryte, x, y, z)
   if TerritorySupportsMounting() then
     MountAndWaitPillion()
   end
-  NavToPoint(x, y, z, 1, TerritorySupportsMounting(), 300)
+  NavToPoint(x, y, z, 1, TerritorySupportsMounting(), timeout or 120)
   yield("/wait 0.2")
   Dismount()
   yield("/wait 0.2")
@@ -444,20 +444,20 @@ function ResPartyMembers()
   return resd
 end
 
-function GoToKillMobs(zone, aetheryte, x, y, z, name, count)
-  goToMobLocation(zone, aetheryte, x, y, z)
+function GoToKillMobs(zone, aetheryte, x, y, z, name, count, timeout)
+  goToMobLocation(zone, aetheryte, x, y, z, timeout)
   local targets = {}
   targets[name] = count
   KillMobs(targets)
 end
 
-function GoToKillMobsMulti(zone, aetheryte, x, y, z, targets)
-  goToMobLocation(zone, aetheryte, x, y, z)
+function GoToKillMobsMulti(zone, aetheryte, x, y, z, targets, timeout)
+  goToMobLocation(zone, aetheryte, x, y, z,  timeout)
   KillMobs(targets)
 end
 
 function HuntingLogPrereqs()
-  local function mountChocobo() while not IsMounted() do yield("/mount \"Company Chocobo\"") WaitUntil(IsMounted, 3) end end
+  local function mountChocobo() while TerritorySupportsMounting() and not IsMounted() do yield("/mount \"Company Chocobo\"") WaitUntil(IsMounted, 3) end end
   local function waitZoneTransfer(zone) WaitUntil(function () return IsPlayerAvailable() and NavIsReady() and IsInZone(zone) end) end
   local function unlockAetheryte(zone, x, y, z)
     waitZoneTransfer(zone)
@@ -510,6 +510,32 @@ function HuntingLogPrereqs()
   yield("/li North Shroud")
   unlockAetheryte(154, -41.6, -38.6, 233.8)
 
+  -- Wolves Den
+  yield("/at n")
+  TeleportToGridania()
+  NavToPoint(-74.5, -0.5, -5.1, 3, false, 60)
+  if InteractWith("Vorsaile Heuloix", "JournalAccept", 5) then
+    yield("/at y")
+    yield("/wait 2")
+  end
+  if IsAddonVisible("SelectIconString") then
+    Callback("SelectIconString", true, -1)
+  end
+  WaitUntil(IsPlayerAvailable)
+  TeleportToAetheryte(10)
+  waitZoneTransfer(135)
+  yield("/at y")
+  NavToPoint(270.75, 4.4, 720.0, 3, false, 60)
+  InteractWith("Ferry Skipper", "SelectYesno", 5)
+  Callback("SelectYesno", true, 0)
+  waitZoneTransfer(250)
+  unlockAetheryte(250, 41, 5.5, -14.8)
+  yield("/at n")
+  NavToPoint(0, 3.6, -30.4, 3, false, 60)
+  yield("/at y")
+  yield("/wait 3")
+  WaitForNavReady()
+
   -- Wineport
   TeleportToAetheryte(52)
   waitZoneTransfer(134)
@@ -525,10 +551,15 @@ function HuntingLogPrereqs()
   unlockAetheryte(139, 437.4, 5.5, 94.6)
 end
 
+function MonitorGCSeals(count)
+  while GetItemCount(21) < count do
+    yield("/wait 5")
+  end
+  Logging.Notify("seal count met")
+end
+
 function DoHuntingLogCarried()
   HuntingLogPrereqs()
-  TeleportToAetheryte(15)
-  WaitUntil(function () return IsPlayerAvailable() and NavIsReady() and IsInZone(139) end)
   FollowPartyLeader()
 end
 
@@ -577,7 +608,7 @@ function DoHuntingLogCarry()
   GoToKillMobs(1245, nil, 200, 6, -36, "Heckler Imp", 1)
   GoToKillMobs(1245, nil, 153, -2, -9, "Heckler Imp", 2)
   GoToKillMobs(1245, nil, 111, -4, 50, "Heckler Imp", 2)
-  GoToKillMobs(1245, nil, 29, 1, 125, "Firemane", 1)
+  GoToKillMobs(1245, nil, 29, 1, 125, "Firemane", 1, 60)
 
   enterAetherialFlow()
   GoToKillMobs(1245, nil, 86, -9, -87, "Scythe Mantis", 2)
