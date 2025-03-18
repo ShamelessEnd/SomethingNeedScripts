@@ -297,7 +297,7 @@ function FollowPartyLeader()
     elseif IsTargetMounted() and GetDistanceToTarget() < 5 then
       if not GetCharacterCondition(10) then yield("/ridepillion <t>") end
     elseif not TerritorySupportsMounting() then
-      if GetDistanceToObject("Aetherial Flow") < 30 then
+      if GetDistanceToObject("Aetherial Flow") < 20 then
         enterAetherialFlow()
       else
         NavToTarget(GetTargetName(), 1, false, 10)
@@ -560,12 +560,7 @@ function MonitorGCSeals(count)
   Logging.Notify("seal count met")
 end
 
-function DoHuntingLogCarried()
-  HuntingLogPrereqs()
-  FollowPartyLeader()
-end
-
-function DoHuntingLogCarry()
+function HuntingLogMobs()
   -- Upper La'No
   GoToKillMobs(139, 15, -483, 27, 56, "Kobold Pickman", 2)
   GoToKillMobs(139, 15, -398, 36, 34, "Kobold Pickman", 1)
@@ -591,8 +586,9 @@ function DoHuntingLogCarry()
   WaitUntil(function () return IsInZone(155) end)
   GoToKillMobs(155, nil, 480, 233, 318, "Ixali Fearcaller", 1)
   TeleportToGridania()
+end
 
-  -- Halatali
+function HuntingLogHalatali()
   OpenRegularDuty(7)
   AwaitAddonReady("ContentsFinder")
   SetDFUnrestricted(true)
@@ -610,7 +606,7 @@ function DoHuntingLogCarry()
   GoToKillMobs(1245, nil, 200, 6, -36, "Heckler Imp", 1)
   GoToKillMobs(1245, nil, 153, -2, -9, "Heckler Imp", 2)
   GoToKillMobs(1245, nil, 111, -4, 50, "Heckler Imp", 2)
-  GoToKillMobs(1245, nil, 29, 1, 125, "Firemane", 1, 60)
+  GoToKillMobs(1245, nil, 16.3, 0.9, 122.2, "Firemane", 1, 60)
 
   enterAetherialFlow()
   GoToKillMobs(1245, nil, 86, -9, -87, "Scythe Mantis", 2)
@@ -622,4 +618,14 @@ function DoHuntingLogCarry()
   LeaveDuty()
 
   Logging.Notify("hunting log complete")
+end
+
+function DoHuntingLogCarried()
+  HuntingLogPrereqs()
+  FollowPartyLeader()
+end
+
+function DoHuntingLogCarry()
+  HuntingLogHalatali()
+  HuntingLogMobs()
 end
