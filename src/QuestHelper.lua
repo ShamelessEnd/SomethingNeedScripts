@@ -626,6 +626,6 @@ function DoHuntingLogCarried()
 end
 
 function DoHuntingLogCarry()
-  HuntingLogHalatali()
   HuntingLogMobs()
+  HuntingLogHalatali()
 end
