@@ -333,7 +333,7 @@ function TeleportToBellZone()
   end
 
   local apt_dist = GetDistanceToObject("Apartment Building Entrance")
-  if apt_dist ~= nil and apt_dist < 20 then
+  if IsInHousingDistrict() and apt_dist ~= nil and apt_dist < 20 then
     return
   end
 
