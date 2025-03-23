@@ -51,7 +51,7 @@ VentureSellTable = {
       {  7540,      149500,      false,          1,            1,        0 }, -- "Spring Dress"               },
       { 16600,      249500,      false,          1,            1,        0 }, -- "Cashmere Poncho"            },
       { 20477,      249500,      false,          1,            1,        0 }, -- "Quan"                       },
-      { 20476,      249500,      false,          1,            1,        0 }, -- "Ao Dai"                     },
+      { 20476,      149500,      false,          1,            1,        0 }, -- "Ao Dai"                     },
       {  8559,      249500,      false,          1,            1,        0 }, -- "Crescent Moon Nightgown"    },
       {  8557,      249500,      false,          1,            1,        0 }, -- "Crescent Moon Cone"         },
       {  8561,      249500,      false,          1,            1,        0 }, -- "Crescent Moon Slippers"     },
