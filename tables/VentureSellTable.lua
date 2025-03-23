@@ -272,6 +272,7 @@ VentureSellTable = {
       {  7109,        9500,      false,          1,            1,        0 }, -- "Manor Music Stool"          },
       {  7114,        9500,      false,          1,            1,        0 }, -- "Manor Music Stand"          },
       {  6569,       14500,      false,          1,            1,        0 }, -- "Manor Bookshelf"            },
+      {  6563,       14500,      false,          1,            1,        0 }, -- "Manor Cupboard"            },
       { 20735,       14500,      false,          1,            1,        0 }, -- "Hingan Cupboard"            },
       { 16781,       14500,      false,          1,            1,        0 }, -- "Troupe Stage"               },
       { 32224,       14500,      false,          1,            1,        0 }, -- "Swag Valance"               },
