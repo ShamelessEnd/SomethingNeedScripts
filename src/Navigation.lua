@@ -327,8 +327,7 @@ end
 
 function TeleportToBellZone()
   if GetARCharacterData().WorkshopEnabled then
-    LifestreamTeleportToFC()
-    yield("/wait 7")
+    ReturnToFC()
     return
   end
 
@@ -349,7 +348,7 @@ function TeleportToBellZone()
 end
 
 function ReturnToFC()
-  LifestreamTeleportToFC()
+  yield("/li fc")
   yield("/wait 7")
   WaitWhile(LifestreamIsBusy)
 end
