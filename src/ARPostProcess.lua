@@ -47,3 +47,18 @@ function ARPostProcess(retainer_tables, thresholds)
     end
   end
 end
+
+function ARPostSimple(thresholds)
+  local ar_data = GetARCharacterData()
+  if not ar_data then return end
+  if not thresholds then thresholds = _default_thresholds end
+
+  if ar_data.Enabled == true then
+    local lacks_inv_space = thresholds.inv ~= nil and GetInventoryFreeSlotCount() < thresholds.inv
+    local lacks_ventures = thresholds.venture ~= nil and GetItemCount(21072) < thresholds.venture
+    if lacks_inv_space or lacks_ventures then
+      GCTurnIn()
+      ReturnToFC()
+    end
+  end
+end
