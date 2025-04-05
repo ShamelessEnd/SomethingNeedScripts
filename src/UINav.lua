@@ -52,6 +52,13 @@ function CloseAddon(addon_name, await_other)
   end
 end
 
+function CloseAddonFast(addon_name)
+  Logging.Trace("closing addon "..addon_name.." without waiting")
+  repeat
+    TryCallback(addon_name, true, -1)
+  until AwaitAddonGone(addon_name, 1)
+end
+
 function ClearTalkAndAwait(addon_name)
   while not IsAddonReady(addon_name) do
     if IsAddonReady("Talk") then

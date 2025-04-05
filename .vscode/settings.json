@@ -90,7 +90,9 @@
         "GetPartyMemberRawXPos",
         "GetPartyMemberRawYPos",
         "GetPartyMemberRawZPos",
-        "GetPartyMemberMaxHP"
+        "GetPartyMemberMaxHP",
+        "ADRun",
+        "ARIsBusy"
     ],
     "Lua.diagnostics.disable": [
         "undefined-field"
