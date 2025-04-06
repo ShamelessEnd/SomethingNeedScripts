@@ -57,7 +57,8 @@ end
 function CapCharacters(character_table)
     yield("/xlenablecollection Questionable")
     yield("/wait 4")
-    for cid, config in pairs(character_table) do
+    for _, char in pairs(character_table) do
+        local cid = char.id
         local data = GetARCharacterData(cid)
         if data then
             local name = ""..data.Name.."@"..data.World
@@ -71,7 +72,7 @@ function CapCharacters(character_table)
                 WaitForNavReady()
                 yield("/wait 3")
             end
-            RunDutyUntilCap(config.duty)
+            RunDutyUntilCap(char.duty)
         end
     end
     yield("/xldisablecollection Questionable")
