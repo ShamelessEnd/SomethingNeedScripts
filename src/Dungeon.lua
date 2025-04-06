@@ -21,6 +21,11 @@ function GetWeeklyTomeCount()
         return nil, nil
     end
 
+    while not IsNodeVisible("Currency", 1, 16, 200408) do
+        Callback("Currency", true, 12, 1)
+        yield("/wait 0.1")
+    end
+
     local currency_text = GetNodeText("Currency", 66, 1)
     while StringIsEmpty(currency_text) do
         yield("/wait 0.1")
