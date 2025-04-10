@@ -58,20 +58,7 @@ function CapCharacters(character_table)
     yield("/xlenablecollection Questionable")
     yield("/wait 4")
     for _, char in pairs(character_table) do
-        local cid = char.id
-        local data = GetARCharacterData(cid)
-        if data then
-            local name = ""..data.Name.."@"..data.World
-            Logging.Debug("relogging to "..name)
-            if cid ~= GetPlayerContentId() then
-                while not ARIsBusy() do
-                    yield("/ays relog "..name)
-                    yield("/wait 1")
-                end
-                WaitUntil(function () return cid == GetPlayerContentId() end, 600, 1)
-                WaitForNavReady()
-                yield("/wait 3")
-            end
+        if ARRelogTo(char.id) then
             RunDutyUntilCap(char.duty)
         end
     end
