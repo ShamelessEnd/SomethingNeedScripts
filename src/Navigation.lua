@@ -24,6 +24,15 @@ function IsInLimsa()
   return IsInZone(129)
 end
 
+function IsInHomeWorld()
+  return GetCurrentWorld() == GetHomeWorld()
+end
+
+function Target(target)
+  yield("/target "..target)
+  return WaitUntil(function () return GetTargetName() == target end, 1)
+end
+
 function TeleportToAetheryte(aetheryte)
   if IsAetheryteUnlocked(aetheryte) then
     LifestreamTeleport(aetheryte, 0)
@@ -61,14 +70,6 @@ function DoReturn()
   return false
 end
 
-function IsInHomeWorld()
-  return GetCurrentWorld() == GetHomeWorld()
-end
-
-function WaitForNavReady()
-  WaitUntil(function () return NavIsReady() and IsPlayerAvailable() end)
-end
-
 function RebuildNavMesh()
   NavRebuild()
   yield("/wait 3")
@@ -76,8 +77,7 @@ function RebuildNavMesh()
 end
 
 function WalkToTarget(target)
-  yield("/target "..target)
-  if GetTargetName() ~= target then
+  if not Target(target) then
     return false
   end
   if GetDistanceToTarget() > 20 then
@@ -154,8 +154,7 @@ function NavToPoint(x, y, z, stop_dist, fly, timeout)
 end
 
 function NavToTarget(target, stop_dist, fly, timeout)
-  yield("/target "..target)
-  if GetTargetName() ~= target then
+  if not Target(target) then
     return false
   end
 
@@ -168,8 +167,7 @@ function NavToTarget(target, stop_dist, fly, timeout)
     return false
   end
 
-  yield("/target "..target)
-  return GetTargetName() == target
+  return Target(target)
 end
 
 function NavToObject(object, stop_dist, fly, timeout)
@@ -189,8 +187,7 @@ function NavToObject(object, stop_dist, fly, timeout)
     return false
   end
 
-  yield("/target "..object)
-  return true
+  return Target(object)
 end
 
 function NavToMarketBoard()
@@ -362,7 +359,7 @@ function ReturnToBell()
   local bell_target = "Summoning Bell"
   local bell_dist = GetDistanceToObject(bell_target)
   if bell_dist ~= nil and bell_dist < 3 then
-    yield("/target "..bell_target)
+    Target(bell_target)
     return
   end
 

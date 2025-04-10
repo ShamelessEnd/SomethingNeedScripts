@@ -77,7 +77,7 @@ function InteractWith(target, addon, range)
     return AwaitAddonReady(addon, 5)
   end
 
-  yield("/target "..target)
+  Target(target)
   if GetTargetName() ~= target or GetDistanceToTarget() > range then
     Logging.Error("not in range ("..range..") of "..target)
     return false

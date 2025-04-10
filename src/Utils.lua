@@ -16,6 +16,10 @@ function IsCasting() return GetCharacterCondition(27) end
 
 function Sprint() ExecuteGeneralAction(4) end
 
+function WaitForNavReady()
+  WaitUntil(function () return NavIsReady() and IsPlayerAvailable() end)
+end
+
 function Dismount()
   while IsMounted() do
     yield("/mount")

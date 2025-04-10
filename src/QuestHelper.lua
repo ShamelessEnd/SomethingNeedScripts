@@ -212,14 +212,26 @@ function QuestMulti(chars, level)
 end
 
 function UnlockTeleport()
+  if GetLevel() > 3 then return end
   if IsInZone(132) then
+    yield("/at n")
+    NavToAetheryte()
+    yield("/at y")
+    yield("/wait 0.2")
+    yield("/interact")
+    yield("/wait 5")
+    WaitUntil(function () return IsPlayerAvailable() and NavIsReady() end)
     PathfindAndMoveTo(155, -13, 159, false)
   end
   WaitUntil(function () return IsPlayerAvailable() and NavIsReady() and GetZoneID() == 148 end)
   NavToPoint(13.08, 0.56, 35.90, 7, false, 300)
-  yield("/target aetheryte")
+  Target("aetheryte")
   yield("/wait 0.2")
   yield("/interact")
+  yield("/wait 5")
+  WaitUntil(function () return IsPlayerAvailable() and NavIsReady() end)
+  yield("/wait 1")
+  DoReturn()
 end
 
 local function enterAetherialFlow()
@@ -292,7 +304,7 @@ function FollowPartyLeader()
         yield("/autofollow")
         LeaveDuty()
       else
-        yield("/target "..GetPartyMemberName(GetPartyLeadIndex()))
+        Target(GetPartyMemberName(GetPartyLeadIndex()))
       end
     elseif IsTargetMounted() and GetDistanceToTarget() < 5 then
       if not GetCharacterCondition(10) then yield("/ridepillion <t>") end
@@ -339,9 +351,9 @@ function IsPartyInCombat(skipSelf)
     local name = GetPartyMemberName(i)
     if not StringIsEmpty(name) and name ~= own_name then
       local old_target = GetTargetName()
-      yield("/target "..name)
+      Target(name)
       local inCombat = GetTargetName() == name and IsTargetInCombat()
-      if StringIsEmpty(old_target) then ClearTarget() else yield("/target "..old_target) end
+      if StringIsEmpty(old_target) then ClearTarget() else Target(old_target) end
       if inCombat then return true end
     end
   end
@@ -364,7 +376,7 @@ function KillMobs(targets)
     else
       for name, count in pairs(targets) do
         if count > 0 then
-          yield("/target "..name)
+          Target(name)
           yield("/wait 0.2")
           if HasTarget() and GetDistanceToTarget() < 25 then
             break
@@ -396,7 +408,7 @@ function KillMobs(targets)
       end
 
       if (GetHP() / GetMaxHP()) < 0.5 then
-        yield("/target <me>")
+        Target("<me>")
         yield("/wrath auto on")
         yield("/wait 1")
         WaitUntil(function () return (GetHP() / GetMaxHP()) > 0.2 end)
@@ -434,7 +446,7 @@ function ResPartyMembers()
   for i = 0,7 do
     local name = GetPartyMemberName(i)
     if not StringIsEmpty(name) and (GetPartyMemberHP(i) < 0.1 and GetPartyMemberMaxHP(i) > 0.1) then
-      yield("/target "..name)
+      Target(name)
       yield("/wait 0.2")
       yield("/ac Swiftcast <wait.1>")
       yield("/ac Raise <t> <wait.9>")
@@ -463,7 +475,7 @@ function HuntingLogPrereqs()
     waitZoneTransfer(zone)
     mountChocobo()
     NavToPoint(x, y, z, 7, false, 120)
-    yield("/target aetheryte")
+    Target("aetheryte")
     yield("/wait 0.2")
     yield("/interact")
     yield("/wait 5")
