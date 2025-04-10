@@ -136,7 +136,25 @@ function GetServerData(server_id)
       end
     end
   end
-  Logging.Error("server_id not found "..server_id)
+  Logging.Error("server id "..server_id.." not found")
+end
+
+function FindServerData(server_name)
+  for region, region_table in pairs(ServerDataTable) do
+    for data_center, data_center_table in pairs(region_table) do
+      for id, name in pairs(data_center_table) do
+        if name == server_name then
+          return {
+            id = id,
+            region = region,
+            dc = data_center,
+            name = name,
+          }
+        end
+      end
+    end
+  end
+  Logging.Error("server "..server_name.." not found")
 end
 
 function GetHomeServerData() return GetServerData(GetHomeWorld()) end

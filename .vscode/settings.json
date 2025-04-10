@@ -92,7 +92,11 @@
         "GetPartyMemberRawZPos",
         "GetPartyMemberMaxHP",
         "ADRun",
-        "ARIsBusy"
+        "ARIsBusy",
+        "DropboxSetItemQuantity",
+        "DropboxStart",
+        "DropboxIsBusy",
+        "ARGetCharacterCIDs"
     ],
     "Lua.diagnostics.disable": [
         "undefined-field"
