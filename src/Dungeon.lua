@@ -3,18 +3,7 @@ require "Logging"
 require "Navigation"
 require "UINav"
 
-function OpenCurrencyWindow()
-    if IsAddonReady("Currency") then return true end
-    local timeout_count = 0
-    repeat
-        if timeout_count > 5 then
-            return false
-        end
-        yield("/maincommand Currency")
-        timeout_count = timeout_count + 1
-    until AwaitAddonReady("Currency", 1)
-    return true
-end
+function OpenCurrencyWindow() return OpenMainCommandWindow("Currency") end
 
 function GetWeeklyTomeCount()
     if not OpenCurrencyWindow() then

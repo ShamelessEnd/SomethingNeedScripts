@@ -102,3 +102,16 @@ function GetErrorText()
   end
   return nil
 end
+
+function OpenMainCommandWindow(window)
+  if IsAddonReady(window) then return true end
+  local timeout_count = 0
+  repeat
+    if timeout_count > 5 then
+      return false
+    end
+    yield("/maincommand "..window)
+    timeout_count = timeout_count + 1
+  until AwaitAddonReady(window, 1)
+  return true
+end
