@@ -14,6 +14,10 @@ function RoundUpToNext(x, increment) return math.floor(((x + increment - 1) // i
 
 function IsCasting() return GetCharacterCondition(27) end
 
+function HasFood() return HasStatusId(48) end
+
+function GetFoodTime() return GetStatusTimeRemaining(48) end
+
 function Sprint() ExecuteGeneralAction(4) end
 
 function WaitForNavReady()
