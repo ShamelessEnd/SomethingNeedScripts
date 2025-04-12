@@ -96,7 +96,16 @@
         "DropboxSetItemQuantity",
         "DropboxStart",
         "DropboxIsBusy",
-        "ARGetCharacterCIDs"
+        "ARGetCharacterCIDs",
+        "GetCurrentBait",
+        "SetAutoHookState",
+        "GetClassJobId",
+        "HasStatusId",
+        "ARGetMultiModeEnabled",
+        "ARSetMultiModeEnabled",
+        "ARAbortAllTasks",
+        "ARFinishCharacterPostProcess",
+        "GetStatusTimeRemaining"
     ],
     "Lua.diagnostics.disable": [
         "undefined-field"

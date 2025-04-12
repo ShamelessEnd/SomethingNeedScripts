@@ -1,4 +1,5 @@
 require "ARUtils"
+require "Fishing"
 require "GCTurnIn"
 require "Navigation"
 require "Purchase"
@@ -17,6 +18,13 @@ local _default_thresholds = {
     max = 900,
     price = 3400,
     gil_floor = nil,
+  },
+  fish = {
+    food = 4673,
+    offset = 0,
+    pre_time = 180,
+    end_buf = 180,
+    level = 100,
   },
 }
 
@@ -44,6 +52,24 @@ function ARPostProcess(retainer_tables, thresholds)
       end
       GoPurchaseItems({{ 10373, thresholds.repair.max, thresholds.repair.price }}, thresholds.repair.gil_floor)
       ReturnToFC()
+    end
+  end
+
+  if thresholds.fish then
+    local fisher = ARFindFishCharacterToLevel(thresholds.fish.level)
+    if fisher and IsTimeToGoFish(thresholds.fish.offset, thresholds.fish.pre_time, thresholds.fish.end_buf) then
+      local last_multi = ARGetMultiModeEnabled()
+      yield("/wait 0.5")
+      ARSetMultiModeEnabled(false)
+      yield("/wait 0.5")
+      ARAbortAllTasks()
+      yield("/wait 0.5")
+      ARFinishCharacterPostProcess()
+      yield("/wait 0.5")
+      ARRelogTo(fisher)
+      GoDoOceanFishing(thresholds.fish.food, thresholds.fish.offset)
+      ReturnToBell()
+      ARSetMultiModeEnabled(last_multi)
     end
   end
 end
