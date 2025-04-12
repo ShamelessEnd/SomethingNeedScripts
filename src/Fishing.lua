@@ -52,7 +52,7 @@ function BuyOceanFishingBaitAndRepair()
   Callback("SelectIconString", true, 0)
   if AwaitAddonReady("Shop", 3) then
     for i, id in pairs(oceanBuyBait) do
-      while GetItemCount(id) < 900 do
+      while GetItemCount(id) < 200 do
         local last_count = GetItemCount(id)
         Callback("Shop", true, 0, i, 99)
         Callback("Shop", true, 7, i)
