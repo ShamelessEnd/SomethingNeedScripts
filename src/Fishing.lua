@@ -86,7 +86,7 @@ function DoOceanFishing()
   local oceanMapBait = {
     ["Galadion Bay"] = 29716,
     ["Rhotano Sea"] = 29716,
-    ["The Ciedalaes"] = 29714,
+    ["The Cieldalaes"] = 29714,
     ["The Bloodbrine Sea"] = 29715,
     ["Rothlyt Sound"] = 29716,
     ["The Northern Strait of Merlthor"] = 29714,
