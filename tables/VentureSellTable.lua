@@ -360,6 +360,7 @@ VentureSellTable = {
       { 12913,        4500,      false,          0,            1,        0 }, -- "Garlond Steel"              },
       {  7775,        4500,      false,          0,            1,        0 }, -- "Glazenut"                   },
       {  2820,        4500,      false,          1,            1,        0 }, -- "Red Onion Helm"             },
+      { 10122,           0,      false,          0,            0,        0 }, -- "Glacier Crystal"            },
     }
   }
 }
