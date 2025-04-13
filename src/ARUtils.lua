@@ -45,13 +45,19 @@ function ARFindFishCharacterToLevel(level)
     return false
   end
 
+  local found = nil
+  local found_level = level
   local chars = ARGetCharacterCIDs()
   for i = 0, chars.Count - 1 do
     local cid = chars[i]
     local ar_data = GetARCharacterData(cid)
-    if ar_data and ar_data.Enabled and ar_data.ClassJobLevelArray[17] < level and hasFishingRetainer(ar_data.RetainerData) then
-      return chars[i]
+    if ar_data and ar_data.Enabled and hasFishingRetainer(ar_data.RetainerData) then
+      local char_level = ar_data.ClassJobLevelArray[17]
+      if char_level > 0 and char_level < found_level then
+        found = cid
+        found_level = char_level
+      end
     end
   end
-  return nil
+  return found
 end
