@@ -72,15 +72,24 @@ end
 function InteractWith(target, addon, range)
   if not range then range = 4.597 end
 
-  Logging.Debug("opening "..target.." - "..addon)
-  if IsAddonVisible(addon) then
-    return AwaitAddonReady(addon, 5)
+  if addon then
+    Logging.Debug("opening "..target.." - "..addon)
+    if IsAddonVisible(addon) then
+      return AwaitAddonReady(addon, 5)
+    end
+  else
+    Logging.Debug("interacting with "..target)
   end
 
   Target(target)
   if GetTargetName() ~= target or GetDistanceToTarget() > range then
     Logging.Error("not in range ("..range..") of "..target)
     return false
+  end
+
+  if not addon then
+    yield("/interact")
+    return true
   end
 
   local attempt_count = 0
@@ -114,4 +123,15 @@ function OpenMainCommandWindow(window)
     timeout_count = timeout_count + 1
   until AwaitAddonReady(window, 1)
   return true
+end
+
+function SelectStringOption(text)
+  if not AwaitAddonReady("SelectString", 5) then return false end
+  for i = 0,11 do
+    if StringStartsWith(GetNodeText("SelectString", 2, i + 1, 3), text) then
+      Callback("SelectString", true, i)
+      return true
+    end
+  end
+  return false
 end
