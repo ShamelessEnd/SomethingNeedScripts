@@ -1,5 +1,11 @@
+require "ARUtils"
+require "Fishing"
+require "Inventory"
 require "Logging"
 require "Navigation"
+require "Purchase"
+require "Retainer"
+require "UINav"
 require "Utils"
 
 function GetGridaniaQuests()
@@ -640,4 +646,229 @@ end
 function DoHuntingLogCarry()
   HuntingLogMobs()
   HuntingLogHalatali()
+end
+
+function GoUnlockOceanFishing()
+  yield("/at n")
+  TeleportToLimsa()
+  yield("/li Fishermen")
+  yield("/wait 3")
+  WaitWhile(function () return LifestreamIsBusy() or not IsPlayerAvailable() end)
+  if not IsFisher() then
+    if not NavToObject("N'nmulika", 3, false, 20) then return end
+    InteractWith("N'nmulika", "Talk")
+    yield("/at y")
+    if AwaitAddonReady("SelectYesno", 5) then
+      Callback("SelectYesno", true, 0)
+    end
+    WaitForPlayerReady()
+    yield("/at n")
+    InteractWith("N'nmulika", "Talk")
+    yield("/at y")
+    WaitForPlayerReady()
+    yield("/at n")
+  end
+  if not NavToPoint(-174.7, 4.3, 165.9, 0.5, false, 20) then return end
+  if not NavToPoint(-168, 4.4, 165.7, 0.5, false, 20) then return end
+  if not IsFisher() then
+    InteractWith("Sisipu", "Talk")
+    yield("/at y")
+    if AwaitAddonReady("SelectYesno", 5) then
+      Callback("SelectYesno", true, 0)
+    end
+    WaitForPlayerReady()
+    yield("/at n")
+    repeat yield("/equipitem 2571") yield ("/wait 1") until IsFisher()
+    EquipRecommendedGear()
+  end
+  if InteractWith("Sisipu", "SelectIconString") then
+    Callback("SelectIconString", true, 0)
+  else
+    InteractWith("Sisipu", "Talk")
+  end
+  yield("/at y")
+  WaitForPlayerReady()
+  yield("/at n")
+  if not NavToPoint(-194.8, 4, 174.5, 0.5, false, 20) then return end
+  EquipBait(2585)
+  SetAutoHookState(true)
+  repeat yield("/ac cast") until WaitUntil(IsFishingWaiting, 0.5)
+  WaitWhile(function () return GetLevel() < 10 or GetItemCount(4870) < 5 end, nil, 1)
+  SetAutoHookState(false)
+  repeat yield("/ac quit") until WaitForPlayerReady(1)
+  if not NavToPoint(-174.7, 4.3, 165.9, 0.5, false, 20) then return end
+  if not NavToPoint(-168, 4.4, 165.7, 0.5, false, 20) then return end
+  InteractWith("Sisipu", "Talk")
+  yield("/at y")
+  WaitForPlayerReady()
+  yield("/at n")
+  InteractWith("Fhilsnoe", "JournalAccept")
+  yield("/at y")
+  WaitForPlayerReady()
+  yield("/at n")
+  GoToOceanFishing()
+  InteractWith("Foerzagyl", "Talk", 6)
+  yield("/at y")
+  yield("/wait 5")
+  WaitForPlayerReady()
+end
+
+function GoSetupRetainers(names, index)
+  yield("/at y")
+  TeleportToLimsa()
+  if not NavToObject("Frydwyb", 3, false, 20) then return end
+  for _, name in pairs(names) do
+    InteractWith("Frydwyb", "SelectString")
+    Callback("SelectString", true, 0)
+    Callback("SelectYesno", true, 0)
+    yield("/wait 0.2")
+    Callback("SelectYesno", true, 0)
+    Callback("CharaMakeDataImport", true, 102, index or 0, 0)
+    yield("/wait 0.2")
+    Callback("_CharaMakeFeature", true, 100)
+    Callback("SelectYesno", true, 1)
+    yield("/wait 0.2")
+    Callback("SelectYesno", true, 0)
+    Callback("SelectString", true, 0)
+    Callback("SelectYesno", true, 0)
+    Callback("InputString", true, 0, name, "")
+    Callback("SelectYesno", true, 0)
+    WaitForPlayerReady()
+    yield("/wait 0.2")
+  end
+end
+
+function GoUnlockRetainerVentures()
+  yield("/at y")
+  TeleportToGridania()
+  while GetClassJobId() ~= 5 do
+    yield("/equipitem 1889")
+    yield ("/wait 1")
+  end
+  EquipRecommendedGear()
+  NavToObject("Troubled Adventurer", 3, false, 20)
+  InteractWith("Troubled Adventurer")
+  yield("/wait 1")
+  WaitForPlayerReady()
+  TeleportToZone(152)
+  yield("/at n")
+  yield("/xlenablecollection Questionable")
+  NavToPoint(-51.7, -9, 296.9, 1, false, 100)
+  yield("/wrath auto on")
+  yield("/bmrai on")
+  WaitUntil(IsInCombat, 10)
+  WaitWhile(IsInCombat)
+  yield("/bmrai off")
+  yield("/wrath auto off")
+  yield("/xldisablecollection Questionable")
+  yield("/wait 2")
+  InteractWith("Novice Retainer")
+  yield("/at y")
+  yield("/wait 1")
+  WaitForPlayerReady()
+  TeleportToGridania()
+  yield("/at n")
+  yield("/li leatherworker")
+  yield("/wait 3")
+  WaitWhile(function () return LifestreamIsBusy() or not IsPlayerAvailable() end)
+  NavToObject("Parnell", 3, false, 20)
+  yield("/at y")
+  yield("/wait 2")
+  WaitForPlayerReady()
+end
+
+function GoEquipFishingRetainers(count)
+  yield("/at y")
+  TeleportToLimsa()
+  yield("/li hawkers")
+  yield("/wait 3")
+  WaitWhile(function () return LifestreamIsBusy() or not IsPlayerAvailable() end)
+  NavToObject("Syneyhil", 3, false, 20)
+  InteractWith("Syneyhil", "SelectIconString")
+  Callback("SelectIconString", true, 1)
+  Callback("SelectString", true, 0)
+  local bought = 0
+  while bought < count do
+    local last_count = GetItemCount(2571)
+    Callback("Shop", true, 0, 4, 1)
+    Callback("Shop", true, 7, 4)
+    Callback("SelectYesno", true, 0)
+    AwaitAddonGone("SelectYesno", 1)
+    WaitWhile(function () return GetItemCount(2571) == last_count end, 1)
+    bought = bought + 1
+  end
+  Callback("Shop", true, -1)
+  Callback("SelectString", true, -1)
+  AwaitAddonGone("SelectString", 1)
+  WaitForPlayerReady()
+  yield("/wait 0.5")
+  NavToObject("Summoning Bell", 3, false, 20)
+  OpenRetainerList()
+  local armoury_main = FindItemsInCharacterArmoury("Main")
+  local rod_stacks = armoury_main[2571]
+  local rod_stacks_index = 1
+  while count > 0 do
+    OpenRetainer(count)
+    SelectStringOption("Assign retainer class")
+    yield("/wait 0.2")
+    SelectStringOption("Fisher")
+    Callback("SelectYesno", true, 0)
+    SelectStringOption("View retainer attributes")
+    Callback("RetainerCharacter", true, 19, 0)
+    Callback("ArmouryBoard", true, 8, rod_stacks[rod_stacks_index].slot)
+    rod_stacks_index = rod_stacks_index + 1
+    Callback("RetainerCharacter", true, -1)
+    Callback("SelectString", true, -1)
+    count = count - 1
+  end
+  CloseRetainerList()
+end
+
+function GoPurchaseFishingItems()
+  yield("/at y")
+  TeleportToLimsa()
+  NavToObject("Sorcha", 3, false, 20)
+  InteractWith("Sorcha", "SelectIconString")
+  Callback("SelectIconString", true, 1)
+  for _, i in pairs({ 5, 12, 16, 20, 20}) do
+    Callback("Shop", true, 0, i, 1)
+    Callback("Shop", true, 7, i)
+    Callback("SelectYesno", true, 0)
+    yield("/wait 1")
+  end
+  Callback("Shop", true, -1)
+  AwaitAddonGone("Shop")
+  WaitForNavReady()
+  NavToObject("Gerulf", 3, false, 20)
+  InteractWith("Gerulf", "Shop")
+  local last_count = GetItemCount(4673)
+  Callback("Shop", true, 0, 4, 99)
+  Callback("Shop", true, 7, 4)
+  Callback("SelectYesno", true, 0)
+  WaitWhile(function () return GetItemCount(4673) == last_count end, 1)
+  last_count = GetItemCount(4673)
+  Callback("Shop", true, 0, 4, 99)
+  Callback("Shop", true, 7, 4)
+  Callback("SelectYesno", true, 0)
+  WaitWhile(function () return GetItemCount(4673) == last_count end, 1)
+  Callback("Shop", true, -1)
+  AwaitAddonGone("Shop")
+  WaitForNavReady()
+  GoPurchaseItems({{ 6141, 900, 999 }}, 100000)
+end
+
+function InitOceanFishingRetainers(names, index)
+  GoSetupRetainers(names, index)
+  GoUnlockRetainerVentures()
+  GoUnlockOceanFishing()
+  GoEquipFishingRetainers(TableSize(names))
+  GoPurchaseFishingItems()
+  ReturnToBell()
+end
+
+function InitOceanFishingRetainersMulti(chars, names, index)
+  for _, char in pairs(chars) do
+    ARRelogTo(ARFindCid(char))
+    InitOceanFishingRetainers(names, index)
+  end
 end
