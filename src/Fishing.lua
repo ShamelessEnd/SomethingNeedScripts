@@ -17,6 +17,10 @@ function IsInCutScene()
   return GetCharacterCondition(35)
 end
 
+function IsFisher()
+  return GetClassJobId() == 18
+end
+
 function GetTimeToNextBoat(offset)
   offset = offset or 0
   local interval = 2 * 60 * 60
@@ -37,6 +41,12 @@ function GoToOceanFishing()
     WaitWhile(function () return LifestreamIsBusy() or not IsPlayerAvailable() end)
   end
   NavToObject("Dryskthota", 3, false, 30)
+end
+
+function EquipBait(bait)
+  if bait then
+    repeat yield("/bait "..GetItemName(bait)) until WaitUntil(function () return GetCurrentBait() == bait end, 1)
+  end
 end
 
 function BuyOceanFishingBaitAndRepair()
@@ -95,12 +105,7 @@ function DoOceanFishing()
 
   WaitForNavReady()
   NavToPoint(7, 7, -6, 0.5, false, 60)
-
-  local bait = oceanMapBait[GetNodeText("IKDFishingLog", 20)]
-  if bait then
-    repeat yield("/bait "..GetItemName(bait)) until WaitUntil(function () return GetCurrentBait() == bait end, 1)
-  end
-
+  EquipBait(oceanMapBait[GetNodeText("IKDFishingLog", 20)])
   SetAutoHookState(true)
   repeat yield("/ac cast") until WaitUntil(IsFishingWaiting, 0.5)
   WaitWhile(IsGathering, 420, 1)
@@ -149,7 +154,7 @@ function IsTimeToGoFish(offset, pre_threshold, end_buffer)
 end
 
 function GoDoOceanFishing(food, offset)
-  if GetClassJobId() ~= 18 then return end
+  if not IsFisher() then return end
 
   GoToOceanFishing()
   EquipRecommendedGear()
