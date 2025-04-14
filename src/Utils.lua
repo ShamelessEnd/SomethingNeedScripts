@@ -10,6 +10,8 @@ function IsMounted() return GetCharacterCondition(4) end
 
 function TableIsEmpty(t) return next(t) == nil end
 
+function TableSize(t) local count = 0 for _, _ in pairs(t) do count = count + 1 end return count end
+
 function RoundUpToNext(x, increment) return math.floor(((x + increment - 1) // increment) * increment + 0.5) end
 
 function IsCasting() return GetCharacterCondition(27) end
@@ -20,8 +22,12 @@ function GetFoodTime() return GetStatusTimeRemaining(48) end
 
 function Sprint() ExecuteGeneralAction(4) end
 
-function WaitForNavReady()
-  WaitUntil(function () return NavIsReady() and IsPlayerAvailable() end)
+function WaitForPlayerReady(timeout, sleep)
+  return WaitUntil(function () return not IsPlayerOccupied() and IsPlayerAvailable() end, timeout, sleep)
+end
+
+function WaitForNavReady(timeout, sleep)
+  return WaitUntil(function () return NavIsReady() and IsPlayerAvailable() end, timeout, sleep)
 end
 
 function Dismount()
