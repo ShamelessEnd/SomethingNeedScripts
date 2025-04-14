@@ -27,7 +27,11 @@ function LoadLazyInventoryData()
     return
   end
 
-  lazy_inventory_data.inventory = inv_data.inventory
+  for inv_type, inv_type_data in pairs(inv_data) do
+    if inv_type ~= 'retainers' then
+      lazy_inventory_data[inv_type] = inv_type_data
+    end
+  end
   lazy_inventory_data.retainers = {}
   for i = 0, char_data.RetainerData.Count - 1 do
     local retainer_data = char_data.RetainerData[i]
@@ -62,3 +66,4 @@ end
 
 function FindItemsInRetainerInventory(name) return FindItemsInInventory(GetLazyInventoryData().retainers[name]) end
 function FindItemsInCharacterInventory() return FindItemsInInventory(GetLazyInventoryData().inventory) end
+function FindItemsInCharacterArmoury(slot) return FindItemsInInventory(GetLazyInventoryData().armoury[slot]) end

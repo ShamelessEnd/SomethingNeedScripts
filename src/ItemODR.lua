@@ -62,15 +62,51 @@ function ParseItemODR(cid)
   local file = assert(io.open(filepath, 'rb'))
   local _ = file:read(17) -- skip first 17 bytes
 
+  local inventory_index = 1
+  local inventories = {
+    { 'inventory', nil, 0 },
+    { 'armoury', 'Main', 3500 },
+    { 'armoury', 'Off', 3200 },
+    { 'armoury', 'Head', 3201 },
+    { 'armoury', 'Body', 3202 },
+    { 'armoury', 'Hand', 3203 },
+    { 'armoury', 'Waist', 3204 },
+    { 'armoury', 'Legs', 3205 },
+    { 'armoury', 'Feet', 3206 },
+    { 'armoury', 'Neck', 3207 },
+    { 'armoury', 'Ears', 3208 },
+    { 'armoury', 'Wrist', 3209 },
+    { 'armoury', 'Ring', 3300 },
+    { 'armoury', 'Soul', 3400 },
+    { 'saddle', nil, 4000 },
+    { 'saddle2', nil, 4100 },
+  }
+
   local data = {}
+  local function addData(inventory, inv_data)
+    if inventory[2] then
+      if not data[inventory[1]] then data[inventory[1]] = {} end
+      data[inventory[1]][inventory[2]] = inv_data
+    else
+      data[inventory[1]] = inv_data
+    end
+  end
+
   while data.inventory == nil or data.retainers == nil do
     local id, length = ReadItemODRSectionHeader(file)
     if id == nil or length == nil then
       break
-    elseif id == 0x6E and data.inventory == nil then
+    elseif id == 0x6E then
       if length ~= 4 then Logging.Debug("bad inventory length") break end
-      data.inventory = ParseItemODRInventory(file, 0, ReadItemODRData(file, length))
-      if data.inventory == nil then Logging.Debug("bad inventory data") break end
+      local next_inv = inventories[inventory_index]
+      if next_inv then
+        inventory_index = inventory_index + 1
+        local parsed_inv = ParseItemODRInventory(file, next_inv[3], ReadItemODRData(file, length))
+        if parsed_inv == nil then Logging.Debug("bad inventory data") break end
+        addData(next_inv, parsed_inv)
+      else
+        _ = file:read(length) -- skip
+      end
     elseif id == 0x4E and data.retainers == nil then
       if length ~= 4 then Logging.Debug("bad retainers length") break end
       data.retainers = ParseItemODRRetainers(file, ReadItemODRData(file, length))
