@@ -8,7 +8,7 @@ function OpenCharacterWindow() return OpenMainCommandWindow("Character") end
 function EquipRecommendedGear()
   if OpenCharacterWindow() then
     Callback("Character", true, 12)
-    if AwaitAddonReady("RecommendEquip", 2) then
+    if AwaitAddonReady("RecommendEquip", 3) then
       repeat
         Callback("RecommendEquip", true, 0)
       until AwaitAddonGone("RecommendEquip", 1)

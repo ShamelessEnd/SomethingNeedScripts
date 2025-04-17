@@ -17,7 +17,7 @@ end
 function LoadLazyInventoryData()
   Logging.Debug("attempting to load inventory data")
   local char_data = GetARCharacterData()
-  if char_data == nil or char_data.RetainerData.Count <= 0 then
+  if char_data == nil then
     Logging.Error("failed to load character data")
     return
   end
@@ -33,9 +33,11 @@ function LoadLazyInventoryData()
     end
   end
   lazy_inventory_data.retainers = {}
-  for i = 0, char_data.RetainerData.Count - 1 do
-    local retainer_data = char_data.RetainerData[i]
-    lazy_inventory_data.retainers[retainer_data.Name] = inv_data.retainers[retainer_data.RetainerID]
+  if char_data.RetainerData.Count > 0 then
+    for i = 0, char_data.RetainerData.Count - 1 do
+      local retainer_data = char_data.RetainerData[i]
+      lazy_inventory_data.retainers[retainer_data.Name] = inv_data.retainers[retainer_data.RetainerID]
+    end
   end
 
   Logging.Debug("inventory data loaded")

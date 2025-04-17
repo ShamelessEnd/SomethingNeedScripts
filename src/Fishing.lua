@@ -146,18 +146,27 @@ function DoOceanFishingRoute()
   end
 end
 
-function IsTimeToGoFish(offset, pre_threshold, end_buffer)
-  pre_threshold = pre_threshold or 0
+function IsTimeToGoFish(offset, pre_time, end_buffer)
+  pre_time = pre_time or 0
+  local post_time = pre_time + 120*60
   end_buffer = end_buffer or 0
   local time = GetTimeToNextBoat(offset)
-  return time < pre_threshold or time > (105) * 60 + end_buffer
+  if pre_time > 0 and time < pre_time then
+    return true
+  elseif pre_time < 0 and time > 120 * 60 + pre_time then
+    return false
+  elseif time > 105 * 60 + end_buffer then
+    return true
+  end
+  return false
 end
 
 function GoDoOceanFishing(food, offset)
   if not IsFisher() then return end
-
-  GoToOceanFishing()
   EquipRecommendedGear()
+
+  yield("/at y")
+  GoToOceanFishing()
   BuyOceanFishingBaitAndRepair()
 
   NavToObject("Dryskthota", 3, false, 10)

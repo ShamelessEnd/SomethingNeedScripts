@@ -707,7 +707,7 @@ function GoUnlockOceanFishing()
   WaitForPlayerReady()
   yield("/at n")
   GoToOceanFishing()
-  InteractWith("Foerzagyl", "Talk", 6)
+  InteractWith("Foerzagyl", nil, 6)
   yield("/at y")
   yield("/wait 5")
   WaitForPlayerReady()
@@ -821,6 +821,7 @@ function GoEquipFishingRetainers(count)
     Callback("SelectString", true, -1)
     count = count - 1
   end
+  AwaitAddonReady("RetainerList")
   CloseRetainerList()
 end
 
