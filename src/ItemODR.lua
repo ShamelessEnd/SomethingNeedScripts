@@ -1,7 +1,7 @@
 require "Logging"
 require "Utils"
 
-local _game_folder =  "D:\\Documents\\My Games\\FINAL FANTASY XIV - A Realm Reborn"
+local _game_folder =  os.getenv("USERPROFILE").."\\Documents\\My Games\\FINAL FANTASY XIV - A Realm Reborn"
 function SetGameFolder(folder) _game_folder = folder end
 
 -- ItemODR
