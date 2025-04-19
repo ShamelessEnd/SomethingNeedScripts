@@ -40,7 +40,7 @@ function GoToOceanFishing()
     yield("/wait 3")
     WaitWhile(function () return LifestreamIsBusy() or not IsPlayerAvailable() end)
   end
-  NavToObject("Dryskthota", 3, false, 30)
+  return NavToObject("Dryskthota", 3, false, 30)
 end
 
 function EquipBait(bait)
@@ -166,13 +166,13 @@ function GoDoOceanFishing(food, offset)
   EquipRecommendedGear()
 
   yield("/at y")
-  GoToOceanFishing()
+  if not GoToOceanFishing() then return end
   BuyOceanFishingBaitAndRepair()
 
-  NavToObject("Dryskthota", 3, false, 10)
+  if not NavToObject("Dryskthota", 3, false, 10) then return end
   WaitUntil(function () local time = GetTimeToNextBoat(offset) return time > 105 * 60 + 5 and time < 120 * 60 - 5 end)
 
-  InteractWith("Dryskthota", "SelectString")
+  if not InteractWith("Dryskthota", "SelectString") then return end
   Callback("SelectString", true, 0)
   if not AwaitAddonReady("SelectYesno", 3) then return end
   repeat
