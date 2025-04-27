@@ -76,3 +76,11 @@ function ARFindFishCharacterToLevel(level)
   end
   return found
 end
+
+function ARApplyToAllCharacters(cids, lambda, timeout)
+  for _, cid in pairs(cids) do
+    if ARRelogTo(cid, timeout) then
+      lambda()
+    end
+  end
+end

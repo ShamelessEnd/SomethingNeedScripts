@@ -4,6 +4,8 @@ function StringIsEmpty(s) return s == nil or s == "" end
 
 function StringStartsWith(s, prefix) return string.sub(s, 1, string.len(prefix)) == prefix end
 
+function StringEndsWith(s, suffix) return string.sub(s, 1 + string.len(s) - string.len(suffix)) == suffix end
+
 function IsInCombat() return GetCharacterCondition(26) end
 
 function IsMounted() return GetCharacterCondition(4) end
@@ -21,6 +23,24 @@ function HasFood() return HasStatusId(48) end
 function GetFoodTime() return GetStatusTimeRemaining(48) end
 
 function Sprint() ExecuteGeneralAction(4) end
+
+function GetJobLevel(job_id) return GetLevel(job_id - 1) end
+
+function GetMaxLevel() return 100 end
+
+function GetItemId(name)
+  for i = 1,49000 do
+    if GetItemName(i) == name then return i end
+  end
+  return nil
+end
+
+function FindItemId(prefix)
+  for i = 1,49000 do
+    if StringStartsWith(GetItemName(i), prefix) then return i end
+  end
+  return nil
+end
 
 function WaitForPlayerReady(timeout, sleep)
   return WaitUntil(function () return not IsPlayerOccupied() and IsPlayerAvailable() end, timeout, sleep)
