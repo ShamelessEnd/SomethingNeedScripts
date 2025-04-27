@@ -29,7 +29,7 @@ function IsInHomeWorld()
 end
 
 function Target(target)
-  yield("/target "..target)
+  yield("/target \""..target.."\"")
   return WaitUntil(function () return GetTargetName() == target end, 1)
 end
 

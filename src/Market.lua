@@ -55,6 +55,14 @@ function GetItemListingPrice(listing_index)
   end
 end
 
+function IsItemListingHQ(listing_index)
+  local node_index = 4
+  if listing_index > 1 then
+    node_index = 40999 + listing_index
+  end
+  return IsNodeVisible("ItemSearchResult", 1, 26, node_index, 2, 3)
+end
+
 function GetItemListingCount(listing_index)
   local count_text = string.gsub(GetNodeText("ItemSearchResult", 5, listing_index, 9), "%D", "")
   if StringIsEmpty(count_text) then
@@ -177,7 +185,13 @@ function FindMarketItem(item_name)
 
   local count_text = string.gsub(GetNodeText("ItemSearch", 3), "[%d]+-", "")
   for i = 1, tonumber(count_text) do
-    if GetNodeText("ItemSearch", 11, i, 4) == item_name then
+    local item_text = GetNodeText("ItemSearch", 11, i, 4)
+    if StringEndsWith(item_text, "...") then
+      item_text = string.sub(item_text, 1, string.len(item_text) - 3)
+      if StringStartsWith(item_name, item_text) then
+        return i
+      end
+    elseif item_text == item_name then
       return i
     end
   end
