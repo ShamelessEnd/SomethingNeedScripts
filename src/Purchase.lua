@@ -6,7 +6,7 @@ require "Utils"
 --[[
 
 buy_table = {
-  { id, count, price },
+  { id, count, price, exact, hq },
   ...
 }
 
@@ -35,7 +35,7 @@ function ShouldBuyMarketItem(list_index, max_price, gil_floor)
 
   local list_count = GetItemListingCount(list_index)
   if list_count <= 0 then
-    Logging.Error("failed to fetch list count")
+    Logging.Info("failed to fetch list count for "..list_index)
     return nil
   end
 
@@ -49,10 +49,28 @@ function ShouldBuyMarketItem(list_index, max_price, gil_floor)
   return list_count
 end
 
+function GetNextPurchaseIndex(last_index, remaining, max_price, gil_floor, hq, exact)
+  local list_index = last_index
+  local next_purchase = ShouldBuyMarketItem(list_index, max_price, gil_floor)
+  while next_purchase do
+    if hq == nil or hq == IsItemListingHQ(list_index) then
+      if not exact or next_purchase == remaining then
+        return list_index, next_purchase
+      end
+    end
+    list_index = list_index + 1
+    next_purchase = ShouldBuyMarketItem(list_index, max_price, gil_floor)
+  end
+
+  return list_index, nil
+end
+
 function PurchaseItem(item_table, gil_floor)
   local item_id = item_table[1]
   local max_count  = item_table[2]
   local max_price  = item_table[3]
+  local exact = item_table[4]
+  local hq = item_table[5]
 
   local item_name = GetItemName(item_id)
   if type(item_name) ~= "string" or string.len(item_name) <= 0 then
@@ -72,11 +90,12 @@ function PurchaseItem(item_table, gil_floor)
   end
 
   local buy_count = 0
-  local next_purchase = ShouldBuyMarketItem(1, max_price, gil_floor)
+  local remaining = max_count - GetItemCount(item_id)
+  local next_index, next_count = GetNextPurchaseIndex(1, remaining, max_price, gil_floor, hq, exact)
   local fail_count = 0
-  while next_purchase and GetItemCount(item_id) < max_count and GetInventoryFreeSlotCount() > 0 do
-    if BuyMarketItem(1) then
-      buy_count = buy_count + next_purchase
+  while next_count and remaining > 0 and GetInventoryFreeSlotCount() > 0 do
+    if BuyMarketItem(next_index) then
+      buy_count = buy_count + next_count
     else
       CloseItemListings("ItemSearch")
 
@@ -92,7 +111,8 @@ function PurchaseItem(item_table, gil_floor)
         return false
       end
     end
-    next_purchase = ShouldBuyMarketItem(1, max_price, gil_floor)
+    remaining = max_count - GetItemCount(item_id)
+    next_index, next_count = GetNextPurchaseIndex(next_index, remaining, max_price, gil_floor, hq, exact)
   end
   Logging.Info("purchased "..buy_count.."x "..item_name)
 
@@ -132,7 +152,16 @@ function GoPurchaseItems(buy_table, gil_floor)
   return true
 end
 
-function GoPurchaseDCItems(buy_table, gil_floor)
+function PurchasedAllItems(buy_table)
+  for _, item_table in pairs(buy_table) do
+    if GetItemCount(item_table[1]) < item_table[2] then
+      return false
+    end
+  end
+  return true
+end
+
+function GoPurchaseDCItems(buy_table, gil_floor, back_to_start)
   Logging.Trace("purchasing items in current dc")
   if not IsInLimsa() then TeleportToLimsa() end
 
@@ -140,9 +169,13 @@ function GoPurchaseDCItems(buy_table, gil_floor)
   local server_list = ServerDataTable[start_server.region][start_server.dc]
 
   local go_home_server = function ()
-    local home_server = GetHomeServerData()
-    if not IsInHomeWorld() and start_server.dc == home_server.dc then
-      WorldVisitTo(home_server.name)
+    if back_to_start then
+      WorldVisitTo(start_server.name)
+    else
+      local home_server = GetHomeServerData()
+      if not IsInHomeWorld() and start_server.dc == home_server.dc then
+        WorldVisitTo(home_server.name)
+      end
     end
   end
 
@@ -170,6 +203,7 @@ function GoPurchaseDCItems(buy_table, gil_floor)
       else
         purchase_result = GoPurchaseItems(buy_table, gil_floor)
         if not purchase_result then return on_fail(purchase_result) end
+        if PurchasedAllItems(buy_table) then return on_fail(nil) end
       end
     end
   end
