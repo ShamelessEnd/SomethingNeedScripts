@@ -115,7 +115,7 @@ function DoDailyGCSupplyMissions(price_limit, gil_floor)
     if GetJobLevel(job_id) < GetMaxLevel() then
       buy_table[job_id] = {
         mission.item,
-        mission.count + GetItemCount(mission.item),
+        mission.count,
         price_limit / mission.count,
         true,
         true,
@@ -135,5 +135,5 @@ function DoDailyGCSupplyMissions(price_limit, gil_floor)
 end
 
 function DoDailyGCSupplyMissionsAll(cids, price_limit, gil_floor)
-  ARApplyToAllCharacters(cids, function () DoDailyGCSupplyMissions(price_limit, gil_floor) end)
+  ARApplyToAllCharacters(cids, function () DoDailyGCSupplyMissions(price_limit, gil_floor) end, ARHasCrafterToLevel)
 end
