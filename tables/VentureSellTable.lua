@@ -1,7 +1,7 @@
 VentureSellTable = {
-  [1] = nil,
+  [1] = { config = { undercut = true } },
   [2] = {
-    config = { exclude=false, unlist=false, entrust=true },
+    config = { undercut = true, entrust=true },
     sell_table = {
       --   id, price floor, force list, stack size, max listings, min keep    -- name
       { 13115,      399900,       true,          1,           20,        0 }, -- "Jet Black"                  },
@@ -28,14 +28,14 @@ VentureSellTable = {
       {  8841,        1500,      false,          1,            0,        0 }, -- "Retainer Fantasia"          },
     }
   },
-  [3] = nil,
-  [4] = nil,
-  [5] = nil,
-  [6] = nil,
-  [7] = nil,
-  [8] = nil,
+  [3] = { config = { undercut = true } },
+  [4] = { config = { undercut = true } },
+  [5] = { config = { undercut = true } },
+  [6] = { config = { undercut = true } },
+  [7] = { config = { undercut = true } },
+  [8] = { config = { undercut = true } },
   [9] = {
-    config = { exclude=false, unlist=false, entrust=true },
+    config = { undercut = true, entrust=true },
     sell_table = {
       --   id, price floor, force list, stack size, max listings, min keep    -- name
       { 32799,      249500,      false,          1,            1,        0 }, -- "Calfskin Rider's Jacket"    },

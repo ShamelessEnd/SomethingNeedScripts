@@ -12,21 +12,21 @@ sell_table = {
 }
 
 retainer_table = {
-  config = { exclude=boolean, unlist=boolean, entrust=boolean },
+  config = { exclude=boolean, undercut=boolean, unlist=boolean, entrust=boolean, floor=number },
   sell_table = sell_table
 }
 
 retainer_tables = {
-  [retainer_index] = retainer_table | nil,
+  [retainer_index] = retainer_table,
   ...
 }
-  explicitly set nil to undercut only, without a sell table, using _default_floor_price
-  exclude retainer from list to skip entirely
+  set exclude to skip retainer entirely, or use nil retainer_table
+  set undercut and leave sell_table=nil to undercut only
+  set unlist to remove all items from mb and re-list them from scratch
+  set entrust to entrust sell_table items from inventory to retainer
+  set floor to the lowest price to undercut items to
 
 ]]--
-
-local _default_floor_price = 14500
-function SetDefaultFloorPrice(price) _default_floor_price = price end
 
 function CalculateUndercutPrice(p1, p2, p3, h)
   if h <= 0 then
@@ -74,9 +74,9 @@ function GetUndercutPrice()
 end
 
 function GetSellEntryByName(sell_table, item_name)
-  if sell_table ~= nil then
+  if sell_table then
     for i, sell_entry in pairs(sell_table) do
-      if sell_entry.item_name == nil then
+      if not sell_entry.item_name then
         sell_entry.item_name = GetItemName(sell_entry[1])
       end
       if item_name == sell_entry.item_name then
@@ -87,8 +87,12 @@ function GetSellEntryByName(sell_table, item_name)
   return nil
 end
 
-function UndercutItems(return_function, sell_table)
-  Logging.Debug("undercutting all items")
+function UndercutItems(return_function, sell_table, undercut_other, default_floor)
+  if undercut_other then
+    Logging.Debug("undercutting all items")
+  else
+    Logging.Debug("undercutting sell_table items")
+  end
 
   local item_count = GetSellListCount(5)
   if not item_count or item_count <= 0 then return {} end
@@ -117,21 +121,23 @@ function UndercutItems(return_function, sell_table)
       undercut_price = last_item_price
       sell_entry = last_sell_entry
     else
-      undercut_price = GetUndercutPrice()
       sell_entry = GetSellEntryByName(sell_table, item_name)
-    end
-
-    if sell_entry ~= nil then
-      local item_id = sell_entry[1]
-      if listed_items[item_id] == nil then
-        listed_items[item_id] = { count=1, price=undercut_price }
-      else
-        listed_items[item_id].count = listed_items[item_id].count + 1
+      if sell_entry or undercut_other then
+        undercut_price = GetUndercutPrice()
       end
     end
 
-    local floor_price = _default_floor_price
-    if sell_entry ~= nil then
+    if sell_entry then
+      local item_id = sell_entry[1]
+      if listed_items[item_id] then
+        listed_items[item_id].count = listed_items[item_id].count + 1
+      else
+        listed_items[item_id] = { count=1, price=undercut_price }
+      end
+    end
+
+    local floor_price = default_floor or 0
+    if sell_entry and sell_entry[2] then
       floor_price = sell_entry[2]
     end
 
@@ -153,6 +159,7 @@ function UndercutItems(return_function, sell_table)
           returned_count = returned_count + 1
         end
         if sell_entry ~= nil then
+          -- set count to max to prevent future re-trying to list same item
           listed_items[sell_entry[1]].count = sell_entry[5]
         end
       end
@@ -168,7 +175,7 @@ function UndercutItems(return_function, sell_table)
   return listed_items
 end
 
-function UndercutRetainerItems(retainer_index)
+function UndercutRetainerItems(retainer_index, floor)
   if GetNodeText("RetainerList", 2, retainer_index, 5) == "None" then
     Logging.Debug("skipping retainer "..retainer_index.." - no items listed")
     return
@@ -176,7 +183,7 @@ function UndercutRetainerItems(retainer_index)
 
   OpenRetainer(retainer_index)
   OpenSellListInventory()
-  UndercutItems(ReturnItemToInventory)
+  UndercutItems(ReturnItemToInventory, nil, true, floor)
   CloseSellList()
   CloseRetainer()
 end
@@ -311,7 +318,7 @@ function ListItemForSale(sell_entry, max_slots, item_stacks, listed_item)
   return num_listings
 end
 
-function SellRetainerItems(retainer_index, retainer_name, sell_table, unlist)
+function SellRetainerItems(retainer_index, retainer_name, sell_table, unlist, undercut, floor)
   OpenSellListRetainer()
 
   local sale_slots = 0
@@ -322,7 +329,7 @@ function SellRetainerItems(retainer_index, retainer_name, sell_table, unlist)
     sale_slots = 20
   else
     Logging.Info("  Undercutting existing items for retainer "..retainer_index)
-    listed_items = UndercutItems(ReturnItemToRetainer, sell_table)
+    listed_items = UndercutItems(ReturnItemToRetainer, sell_table, undercut, floor)
     sale_slots = 20 - GetSellListCount()
   end
 
@@ -356,9 +363,8 @@ function EntrustSellTableItems(sell_table)
 end
 
 function UndercutAndSellRetainerItems(retainer_index, retainer_table)
-  if retainer_table == nil then
-    Logging.Info("  Only undercutting items for retainer "..retainer_index)
-    UndercutRetainerItems(retainer_index)
+  if not retainer_table then
+    Logging.Info("  Skipping retainer without a retainer_table  "..retainer_index)
     return
   end
 
@@ -369,17 +375,27 @@ function UndercutAndSellRetainerItems(retainer_index, retainer_table)
 
   local retainer_name = GetRetainerName(retainer_index)
   if StringIsEmpty(retainer_name) then
-    Logging.Error("  Failed to fetch name for retainer "..retainer_index)
+    Logging.Error("  Skipping retainer that does not exist "..retainer_index)
     return
   end
   Logging.Info("Processing retainer "..retainer_index.." "..retainer_name)
+
+  if not retainer_table.sell_table then
+    if retainer_table.config.undercut then
+      Logging.Info("  Only undercutting items for retainer "..retainer_index)
+      UndercutRetainerItems(retainer_index, retainer_table.config.floor)
+    else
+      Logging.Info("  Skipping retainer without a sell_table "..retainer_index)
+    end
+    return
+  end
 
   OpenRetainer(retainer_index)
   if retainer_table.config.entrust then
     Logging.Info("  Entrusting items to retainer "..retainer_index.." from inventory")
     EntrustSellTableItems(retainer_table.sell_table)
   end
-  SellRetainerItems(retainer_index, retainer_name, retainer_table.sell_table, retainer_table.config.unlist)
+  SellRetainerItems(retainer_index, retainer_name, retainer_table.sell_table, retainer_table.config.unlist, retainer_table.config.undercut, retainer_table.config.floor)
   CloseRetainer()
 end
 
@@ -388,7 +404,9 @@ function UndercutAndSellAllRetainers(retainer_tables)
   ARSetSuppressed(true)
   yield("/xldisablecollection UndercutAndSellAllRetainers")
   if OpenRetainerList() then
+    local retainer_count = ARGetRetainerCount()
     for i, retainer_table in pairs(retainer_tables) do
+      if i > retainer_count then break end
       UndercutAndSellRetainerItems(i, retainer_table)
     end
     CloseRetainerList()

@@ -142,7 +142,7 @@ function GetRetainerName(retainer_index)
     if not StringIsEmpty(name) then
       break
     end
-    yield("/wait 0.5")
+    yield("/wait 0.1")
   end
   return name
 end
