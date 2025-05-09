@@ -24,7 +24,6 @@ local _default_thresholds = {
     offset = 0,
     pre_time = -450,
     end_buf = 150,
-    level = 100,
   },
 }
 
@@ -56,16 +55,9 @@ function ARPostProcess(retainer_tables, thresholds)
   end
 
   if thresholds.fish then
-    local fisher = ARFindFishCharacterToLevel(thresholds.fish.level)
+    local fisher = ARFindFishCharacterToLevel()
     if fisher and IsTimeToGoFish(thresholds.fish.offset, thresholds.fish.pre_time, thresholds.fish.end_buf) then
-      local last_multi = ARGetMultiModeEnabled()
-      yield("/wait 0.5")
-      ARSetMultiModeEnabled(false)
-      yield("/wait 0.5")
-      ARAbortAllTasks()
-      yield("/wait 0.5")
-      ARFinishCharacterPostProcess()
-      yield("/wait 0.5")
+      local last_multi = ARKillMulti()
       ARRelogTo(fisher)
       GoDoOceanFishing(thresholds.fish.food, thresholds.fish.offset)
       ReturnToBell()

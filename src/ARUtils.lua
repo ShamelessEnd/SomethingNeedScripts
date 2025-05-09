@@ -2,7 +2,7 @@ require "Logging"
 require "Utils"
 
 function GetARCharacterData(cid)
-  if not cid then cid = GetPlayerContentId() end
+  cid = cid or GetPlayerContentId()
   if not cid then return nil end
   Logging.Debug("fetching AR character data "..cid)
   local data = ARGetCharacterData(cid)
@@ -49,11 +49,30 @@ function ARFindCid(name)
   return nil
 end
 
+function ARGetRetainerCount(cid)
+  local ar_data = GetARCharacterData(cid)
+  if not ar_data then return 0 end
+  return ar_data.RetainerData.Count
+end
+
+function ARKillMulti()
+  local last_multi = ARGetMultiModeEnabled()
+  yield("/wait 0.5")
+  ARSetMultiModeEnabled(false)
+  yield("/wait 0.5")
+  ARAbortAllTasks()
+  yield("/wait 0.5")
+  ARFinishCharacterPostProcess()
+  yield("/wait 0.5")
+  return last_multi
+end
+
 function ARFindFishCharacterToLevel(level)
+  local fish_job_id = 18
   local function hasFishingRetainer(retainer_data)
     if not retainer_data then return false end
     for i = 0, retainer_data.Count - 1 do
-      if retainer_data[i].Job == 18 then
+      if retainer_data[i].Job == fish_job_id then
         return true
       end
     end
@@ -61,13 +80,13 @@ function ARFindFishCharacterToLevel(level)
   end
 
   local found = nil
-  local found_level = level
+  local found_level = level or GetMaxLevel()
   local chars = ARGetCharacterCIDs()
   for i = 0, chars.Count - 1 do
     local cid = chars[i]
     local ar_data = GetARCharacterData(cid)
     if ar_data and ar_data.Enabled and hasFishingRetainer(ar_data.RetainerData) then
-      local char_level = ar_data.ClassJobLevelArray[17]
+      local char_level = GetARJobLevel(ar_data, fish_job_id)
       if char_level > 0 and char_level < found_level then
         found = cid
         found_level = char_level
@@ -77,10 +96,25 @@ function ARFindFishCharacterToLevel(level)
   return found
 end
 
-function ARApplyToAllCharacters(cids, lambda, timeout)
+function ARHasCrafterToLevel(cid, level)
+  local target_level = level or GetMaxLevel()
+  local ar_data = GetARCharacterData(cid)
+  if not ar_data then return false end
+  for job_id = 8,15 do
+    local job_level = GetARJobLevel(ar_data, job_id)
+    if job_level > 0 and job_level < target_level then
+      return true
+    end
+  end
+  return false
+end
+
+function ARApplyToAllCharacters(cids, lambda, condition, timeout)
   for _, cid in pairs(cids) do
-    if ARRelogTo(cid, timeout) then
-      lambda()
+    if not condition or condition(cid) then
+      if ARRelogTo(cid, timeout) then
+        lambda(cid)
+      end
     end
   end
 end
