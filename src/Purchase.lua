@@ -6,60 +6,60 @@ require "Utils"
 --[[
 
 buy_table = {
-  { id, count, price, exact, hq },
+  { id, count, price, strict, hq },
   ...
 }
 
 ]]--
 
 function ShouldBuyMarketItem(list_index, max_price, gil_floor)
-  if not AwaitAddonReady("ItemSearchResult", 1) then
-    Logging.Error("ItemSearchResult not open")
-    return nil
+  if not IsAddonReady("ItemSearchResult") then
+    Logging.Info("ItemSearchResult not open")
+    return nil, nil
   end
 
   local list_price = GetItemListingPrice(list_index)
   if list_price <= 0 then
     if string.find(GetNodeText("ItemSearchResult", 26), "No items found") then
       Logging.Trace("no item listings")
-      return nil
+      return nil, nil
     else
       Logging.Error("failed to fetch listing price")
-      return nil
+      return nil, nil
     end
   end
   if list_price > max_price then
     Logging.Trace("cant buy item: price "..list_price.." > "..max_price)
-    return nil
+    return nil, nil
   end
 
   local list_count = GetItemListingCount(list_index)
   if list_count <= 0 then
     Logging.Info("failed to fetch list count for "..list_index)
-    return nil
+    return nil, nil
   end
 
   if not gil_floor or gil_floor < 0 then gil_floor = 0 end
   if GetGil() - (list_price * list_count) < gil_floor then
     Logging.Info("insufficient gil to buy listing")
-    return nil
+    return nil, nil
   end
 
   Logging.Trace("can purchase "..list_count.." @ "..list_price)
-  return list_count
+  return list_count, list_price
 end
 
-function GetNextPurchaseIndex(last_index, remaining, max_price, gil_floor, hq, exact)
+function GetNextPurchaseIndex(last_index, remaining, max_price, gil_floor, hq, strict)
   local list_index = last_index
-  local next_purchase = ShouldBuyMarketItem(list_index, max_price, gil_floor)
+  local next_purchase, next_price = ShouldBuyMarketItem(list_index, max_price, gil_floor)
   while next_purchase do
     if hq == nil or hq == IsItemListingHQ(list_index) then
-      if not exact or next_purchase == remaining then
+      if not strict or next_purchase <= remaining or (next_purchase * next_price) / remaining <= max_price then
         return list_index, next_purchase
       end
     end
     list_index = list_index + 1
-    next_purchase = ShouldBuyMarketItem(list_index, max_price, gil_floor)
+    next_purchase, next_price = ShouldBuyMarketItem(list_index, max_price, gil_floor)
   end
 
   return list_index, nil
@@ -69,7 +69,7 @@ function PurchaseItem(item_table, gil_floor)
   local item_id = item_table[1]
   local max_count  = item_table[2]
   local max_price  = item_table[3]
-  local exact = item_table[4]
+  local strict = item_table[4]
   local hq = item_table[5]
 
   local item_name = GetItemName(item_id)
@@ -91,7 +91,7 @@ function PurchaseItem(item_table, gil_floor)
 
   local buy_count = 0
   local remaining = max_count - GetItemCount(item_id)
-  local next_index, next_count = GetNextPurchaseIndex(1, remaining, max_price, gil_floor, hq, exact)
+  local next_index, next_count = GetNextPurchaseIndex(1, remaining, max_price, gil_floor, hq, strict)
   local fail_count = 0
   while next_count and remaining > 0 and GetInventoryFreeSlotCount() > 0 do
     if BuyMarketItem(next_index) then
@@ -112,7 +112,7 @@ function PurchaseItem(item_table, gil_floor)
       end
     end
     remaining = max_count - GetItemCount(item_id)
-    next_index, next_count = GetNextPurchaseIndex(next_index, remaining, max_price, gil_floor, hq, exact)
+    next_index, next_count = GetNextPurchaseIndex(next_index, remaining, max_price, gil_floor, hq, strict)
   end
   Logging.Info("purchased "..buy_count.."x "..item_name)
 
