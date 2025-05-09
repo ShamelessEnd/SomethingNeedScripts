@@ -66,6 +66,7 @@ VentureSellTable = {
       { 20270,       49500,      false,          1,            1,        0 }, -- "Nagxian Silk"               },
       {  7772,       49500,      false,          1,            1,        0 }, -- "Mariner Cotton Cloth"       },
       { 41653,       49500,      false,          1,            1,        0 }, -- "Athletikos Cloth"           },
+      { 44132,       49500,      false,          1,            1,        0 }, -- "Timeless Turali Cloth"      },
       {  8560,       49500,      false,          1,            1,        0 }, -- "Crescent Moon Bottoms"      },
       {  8558,       49500,      false,          1,            1,        0 }, -- "Crescent Moon Nightcap"     },
       { 41592,       49500,      false,          1,            1,        0 }, -- "Martial Artist's Vest"      },
