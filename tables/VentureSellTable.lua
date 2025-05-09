@@ -3,7 +3,7 @@ VentureSellTable = {
   [2] = {
     config = { undercut = true, entrust=true },
     sell_table = {
-      --   id, price floor, force list, stack size, max listings, min keep    -- name
+      --   id, price_floor, force_list, stack_size, max_listings, min_keep    -- name
       { 13115,      399900,       true,          1,           20,        0 }, -- "Jet Black"                  },
       { 13114,      399900,       true,          1,           20,        0 }, -- "Pure White"                 },
       { 13708,       49500,      false,          2,            3,        0 }, -- "Pastel Pink"                },
@@ -37,7 +37,7 @@ VentureSellTable = {
   [9] = {
     config = { undercut = true, entrust=true },
     sell_table = {
-      --   id, price floor, force list, stack size, max listings, min keep    -- name
+      --   id, price_floor, force_list, stack_size, max_listings, min_keep    -- name
       { 32799,      249500,      false,          1,            1,        0 }, -- "Calfskin Rider's Jacket"    },
       { 32798,      249500,      false,          1,            1,        0 }, -- "Calfskin Rider's Cap"       },
       { 32801,      249500,      false,          1,            1,        0 }, -- "Calfskin Rider's Bottoms"   },
@@ -363,7 +363,6 @@ VentureSellTable = {
       { 12913,        4500,      false,          0,            1,        0 }, -- "Garlond Steel"              },
       {  7775,        4500,      false,          0,            1,        0 }, -- "Glazenut"                   },
       {  2820,        4500,      false,          1,            1,        0 }, -- "Red Onion Helm"             },
-      { 10122,           0,      false,          0,            0,        0 }, -- "Glacier Crystal"            },
     }
   }
 }

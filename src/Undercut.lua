@@ -73,14 +73,27 @@ function GetUndercutPrice()
   return CalculateUndercutPrice(p1, p2, p3, hist)
 end
 
+function ParseSellEntry(raw_sell_entry)
+  if raw_sell_entry.parsed_entry then return raw_sell_entry.parsed_entry end
+  raw_sell_entry.parsed_entry = {
+    id = raw_sell_entry[1],
+    price_floor = raw_sell_entry[2] or 0,
+    force_list = raw_sell_entry[3] == true,
+    stack_size = raw_sell_entry[4] or 1,
+    max_listings = raw_sell_entry[5] or 20,
+    min_keep = raw_sell_entry[6] or 0,
+  }
+  return raw_sell_entry.parsed_entry
+end
+
 function GetSellEntryByName(sell_table, item_name)
   if sell_table then
-    for i, sell_entry in pairs(sell_table) do
-      if not sell_entry.item_name then
-        sell_entry.item_name = GetItemName(sell_entry[1])
+    for i, raw_sell_entry in pairs(sell_table) do
+      if not raw_sell_entry.item_name then
+        raw_sell_entry.item_name = GetItemName(raw_sell_entry[1])
       end
-      if item_name == sell_entry.item_name then
-        return sell_entry
+      if item_name == raw_sell_entry.item_name then
+        return ParseSellEntry(raw_sell_entry)
       end
     end
   end
@@ -128,7 +141,7 @@ function UndercutItems(return_function, sell_table, undercut_other, default_floo
     end
 
     if sell_entry then
-      local item_id = sell_entry[1]
+      local item_id = sell_entry.id
       if listed_items[item_id] then
         listed_items[item_id].count = listed_items[item_id].count + 1
       else
@@ -137,8 +150,8 @@ function UndercutItems(return_function, sell_table, undercut_other, default_floo
     end
 
     local floor_price = default_floor or 0
-    if sell_entry and sell_entry[2] then
-      floor_price = sell_entry[2]
+    if sell_entry and sell_entry.price_floor then
+      floor_price = sell_entry.price_floor
     end
 
     if undercut_price <= 0 then
@@ -149,7 +162,7 @@ function UndercutItems(return_function, sell_table, undercut_other, default_floo
       CloseItemSell()
     elseif undercut_price < floor_price then
       Logging.Info("    new price too low ("..undercut_price.." < "..floor_price..")")
-      if sell_entry ~= nil and sell_entry[3] == true then
+      if sell_entry and sell_entry.force_list then
         Logging.Info("      using floor price")
         ApplyPriceUpdateAndClose(floor_price)
       else
@@ -158,9 +171,9 @@ function UndercutItems(return_function, sell_table, undercut_other, default_floo
         if return_function(item_index, 5) then
           returned_count = returned_count + 1
         end
-        if sell_entry ~= nil then
+        if sell_entry then
           -- set count to max to prevent future re-trying to list same item
-          listed_items[sell_entry[1]].count = sell_entry[5]
+          listed_items[sell_entry.id].count = sell_entry.max_listings
         end
       end
     else
@@ -246,19 +259,14 @@ function ListItemForSaleFromStack(item_stack, stack_size, max_slots, price_floor
 end
 
 function ListItemForSale(sell_entry, max_slots, item_stacks, listed_item)
-  local item_id = sell_entry[1]
-  local price_floor = sell_entry[2]
-  local force_list = sell_entry[3]
-  local stack_size = sell_entry[4]
-  local max_listings = sell_entry[5]
-  local save_count = sell_entry[6]
-  Logging.Trace("listing item "..item_id)
+  Logging.Trace("listing item "..sell_entry.id)
 
   if max_slots <= 0 then
     Logging.Debug("no slots available, skipping item")
     return 0
   end
-  
+
+  local max_listings = sell_entry.max_listings
   if max_listings <= 0 then
     Logging.Debug("no listings desired, skipping item")
     return 0
@@ -279,26 +287,27 @@ function ListItemForSale(sell_entry, max_slots, item_stacks, listed_item)
   end
 
   local num_listings = 0
+  local min_keep = sell_entry.min_keep
   for _, item_stack in pairs(item_stacks) do
     Logging.Debug("processing stack "..item_stack.count.." at "..item_stack.page.."."..item_stack.slot)
     local original_count = item_stack.count
     if item_stack.count <= 0 then
       Logging.Debug("cannot process stack, failed to fetch item count")
-    elseif save_count > 0 then
-      if item_stack.count < save_count then
-        save_count = save_count - item_stack.count
+    elseif min_keep > 0 then
+      if item_stack.count < min_keep then
+        min_keep = min_keep - item_stack.count
         item_stack.count = 0
       else
-        item_stack.count = item_stack.count - save_count
-        save_count = 0
+        item_stack.count = item_stack.count - min_keep
+        min_keep = 0
       end
-      Logging.Debug("reducing count to save min_keep items. new count "..item_stack.count.." (save_count="..save_count..")")
+      Logging.Debug("reducing count to save min_keep items. new count "..item_stack.count.." (save_count="..min_keep..")")
     end
- 
+
     if item_stack.count > 0 then
       local listings_added = 0
-      listings_added, list_price = ListItemForSaleFromStack(item_stack, stack_size, max_slots, price_floor, force_list, list_price)
-      item_stack.count = original_count - (listings_added * stack_size)
+      listings_added, list_price = ListItemForSaleFromStack(item_stack, sell_entry.stack_size, max_slots, sell_entry.price_floor, sell_entry.force_list, list_price)
+      item_stack.count = original_count - (listings_added * sell_entry.stack_size)
       num_listings = num_listings + listings_added
       max_slots = max_slots - listings_added
       if list_price == 0 then
@@ -313,7 +322,7 @@ function ListItemForSale(sell_entry, max_slots, item_stacks, listed_item)
   end
 
   if num_listings > 0 then
-    Logging.Info("    Listed item "..item_id.." "..num_listings.." times, at "..list_price)
+    Logging.Info("    Listed item "..sell_entry.id.." "..num_listings.." times, at "..list_price)
   end
   return num_listings
 end
@@ -336,11 +345,11 @@ function SellRetainerItems(retainer_index, retainer_name, sell_table, unlist, un
   local inventory = FindItemsInRetainerInventory(retainer_name)
 
   Logging.Info("  Listing sale items for retainer "..retainer_index)
-  for _, sell_entry in pairs(sell_table) do
-    local item_id = sell_entry[1]
-    local item_stacks = inventory[item_id]
+  for _, raw_sell_entry in pairs(sell_table) do
+    local item_stacks = inventory[raw_sell_entry[1]]
     if item_stacks ~= nil then
-      sale_slots = sale_slots - ListItemForSale(sell_entry, sale_slots, item_stacks, listed_items[item_id])
+      local sell_entry = ParseSellEntry(raw_sell_entry)
+      sale_slots = sale_slots - ListItemForSale(sell_entry, sale_slots, item_stacks, listed_items[sell_entry.id])
       if sale_slots <= 0 then
         Logging.Debug("no open slots remaining")
         break
@@ -354,8 +363,8 @@ end
 function EntrustSellTableItems(sell_table)
   OpenRetainerInventory()
   local inventory = FindItemsInCharacterInventory()
-  for _, sell_entry in pairs(sell_table) do
-    local item_id = sell_entry[1]
+  for _, raw_sell_entry in pairs(sell_table) do
+    local item_id = raw_sell_entry[1]
     local item_stacks = inventory[item_id] or {}
     for _, stack in pairs(item_stacks) do EntrustSingleItem(item_id, stack) end
   end
