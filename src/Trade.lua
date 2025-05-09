@@ -1,5 +1,6 @@
 require "Logging"
 require "Navigation"
+require "Utils"
 
 function TradeGilTo(target, trade_gil)
   Logging.Info("trading "..trade_gil.." to "..target)

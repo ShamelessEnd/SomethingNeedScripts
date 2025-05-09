@@ -24,9 +24,20 @@ function GetFoodTime() return GetStatusTimeRemaining(48) end
 
 function Sprint() ExecuteGeneralAction(4) end
 
+function GetNQItemCount(item_id) return GetItemCount(item_id, false) end
+
+function GetHQItemCount(item_id) return GetItemCount(item_id) - GetNQItemCount(item_id) end
+
 function GetJobLevel(job_id) return GetLevel(job_id - 1) end
 
+function GetARJobLevel(ar_data, job_id) return ar_data.ClassJobLevelArray[job_id - 1] end
+
 function GetMaxLevel() return 100 end
+
+function Target(target)
+  yield("/target \""..target.."\"")
+  return WaitUntil(function () return GetTargetName() == target end, 1)
+end
 
 function GetItemId(name)
   for i = 1,49000 do

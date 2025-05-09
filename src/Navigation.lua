@@ -28,11 +28,6 @@ function IsInHomeWorld()
   return GetCurrentWorld() == GetHomeWorld()
 end
 
-function Target(target)
-  yield("/target \""..target.."\"")
-  return WaitUntil(function () return GetTargetName() == target end, 1)
-end
-
 function TeleportToAetheryte(aetheryte)
   if IsAetheryteUnlocked(aetheryte) then
     LifestreamTeleport(aetheryte, 0)
