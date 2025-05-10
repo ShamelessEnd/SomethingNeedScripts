@@ -74,6 +74,7 @@ VentureSellTable = {
       { 41593,       49500,      false,          1,            1,        0 }, -- "Martial Artist's Slops"     },
       { 41594,       49500,      false,          1,            1,        0 }, -- "Martial Artist's Pumps"     },
       { 44248,       49500,      false,          1,            1,        0 }, -- "Turali Trader's Shoes"      },
+      { 44250,       49500,      false,          1,            1,        0 }, -- "Turali Traveler's Shoes"    },
       { 24006,       49500,      false,          1,            1,        0 }, -- "Whisperfine Woolen Boots"   },
       { 24004,       39500,      false,          1,            1,        0 }, -- "Whisperfine Woolen Coat"    },
       { 24005,       49500,      false,          1,            1,        0 }, -- "Whisperfine Woolen Shorts"  },
