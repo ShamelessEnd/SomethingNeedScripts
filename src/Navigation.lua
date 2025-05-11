@@ -384,7 +384,7 @@ function ReturnToBell()
     end
     yield("/wait 1")
   end
-  if IsInHousingDistrict() == false or GetDistanceToObject("Apartment Building Entrance") < 20 then
+  if IsInHousingDistrict() == false or GetDistanceToObject("Apartment Building Entrance") < 50 then
     -- walk to bell if at hawkers or apartment
     WalkToTarget(bell_target)
   end
