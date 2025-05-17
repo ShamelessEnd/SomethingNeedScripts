@@ -3,12 +3,15 @@ require "Navigation"
 require "Utils"
 
 function TradeGilTo(target, trade_gil)
+  if trade_gil <= 0 then return end
+
   Logging.Info("trading "..trade_gil.." to "..target)
   local end_gil = GetItemCount(1) - trade_gil
 
-  Target(target)
-  yield("/vnav movetarget")
-  yield("/wait 5")
+  if not NavToTarget(target, 3, false, 5) then
+    Logging.Error("failed to find target "..target)
+    return
+  end
 
   while (GetItemCount(1) > end_gil) do
     while not IsAddonReady("Trade") do
@@ -40,30 +43,30 @@ function GoTradeAllGilTo(target, server)
     WaitForNavReady()
   end
 
-  yield("/wait 3")
+  yield("/wait 1")
 
   local start_gil = GetItemCount(1)
   local trade_gil = (math.floor(start_gil / 1000000) - 1) * 1000000
-  if trade_gil > 0 then
-    TradeGilTo(target, trade_gil)
-  end
+  TradeGilTo(target, trade_gil)
 
   ReturnToFC()
 end
 
-function CollectGilTo(target, server)
+function CollectGilTo(target, server, exclude)
   local target_server_data = FindServerData(server)
   if not target_server_data then return end
 
   local chars = ARGetCharacterCIDs()
   for i = 0, chars.Count - 1 do
     local cid = chars[i]
-    local data = ARGetCharacterData(cid)
-    if data and data.Gil > 10000000 then
-      local server_data = FindServerData(data.World)
-      if server_data and server_data.dc == target_server_data.dc then
-        ARRelogTo(cid)
-        GoTradeAllGilTo(target, target_server_data.name)
+    if not TableContains(exclude, cid) then
+      local data = ARGetCharacterData(cid)
+      if data and data.Gil > 5000000 then
+        local server_data = FindServerData(data.World)
+        if server_data and server_data.dc == target_server_data.dc then
+          ARRelogTo(cid)
+          GoTradeAllGilTo(target, target_server_data.name)
+        end
       end
     end
   end

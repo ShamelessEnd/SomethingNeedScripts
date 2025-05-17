@@ -14,6 +14,8 @@ function TableIsEmpty(t) return next(t) == nil end
 
 function TableSize(t) local count = 0 for _, _ in pairs(t) do count = count + 1 end return count end
 
+function TableContains(t, i) if t then for _, x in pairs(t) do if x == i then return true end end end return false end
+
 function RoundUpToNext(x, increment) return math.floor(((x + increment - 1) // increment) * increment + 0.5) end
 
 function IsCasting() return GetCharacterCondition(27) end
