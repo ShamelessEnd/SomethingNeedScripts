@@ -8,15 +8,16 @@ function TradeGilTo(target, trade_gil)
   Logging.Info("trading "..trade_gil.." to "..target)
   local end_gil = GetItemCount(1) - trade_gil
 
-  if not NavToTarget(target, 3, false, 5) then
+  if not NavToTarget(target, 2, false, 5) then
     Logging.Error("failed to find target "..target)
     return
   end
 
+  yield("/wait 0.2")
   while (GetItemCount(1) > end_gil) do
     while not IsAddonReady("Trade") do
       yield("/trade")
-      yield("/wait 0.1")
+      yield("/wait 0.2")
     end
     Callback("Trade", true, 2)
     if AwaitAddonReady("InputNumeric", 2) then
