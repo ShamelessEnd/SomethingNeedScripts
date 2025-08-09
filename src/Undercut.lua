@@ -412,6 +412,7 @@ function UndercutAndSellAllRetainers(retainer_tables)
   Logging.Info("UndercutAndSellAllRetainerss")
   ARSetSuppressed(true)
   yield("/xldisablecollection UndercutAndSellAllRetainers")
+  yield("/wait 0.5")
   if OpenRetainerList() then
     local retainer_count = ARGetRetainerCount()
     for i, retainer_table in pairs(retainer_tables) do

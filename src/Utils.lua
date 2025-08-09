@@ -38,6 +38,7 @@ function GetMaxLevel() return 100 end
 
 function Target(target)
   yield("/target \""..target.."\"")
+  yield("/wait 0.1")
   return WaitUntil(function () return GetTargetName() == target end, 1)
 end
 
