@@ -466,15 +466,15 @@ function ADIsStopped()
 end
 
 function LeaveDuty()
-
+  InstancedContent.LeaveCurrentContent()
 end
 
-function OpenRegularDuty()
-
+function OpenRegularDuty(duty)
+  Instances.DutyFinder:OpenRegularDuty(duty)
 end
 
-function SetDFUnrestricted()
-
+function SetDFUnrestricted(unrestricted)
+  Instances.DutyFinder.IsUnrestrictedParty = unrestricted
 end
 
 function SetAutoHookState(enabled)
