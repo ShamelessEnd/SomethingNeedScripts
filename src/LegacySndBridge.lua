@@ -94,6 +94,18 @@ function IsPlayerDead()
   return Svc.Condition[2]
 end
 
+function IsInFate()
+
+end
+
+function GetFateMaxLevel()
+
+end
+
+function GetNearestFate()
+
+end
+
 function GetInventoryFreeSlotCount()
   return Inventory.GetFreeInventorySlots()
 end
@@ -224,6 +236,50 @@ function GetObjectRawZPos(name)
   return 0
 end
 
+function GetPartyMemberName()
+
+end
+
+function GetPartyMemberWorldName()
+
+end
+
+function GetDistanceToPartyMember()
+
+end
+
+function GetPartyLeadIndex()
+
+end
+
+function GetPartyMemberHP()
+
+end
+
+function GetPartyMemberMaxHP()
+
+end
+
+function GetPartyMemberHPP()
+
+end
+
+function IsPartyMemberInCombat()
+
+end
+
+function GetPartyMemberRawXPos()
+
+end
+
+function GetPartyMemberRawYPos()
+
+end
+
+function GetPartyMemberRawZPos()
+
+end
+
 function IsAddonReady(target)
   return Addons.GetAddon(target).Ready
 end
@@ -316,90 +372,6 @@ function GetDistanceToPoint(x, y, z)
   return Vector3.Distance(Vector3(x, y, z), Player.Entity.Position)
 end
 
-function LifestreamAbort()
-
-end
-
-function ARSetSuppressed()
-
-end
-
-function ARGetRegisteredEnabledCharacters()
-
-end
-
-function ARGetCharacterData()
-
-end
-
-function LifestreamIsBusy()
-
-end
-
-function LifestreamTeleport()
-
-end
-
-function LifestreamTeleportToFC()
-
-end
-
-function LifestreamTeleportToApartment()
-
-end
-
-function LifestreamExecuteCommand()
-
-end
-
-function ADIsStopped()
-
-end
-
-function QuestionableIsRunning()
-
-end
-
-function IsQuestAccepted()
-
-end
-
-function LeaveDuty()
-
-end
-
-function GetPartyMemberName()
-
-end
-
-function GetDistanceToPartyMember()
-
-end
-
-function GetPartyLeadIndex()
-
-end
-
-function GetPartyMemberHP()
-
-end
-
-function IsPartyMemberInCombat()
-
-end
-
-function GetPartyMemberHPP()
-
-end
-
-function OpenRegularDuty()
-
-end
-
-function SetDFUnrestricted()
-
-end
-
 function QueryMeshPointOnFloorX()
 
 end
@@ -412,83 +384,95 @@ function QueryMeshPointOnFloorZ()
 
 end
 
-function GetPartyMemberWorldName()
-
+function LifestreamAbort()
+  IPC.Lifestream.Abort()
 end
 
-function IsInFate()
-
+function LifestreamIsBusy()
+  return IPC.Lifestream.IsBusy()
 end
 
-function GetFateMaxLevel()
-
+function LifestreamTeleport(aetheryteId, subIndex)
+  return IPC.Lifestream.Teleport(aetheryteId, subIndex)
 end
 
-function GetNearestFate()
-
+function LifestreamTeleportToFC()
+  return IPC.Lifestream.TeleportToFC()
 end
 
-function GetPartyMemberRawXPos()
-
+function LifestreamTeleportToApartment()
+  return IPC.Lifestream.TeleportToApartment()
 end
 
-function GetPartyMemberRawYPos()
-
+function LifestreamExecuteCommand(command)
+  IPC.Lifestream.ExecuteCommand(command)
 end
 
-function GetPartyMemberRawZPos()
-
-end
-
-function GetPartyMemberMaxHP()
-
-end
-
-function ADRun()
-
-end
-
-function ARIsBusy()
-
-end
-
-function DropboxSetItemQuantity()
-
-end
-
-function DropboxStart()
-
-end
-
-function DropboxIsBusy()
-
+function ARSetSuppressed(suppressed)
+  -- not available
 end
 
 function ARGetCharacterCIDs()
-
+  return IPC.AutoRetainer.GetRegisteredCharacters()
 end
 
-function SetAutoHookState()
-
+function ARGetCharacterData(cid)
+  return IPC.AutoRetainer.GetOfflineCharacterData(cid)
 end
 
 function ARGetMultiModeEnabled()
-
+  return IPC.AutoRetainer.GetMultiModeEnabled()
 end
 
-function ARSetMultiModeEnabled()
-
+function ARSetMultiModeEnabled(enabled)
+  IPC.AutoRetainer.SetMultiModeEnabled(enabled)
 end
 
 function ARAbortAllTasks()
-
+  IPC.AutoRetainer.AbortAllTasks()
 end
 
 function ARFinishCharacterPostProcess()
+  -- not available
+end
+
+function ARIsBusy()
+  return IPC.AutoRetainer.IsBusy()
+end
+
+function QuestionableIsRunning()
+  return IPC.Questionable.IsRunning()
+end
+
+function IsQuestAccepted()
 
 end
 
+function ADRun(duty, count)
+  IPC.AutoDuty.Run(duty, count, false)
+end
+
+function ADIsStopped()
+  return IPC.AutoDuty.IsStopped()
+end
+
+function LeaveDuty()
+
+end
+
+function OpenRegularDuty()
+
+end
+
+function SetDFUnrestricted()
+
+end
+
+function SetAutoHookState(enabled)
+  IPC.AutoHook.SetPluginState(enabled)
+end
+
 function DeliverooIsTurnInRunning()
-  -- deprecated
+  -- removed
   return false
 end
