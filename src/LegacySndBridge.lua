@@ -37,15 +37,15 @@ function GetCurrentWorld()
 end
 
 function GetPlayerRawXPos()
-  return Player.Entity.Position[0]
+  return Player.Entity.Position.X
 end
 
 function GetPlayerRawYPos()
-  return Player.Entity.Position[1]
+  return Player.Entity.Position.Y
 end
 
 function GetPlayerRawZPos()
-  return Player.Entity.Position[2]
+  return Player.Entity.Position.Z
 end
 
 function GetLevel()
@@ -164,21 +164,21 @@ end
 
 function GetTargetRawXPos()
   if HasTarget() then
-    return Entity.Target.Position[0]
+    return Entity.Target.Position.X
   end
   return 0
 end
 
 function GetTargetRawYPos()
   if HasTarget() then
-    return Entity.Target.Position[1]
+    return Entity.Target.Position.Y
   end
   return 0
 end
 
 function GetTargetRawZPos()
   if HasTarget() then
-    return Entity.Target.Position[2]
+    return Entity.Target.Position.Z
   end
   return 0
 end
@@ -215,7 +215,7 @@ end
 function GetObjectRawXPos(name)
   local obj = Entity.GetEntityByName(name)
   if obj then
-    return obj.Position[0]
+    return obj.Position.X
   end
   return 0
 end
@@ -223,7 +223,7 @@ end
 function GetObjectRawYPos(name)
   local obj = Entity.GetEntityByName(name)
   if obj then
-    return obj.Position[1]
+    return obj.Position.Y
   end
   return 0
 end
@@ -231,53 +231,82 @@ end
 function GetObjectRawZPos(name)
   local obj = Entity.GetEntityByName(name)
   if obj then
-    return obj.Position[2]
+    return obj.Position.Z
   end
   return 0
 end
 
-function GetPartyMemberName()
-
+function GetPartyMemberName(index)
+  local member = Svc.Party[index]
+  if member then
+    return member.Name.TextValue
+  end
+  return ""
 end
 
-function GetPartyMemberWorldName()
-
-end
-
-function GetDistanceToPartyMember()
-
+function GetDistanceToPartyMember(index)
+  local member = Svc.Party[index]
+  if member then
+    return Vector3.Distance(member.Position, Player.Entity.Position)
+  end
+  return 0
 end
 
 function GetPartyLeadIndex()
-
+  return Svc.Party.PartyLeaderIndex
 end
 
-function GetPartyMemberHP()
-
+function GetPartyMemberHP(index)
+  local member = Svc.Party[index]
+  if member then
+    return member.CurrentHP
+  end
+  return 0
 end
 
-function GetPartyMemberMaxHP()
-
+function GetPartyMemberMaxHP(index)
+  local member = Svc.Party[index]
+  if member then
+    return member.MaxHP
+  end
+  return 0
 end
 
-function GetPartyMemberHPP()
-
+function GetPartyMemberHPP(index)
+  return GetPartyMemberHP(index) / GetPartyMemberMaxHP(index) * 100
 end
 
-function IsPartyMemberInCombat()
-
+function IsPartyMemberInCombat(index)
+  -- hack because Entity.GetPartyMember(index) does not work
+  local member = Entity.GetEntityByName(GetPartyMemberName(index))
+  if member then
+    return member.IsInCombat
+  end
+  return false
 end
 
-function GetPartyMemberRawXPos()
-
+function GetPartyMemberRawXPos(index)
+  local member = Svc.Party[index]
+  if member then
+    return member.Position.X
+  end
+  return 0
 end
 
-function GetPartyMemberRawYPos()
-
+function GetPartyMemberRawYPos(index)
+  local member = Svc.Party[index]
+  if member then
+    return member.Position.Y
+  end
+  return 0
 end
 
-function GetPartyMemberRawZPos()
-
+function GetPartyMemberRawZPos(index)
+  local member = Svc.Party[index]
+  if member then
+    return member.Position.Z
+  end
+  return 0
 end
 
 function IsAddonReady(target)
