@@ -142,12 +142,8 @@ function GetCharacterCondition()
 
 end
 
-function LogDebug()
-
-end
-
-function Logging()
-
+function LogDebug(msg)
+  -- Currently Broken
 end
 
 function GetGil()
