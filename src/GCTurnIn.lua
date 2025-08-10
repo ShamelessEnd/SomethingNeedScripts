@@ -46,11 +46,12 @@ function GCMissionSubmit()
   Callback("SelectString", true, 0)
   AwaitAddonReady("GrandCompanySupplyList")
   for i = 7,0,-1 do
-    local text = GetNodeText("GrandCompanySupplyList", 6, i+2, 6)
+    local node_i = GetNodeListIndex(i, 4, 41000)
+    local text = GetNewNodeText("GrandCompanySupplyList", 1, 22, node_i, 5, 10)
     local hq_index = string.find(text, "")
     if hq_index and hq_index > 0 then
       local hq_count = tonumber(string.sub(text, hq_index+3))
-      local required_count = tonumber(GetNodeText("GrandCompanySupplyList", 6, i+2, 9))
+      local required_count = tonumber(GetNewNodeText("GrandCompanySupplyList", 1, 22, node_i, 5, 7))
       if hq_count and required_count and hq_count >= required_count then
         Callback("GrandCompanySupplyList", true, 1, i, "")
         Callback("SelectYesno", true, 0)
@@ -82,8 +83,8 @@ function GetGCSupplyMissions()
 
   local missions = {}
   for job_id = 8,15 do
-    local item = GetNodeText("ContentsInfoDetail", 120 - job_id, 5)
-    local count = GetNodeText("ContentsInfoDetail", 120 - job_id, 2)
+    local item = GetNewNodeText("ContentsInfoDetail", 1, 2, job_id - 2, 4)
+    local count = GetNewNodeText("ContentsInfoDetail", 1, 2, job_id - 2, 7)
     if not StringIsEmpty(item) and not StringIsEmpty(count) then
       local item_id = nil
       if StringEndsWith(item, "...") then

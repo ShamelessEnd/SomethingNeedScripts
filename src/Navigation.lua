@@ -217,9 +217,9 @@ function WorldVisitTo(server_name)
     return false
   end
   local iSelectString
-  for i = 1,5 do
-    if string.find(GetNodeText("SelectString", 2, i, 3), "Visit Another World Server") then
-      iSelectString = i - 1
+  for i = 1,8 do
+    if string.find(GetNewNodeText("SelectString", 1, 3, 51000 + i, 2), "Visit Another World Server") then
+      iSelectString = i
     end
   end
   if not iSelectString then
@@ -232,7 +232,7 @@ function WorldVisitTo(server_name)
   local curr_world = ""
   repeat
     yield("/wait 0.1")
-    curr_world = GetNodeText("WorldTravelSelect", 7)
+    curr_world = GetNewNodeText("WorldTravelSelect", 1, 8, 12)
   until not StringIsEmpty(curr_world)
   if curr_world == server_name then
     Logging.Info("already on "..server_name)
@@ -240,11 +240,10 @@ function WorldVisitTo(server_name)
     return true
   end
 
-  local dest_index = 3
   local dest_name = ""
   repeat
     yield("/wait 0.1")
-    dest_name = GetNodeText("WorldTravelSelect", 4, dest_index, 4)
+    dest_name = GetNewNodeText("WorldTravelSelect", 1, 14, 5, 4, 5)
   until not StringIsEmpty(dest_name)
 
   local function doTravelToWorld(index)
@@ -264,13 +263,14 @@ function WorldVisitTo(server_name)
     return true
   end
 
+  local dest_index = 2
   repeat
     if dest_name == server_name then
       Logging.Debug("travelling to world "..server_name)
-      return doTravelToWorld(dest_index - 1)
+      return doTravelToWorld(dest_index)
     end
     dest_index = dest_index + 1
-    dest_name = GetNodeText("WorldTravelSelect", 4, dest_index, 4)
+    dest_name = GetNewNodeText("WorldTravelSelect", 1, 14, GetNodeListIndex(dest_index - 2, 5, 51000), 4, 5)
   until StringIsEmpty(dest_name)
 
   Logging.Error("failed to find server in list "..server_name)

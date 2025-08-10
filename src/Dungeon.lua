@@ -15,10 +15,10 @@ function GetWeeklyTomeCount(max_cap)
         yield("/wait 0.1")
     end
 
-    local currency_text = GetNodeText("Currency", 66, 1)
+    local currency_text = GetNewNodeText("Currency", 1, 16, 200408, 6)
     while StringIsEmpty(currency_text) do
         yield("/wait 0.1")
-        currency_text = GetNodeText("Currency", 66, 1)
+        currency_text = GetNewNodeText("Currency", 1, 16, 200408, 6)
     end
 
     local slash_index, _ = string.find(currency_text, "/")

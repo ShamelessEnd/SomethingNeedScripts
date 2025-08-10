@@ -36,6 +36,11 @@ function GetARJobLevel(ar_data, job_id) return ar_data.ClassJobLevelArray[job_id
 
 function GetMaxLevel() return 100 end
 
+function GetNodeListIndex(i, zero_val, zero_point)
+  if i == 0 then return zero_val end
+  return zero_point + i
+end
+
 function Target(target)
   yield("/target \""..target.."\"")
   yield("/wait 0.1")
@@ -43,15 +48,17 @@ function Target(target)
 end
 
 function GetItemId(name)
-  for i = 1,49000 do
-    if GetItemName(i) == name then return i end
+  local item = Excel.Item
+  for i = 0, item.Count - 1 do
+    if item:GetRow(i):GetProperty("Name") == name then return i end
   end
   return nil
 end
 
 function FindItemId(prefix)
-  for i = 1,49000 do
-    if StringStartsWith(GetItemName(i), prefix) then return i end
+  local item = Excel.Item
+  for i = 0, item.Count - 1 do
+    if StringStartsWith(item:GetRow(i):GetProperty("Name"), prefix) then return i end
   end
   return nil
 end
