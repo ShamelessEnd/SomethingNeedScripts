@@ -119,6 +119,34 @@ function GetItemName(id)
   return Excel.Item:GetRow(id).Name
 end
 
+function IsAddonReady(target)
+  return Addons.GetAddon(target).Ready
+end
+
+function IsAddonVisible(target)
+  return IsAddonReady(target)
+end
+
+function IsNodeVisible(target, ...)
+  if Addons.GetAddon(target).Exists then
+    return Addons.GetAddon(target):GetNode(...).IsVisible
+  end
+  return false
+end
+
+function GetNewNodeText(target, ...)
+  if Addons.GetAddon(target).Exists then
+    return Addons.GetAddon(target):GetNode(...).Text
+  end
+  return ""
+end
+
+function GetNodeText(target, ...)
+  -- no longer functions with old indexes
+  -- must update to use GetNewNodeText, which uses the same indexes as IsNodeVisible
+  return ""
+end
+
 function IsInZone()
 
 end
@@ -143,23 +171,7 @@ function ARGetCharacterData()
 
 end
 
-function IsAddonReady()
-
-end
-
-function IsNodeVisible()
-
-end
-
-function GetNodeText()
-
-end
-
 function GetTargetName()
-
-end
-
-function IsAddonVisible()
 
 end
 

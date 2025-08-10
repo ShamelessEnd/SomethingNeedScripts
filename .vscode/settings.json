@@ -4,7 +4,8 @@
         "Player",
         "Svc",
         "Inventory",
-        "Excel"
+        "Excel",
+        "Addons"
     ],
     "Lua.diagnostics.disable": [
         "undefined-field"
