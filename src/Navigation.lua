@@ -102,9 +102,10 @@ function PathToNearestGroundPoint(x_t, y_t, z_t)
   local z_g
   local extent = 0
   while not x_g or not y_g or not z_g do
-    x_g = QueryMeshPointOnFloorX(x_t, y_t, z_t, false, extent)
-    y_g = QueryMeshPointOnFloorY(x_t, y_t, z_t, false, extent)
-    z_g = QueryMeshPointOnFloorZ(x_t, y_t, z_t, false, extent)
+    local vec_g = IPC.vnavmesh.PointOnFloor(Vector3(x_t, y_t, z_t), false, extent)
+    x_g = vec_g.X
+    y_g = vec_g.Y
+    z_g = vec_g.Z
     extent = extent + 1
   end
 

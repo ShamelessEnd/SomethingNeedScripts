@@ -401,18 +401,6 @@ function GetDistanceToPoint(x, y, z)
   return Vector3.Distance(Vector3(x, y, z), Player.Entity.Position)
 end
 
-function QueryMeshPointOnFloorX()
-
-end
-
-function QueryMeshPointOnFloorY()
-
-end
-
-function QueryMeshPointOnFloorZ()
-
-end
-
 function LifestreamAbort()
   IPC.Lifestream.Abort()
 end
