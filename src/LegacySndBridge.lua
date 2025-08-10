@@ -4,6 +4,10 @@ function LogDebug(msg)
   -- Currently Broken
 end
 
+function ExecuteGeneralAction(action)
+  Actions.ExecuteGeneralAction(action)
+end
+
 function GetCharacterName()
   return Player.Entity.Name
 end
@@ -325,10 +329,6 @@ function ARGetRegisteredEnabledCharacters()
 end
 
 function ARGetCharacterData()
-
-end
-
-function ExecuteGeneralAction()
 
 end
 

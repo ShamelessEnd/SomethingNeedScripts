@@ -10,7 +10,8 @@
         "Entity",
         "Instances",
         "IPC",
-        "Vector3"
+        "Vector3",
+        "Actions"
     ],
     "Lua.diagnostics.disable": [
         "undefined-field"
