@@ -453,8 +453,8 @@ function QuestionableIsRunning()
   return IPC.Questionable.IsRunning()
 end
 
-function IsQuestAccepted()
-
+function IsQuestAccepted(id)
+  return Quests.IsQuestAccepted(id)
 end
 
 function ADRun(duty, count)
