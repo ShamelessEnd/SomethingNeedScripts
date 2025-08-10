@@ -11,7 +11,8 @@
         "Instances",
         "IPC",
         "Vector3",
-        "Actions"
+        "Actions",
+        "Fates"
     ],
     "Lua.diagnostics.disable": [
         "undefined-field"

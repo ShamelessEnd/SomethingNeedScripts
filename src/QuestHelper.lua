@@ -267,7 +267,7 @@ function FollowPartyLeaderFate()
         PathStop()
         Dismount()
       end
-      if GetFateMaxLevel(GetNearestFate()) < GetLevel() then
+      if Fates.CurrentFate.MaxLevel < GetLevel() then
         yield("/levelsync on")
       end
       if GetDistanceToPoint(x_t, y_t, z_t) > 5 then

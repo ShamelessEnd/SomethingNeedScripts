@@ -95,15 +95,7 @@ function IsPlayerDead()
 end
 
 function IsInFate()
-
-end
-
-function GetFateMaxLevel()
-
-end
-
-function GetNearestFate()
-
+  return Fates.CurrentFate ~= nil
 end
 
 function GetInventoryFreeSlotCount()
