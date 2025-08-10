@@ -2,7 +2,9 @@
     "Lua.diagnostics.globals": [
         "yield",
         "Player",
-        "Svc"
+        "Svc",
+        "Inventory",
+        "Excel"
     ],
     "Lua.diagnostics.disable": [
         "undefined-field"

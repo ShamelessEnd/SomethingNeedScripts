@@ -90,27 +90,33 @@ function IsPlayerDead()
 end
 
 function GetInventoryFreeSlotCount()
-
+  return Inventory.GetFreeInventorySlots()
 end
 
-function GetItemCount()
-
+function GetItemCount(id)
+  return Inventory.GetItemCount(id)
 end
 
-function GetItemIdInSlot()
-
+function GetItemIdInSlot(page, slot)
+  -- wrong or broken
+  -- return Inventory.GetInventoryItem(page, slot).ItemId
+  -- return Svc.GameInventory:GetInventoryItems(page)[slot].ItemId
+  return 0
 end
 
-function GetItemCountInSlot()
-
+function GetItemCountInSlot(page, slot)
+  -- wrong or broken
+  -- return Inventory.GetInventoryItem(page, slot).Count
+  -- return Svc.GameInventory:GetInventoryItems(page)[slot].Quantity
+  return 0
 end
 
 function GetGil()
-
+  return Inventory.GetItemCount(1)
 end
 
-function GetItemName()
-
+function GetItemName(id)
+  return Excel.Item:GetRow(id).Name
 end
 
 function IsInZone()
