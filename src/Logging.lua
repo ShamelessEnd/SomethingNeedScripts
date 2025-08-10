@@ -1,3 +1,4 @@
+require "LegacySndBridge"
 
 Logging = {
   LogLevel = 0,
