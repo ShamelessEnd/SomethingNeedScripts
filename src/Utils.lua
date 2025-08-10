@@ -57,7 +57,7 @@ function FindItemId(prefix)
 end
 
 function WaitForPlayerReady(timeout, sleep)
-  return WaitUntil(function () return not IsPlayerOccupied() and IsPlayerAvailable() end, timeout, sleep)
+  return WaitUntil(function () return IsPlayerAvailable() end, timeout, sleep)
 end
 
 function WaitForNavReady(timeout, sleep)

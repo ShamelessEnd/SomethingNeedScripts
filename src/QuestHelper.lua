@@ -114,7 +114,7 @@ function QuestWatch(target_level, silent)
       yield("/qst start")
     end
 
-    if IsInCombat() or IsPlayerDead() or IsPlayerOccupied() or not NavIsReady() or not IsPlayerAvailable() or NavBuildProgress() > 0 then
+    if IsInCombat() or IsPlayerDead() or not NavIsReady() or not IsPlayerAvailable() or NavBuildProgress() > 0 then
       last_x = 0
       last_y = 0
       last_z = 0

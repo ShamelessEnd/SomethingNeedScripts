@@ -1,10 +1,115 @@
 
-function DeliverooIsTurnInRunning()
-  -- deprecated
-  return false
+function LogDebug(msg)
+  -- Currently Broken
+end
+
+function GetCharacterName()
+  return Player.Entity.Name
+end
+
+function GetPlayerContentId()
+  return Player.Entity.ContentId
 end
 
 function GetPlayerGC()
+  return Player.GrandCompany
+end
+
+function IsPlayerAvailable()
+  return Player.Available and not Player.IsBusy
+end
+
+function IsPlayerOccupied()
+  return Player.IsBusy
+end
+
+function GetHomeWorld()
+  return Player.Entity.HomeWorld
+end
+
+function GetCurrentWorld()
+  return Player.Entity.CurrentWorld
+end
+
+function GetPlayerRawXPos()
+  return Player.Entity.Position[0]
+end
+
+function GetPlayerRawYPos()
+  return Player.Entity.Position[1]
+end
+
+function GetPlayerRawZPos()
+  return Player.Entity.Position[2]
+end
+
+function GetLevel()
+  return Player.Job.Level
+end
+
+function GetHP()
+  return Player.Entity.CurrentHp
+end
+
+function GetMaxHP()
+  return Player.Entity.MaxHp
+end
+
+function GetCurrentBait()
+  return Player.FishingBait
+end
+
+function GetClassJobId()
+  return Player.Job.Id
+end
+
+function HasStatusId(id)
+  for i = 0, Player.Status.Count - 1 do
+    if Player.Status[i].StatusId == id then
+      return true
+    end
+  end
+  return false
+end
+
+function GetStatusTimeRemaining(id)
+  for i = 0, Player.Status.Count - 1 do
+    if Player.Status[i].StatusId == id then
+      return Player.Status[i].RemainingTime
+    end
+  end
+  return 0
+end
+
+function GetCharacterCondition(id)
+  return Svc.Condition[id]
+end
+
+function IsPlayerDead()
+  return Svc.Condition[2]
+end
+
+function GetInventoryFreeSlotCount()
+
+end
+
+function GetItemCount()
+
+end
+
+function GetItemIdInSlot()
+
+end
+
+function GetItemCountInSlot()
+
+end
+
+function GetGil()
+
+end
+
+function GetItemName()
 
 end
 
@@ -16,10 +121,6 @@ function NavIsReady()
 
 end
 
-function IsPlayerAvailable()
-
-end
-
 function LifestreamAbort()
 
 end
@@ -28,19 +129,7 @@ function ARSetSuppressed()
 
 end
 
-function GetInventoryFreeSlotCount()
-
-end
-
-function GetItemCount()
-
-end
-
 function ARGetRegisteredEnabledCharacters()
-
-end
-
-function GetCharacterName()
 
 end
 
@@ -48,19 +137,7 @@ function ARGetCharacterData()
 
 end
 
-function GetPlayerContentId()
-
-end
-
 function IsAddonReady()
-
-end
-
-function GetItemIdInSlot()
-
-end
-
-function GetItemCountInSlot()
 
 end
 
@@ -89,10 +166,6 @@ function ExecuteGeneralAction()
 end
 
 function LifestreamIsBusy()
-
-end
-
-function GetHomeWorld()
 
 end
 
@@ -140,27 +213,7 @@ function LifestreamTeleportToApartment()
 
 end
 
-function GetCharacterCondition()
-
-end
-
-function LogDebug(msg)
-  -- Currently Broken
-end
-
-function GetGil()
-
-end
-
-function GetCurrentWorld()
-
-end
-
 function LifestreamExecuteCommand()
-
-end
-
-function GetItemName()
 
 end
 
@@ -176,18 +229,6 @@ function GetObjectRawZPos()
 
 end
 
-function GetPlayerRawXPos()
-
-end
-
-function GetPlayerRawYPos()
-
-end
-
-function GetPlayerRawZPos()
-
-end
-
 function NavBuildProgress()
 
 end
@@ -200,19 +241,7 @@ function PathfindInProgress()
 
 end
 
-function GetLevel()
-
-end
-
-function IsPlayerDead()
-
-end
-
 function ADIsStopped()
-
-end
-
-function IsPlayerOccupied()
 
 end
 
@@ -285,14 +314,6 @@ function GetTargetFateID()
 end
 
 function IsTargetInCombat()
-
-end
-
-function GetHP()
-
-end
-
-function GetMaxHP()
 
 end
 
@@ -380,19 +401,7 @@ function ARGetCharacterCIDs()
 
 end
 
-function GetCurrentBait()
-
-end
-
 function SetAutoHookState()
-
-end
-
-function GetClassJobId()
-
-end
-
-function HasStatusId()
 
 end
 
@@ -412,6 +421,7 @@ function ARFinishCharacterPostProcess()
 
 end
 
-function GetStatusTimeRemaining()
-
+function DeliverooIsTurnInRunning()
+  -- deprecated
+  return false
 end
