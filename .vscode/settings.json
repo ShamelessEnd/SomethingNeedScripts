@@ -1,12 +1,16 @@
 {
     "Lua.diagnostics.globals": [
+        "import",
         "yield",
         "Player",
         "Svc",
         "Inventory",
         "Excel",
         "Addons",
-        "Entity"
+        "Entity",
+        "Instances",
+        "IPC",
+        "Vector3"
     ],
     "Lua.diagnostics.disable": [
         "undefined-field"

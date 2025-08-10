@@ -1,3 +1,4 @@
+import "System.Numerics"
 
 function LogDebug(msg)
   -- Currently Broken
@@ -247,12 +248,68 @@ function GetNodeText(target, ...)
   return ""
 end
 
-function IsInZone()
+function GetZoneID()
+  return Svc.ClientState.TerritoryType
+end
 
+function IsInZone(zone)
+  return GetZoneID() == zone
+end
+
+function GetZoneName(zone)
+  return Excel.TerritoryType[zone].PlaceName.Name
+end
+
+function TerritorySupportsMounting()
+  return Player.CanMount
+end
+
+function GetAetherytesInZone(zone)
+  local aetherytes = {}
+  local aetheryteList = Svc.AetheryteList
+  for i = 0, aetheryteList.Count - 1 do
+    local aetheryte = aetheryteList[i]
+    if aetheryte.TerritoryId == zone then
+      table.insert(aetherytes, aetheryte.AetheryteId)
+    end
+  end
+  return aetherytes
+end
+
+function IsAetheryteUnlocked(id)
+  return Instances.Telepo:IsAetheryteUnlocked(id)
 end
 
 function NavIsReady()
+  return IPC.vnavmesh.IsReady()
+end
 
+function PathfindAndMoveTo(x, y, z, fly)
+  IPC.vnavmesh.PathfindAndMoveTo(Vector3(x, y, z), fly)
+end
+
+function PathfindInProgress()
+  return IPC.vnavmesh.PathfindInProgress()
+end
+
+function PathStop()
+  IPC.vnavmesh.Stop()
+end
+
+function PathIsRunning()
+  IPC.vnavmesh.IsRunning()
+end
+
+function NavRebuild()
+  IPC.vnavmesh.Rebuild()
+end
+
+function NavBuildProgress()
+  return IPC.vnavmesh.BuildProgress()
+end
+
+function GetDistanceToPoint(x, y, z)
+  return Vector3.Distance(Vector3(x, y, z), Player.Entity.Position)
 end
 
 function LifestreamAbort()
@@ -283,22 +340,6 @@ function LifestreamTeleport()
 
 end
 
-function PathfindAndMoveTo()
-
-end
-
-function GetDistanceToPoint()
-
-end
-
-function PathStop()
-
-end
-
-function NavRebuild()
-
-end
-
 function LifestreamTeleportToFC()
 
 end
@@ -311,39 +352,11 @@ function LifestreamExecuteCommand()
 
 end
 
-function NavBuildProgress()
-
-end
-
-function PathIsRunning()
-
-end
-
-function PathfindInProgress()
-
-end
-
 function ADIsStopped()
 
 end
 
 function QuestionableIsRunning()
-
-end
-
-function IsAetheryteUnlocked()
-
-end
-
-function GetZoneID()
-
-end
-
-function GetZoneName()
-
-end
-
-function GetAetherytesInZone()
 
 end
 
@@ -384,10 +397,6 @@ function OpenRegularDuty()
 end
 
 function SetDFUnrestricted()
-
-end
-
-function TerritorySupportsMounting()
 
 end
 
