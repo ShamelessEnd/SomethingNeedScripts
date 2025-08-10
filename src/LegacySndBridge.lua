@@ -119,6 +119,106 @@ function GetItemName(id)
   return Excel.Item:GetRow(id).Name
 end
 
+function TargetClosestEnemy()
+  yield("/targetenemy")
+end
+
+function HasTarget()
+  return Entity.Target ~= nil
+end
+
+function ClearTarget()
+  Player.Entity:ClearTarget()
+end
+
+function GetTargetName()
+  if HasTarget() then
+    return Entity.Target.Name
+  end
+  return ""
+end
+
+function GetDistanceToTarget()
+  if HasTarget() then
+    return Entity.Target.DistanceTo
+  end
+  return 0
+end
+
+function GetTargetRawXPos()
+  if HasTarget() then
+    return Entity.Target.Position[0]
+  end
+  return 0
+end
+
+function GetTargetRawYPos()
+  if HasTarget() then
+    return Entity.Target.Position[1]
+  end
+  return 0
+end
+
+function GetTargetRawZPos()
+  if HasTarget() then
+    return Entity.Target.Position[2]
+  end
+  return 0
+end
+
+function IsTargetInCombat()
+  if HasTarget() then
+    return Entity.Target.IsInCombat
+  end
+  return false
+end
+
+function IsTargetMounted()
+ if HasTarget() then
+    return Entity.Target.IsMounted
+  end
+  return false
+end
+
+function GetTargetFateID()
+ if HasTarget() then
+    return Entity.Target.FateId
+  end
+  return 0
+end
+
+function GetDistanceToObject(name)
+  local obj = Entity.GetEntityByName(name)
+  if obj then
+    return obj.DistanceTo
+  end
+  return 0
+end
+
+function GetObjectRawXPos(name)
+  local obj = Entity.GetEntityByName(name)
+  if obj then
+    return obj.Position[0]
+  end
+  return 0
+end
+
+function GetObjectRawYPos(name)
+  local obj = Entity.GetEntityByName(name)
+  if obj then
+    return obj.Position[1]
+  end
+  return 0
+end
+
+function GetObjectRawZPos(name)
+  local obj = Entity.GetEntityByName(name)
+  if obj then
+    return obj.Position[2]
+  end
+  return 0
+end
+
 function IsAddonReady(target)
   return Addons.GetAddon(target).Ready
 end
@@ -171,14 +271,6 @@ function ARGetCharacterData()
 
 end
 
-function GetTargetName()
-
-end
-
-function GetDistanceToTarget()
-
-end
-
 function ExecuteGeneralAction()
 
 end
@@ -188,22 +280,6 @@ function LifestreamIsBusy()
 end
 
 function LifestreamTeleport()
-
-end
-
-function GetDistanceToObject()
-
-end
-
-function GetTargetRawXPos()
-
-end
-
-function GetTargetRawYPos()
-
-end
-
-function GetTargetRawZPos()
 
 end
 
@@ -232,18 +308,6 @@ function LifestreamTeleportToApartment()
 end
 
 function LifestreamExecuteCommand()
-
-end
-
-function GetObjectRawXPos()
-
-end
-
-function GetObjectRawYPos()
-
-end
-
-function GetObjectRawZPos()
 
 end
 
@@ -291,27 +355,11 @@ function LeaveDuty()
 
 end
 
-function TargetClosestEnemy()
-
-end
-
-function HasTarget()
-
-end
-
 function GetPartyMemberName()
 
 end
 
 function GetDistanceToPartyMember()
-
-end
-
-function ClearTarget()
-
-end
-
-function IsTargetMounted()
 
 end
 
@@ -324,14 +372,6 @@ function GetPartyMemberHP()
 end
 
 function IsPartyMemberInCombat()
-
-end
-
-function GetTargetFateID()
-
-end
-
-function IsTargetInCombat()
 
 end
 
