@@ -1,5 +1,7 @@
-function DeliverooIsTurnInRunning()
 
+function DeliverooIsTurnInRunning()
+  -- deprecated
+  return false
 end
 
 function GetPlayerGC()
