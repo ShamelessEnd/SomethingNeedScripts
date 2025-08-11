@@ -327,7 +327,10 @@ end
 
 function GetNewNodeText(target, ...)
   if Addons.GetAddon(target).Exists then
-    return Addons.GetAddon(target):GetNode(...).Text
+    local text = Addons.GetAddon(target):GetNode(...).Text
+    if text then
+      return text:match("^%s*(.-)%s*$") -- trim
+    end
   end
   return ""
 end

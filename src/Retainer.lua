@@ -108,7 +108,7 @@ end
 function GetSellListCount(timeout)
   local timeout_count = 0
   repeat
-    local full_text = GetNodeText("RetainerSellList", 3)
+    local full_text = GetNewNodeText("RetainerSellList", 1, 14, 19)
     local slash_index, _ = string.find(full_text, "/")
     if slash_index and slash_index > 1 then
       local count_text = string.sub(full_text, 1, slash_index - 1)
@@ -126,19 +126,19 @@ end
 
 function GetCurrentItemSellPrice()
   AwaitAddonReady("RetainerSell")
-  return tonumber(GetNodeText("RetainerSell", 15, 4))
+  return tonumber(GetNewNodeText("RetainerSell", 1, 8, 10, 5))
 end
 
 function GetCurrentItemSellCount()
   AwaitAddonReady("RetainerSell")
-  return tonumber(GetNodeText("RetainerSell", 11, 4))
+  return tonumber(GetNewNodeText("RetainerSell", 1, 12, 14, 5))
 end
 
 function GetRetainerName(retainer_index)
   local name = nil
   local retry_count = 3
   for i = 1, retry_count do
-    name = GetNodeText("RetainerList", 2, retainer_index, 13)
+    name = GetNewNodeText("RetainerList", 1, 27, GetNodeListIndex(retainer_index - 1, 4, 41000), 2, 3)
     if not StringIsEmpty(name) then
       break
     end

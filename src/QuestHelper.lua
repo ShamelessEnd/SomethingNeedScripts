@@ -89,7 +89,7 @@ function QuestWatch(target_level, silent)
   local last_z = 0
   local coffer_opened = false
   while not target_level or GetLevel() < target_level do
-    if IsPlayerDead() and IsAddonVisible("SelectYesno") and StringStartsWith(GetNodeText("SelectYesno", 15), "Return to ") then
+    if IsPlayerDead() and IsAddonVisible("SelectYesno") and StringStartsWith(GetNewNodeText("SelectYesno", 1, 2), "Return to ") then
       Logging.Info("player dead, attempting to recover")
       yield("/qst stop")
       local zone = GetZoneID()
@@ -256,7 +256,7 @@ function FollowPartyLeaderFate()
     local y_t = GetPartyMemberRawYPos(lead_index)
     local z_t = GetPartyMemberRawZPos(lead_index)
 
-    if IsPlayerDead() and IsAddonVisible("SelectYesno") and StringStartsWith(GetNodeText("SelectYesno", 15), "Return to ") then
+    if IsPlayerDead() and IsAddonVisible("SelectYesno") and StringStartsWith(GetNewNodeText("SelectYesno", 1, 2), "Return to ") then
       Logging.Info("player dead, attempting to recover")
       Callback("SelectYesno", true, 0)
       AwaitAddonGone("SelectYesno")
@@ -298,9 +298,9 @@ end
 function FollowPartyLeader()
   while true do
     WaitForNavReady()
-    if IsAddonReady("SelectYesno") and StringStartsWith(GetNodeText("SelectYesno", 15), "Accept Teleport") then
+    if IsAddonReady("SelectYesno") and StringStartsWith(GetNewNodeText("SelectYesno", 1, 2), "Accept Teleport") then
       Callback("SelectYesno", true, 0)
-    elseif IsAddonReady("SelectYesno") and StringStartsWith(GetNodeText("SelectYesno", 15), "Accept Raise") then
+    elseif IsAddonReady("SelectYesno") and StringStartsWith(GetNewNodeText("SelectYesno", 1, 2), "Accept Raise") then
       Callback("SelectYesno", true, 0)
     elseif IsAddonReady("ContentsFinderConfirm") then
       Callback("ContentsFinderConfirm", true, 8)

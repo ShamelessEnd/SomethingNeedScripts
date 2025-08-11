@@ -24,15 +24,15 @@ function OpenItemListings(attempts, addon, ...)
     if AwaitAddonReady("ItemSearchResult", 2) then
       yield("/wait 0.5")
       for wait_time = 1, 100 do
-        local msg_text = GetNodeText("ItemSearchResult", 26)
+        local msg_text = GetNewNodeText("ItemSearchResult", 1, 5)
         if string.find(msg_text, "Please wait") then
           break
         end
         if string.find(msg_text, "No items found") then
           return true
         end
-        if string.find(GetNodeText("ItemSearchResult", 2), "hit") then
-          if not StringIsEmpty(GetNodeText("ItemSearchResult", 5, 1, 10)) then
+        if string.find(GetNewNodeText("ItemSearchResult", 1, 29), "hit") then
+          if not StringIsEmpty(GetNewNodeText("ItemSearchResult", 1, 26, 4, 5)) then
             return true
           end
         end
@@ -47,7 +47,7 @@ function OpenItemListings(attempts, addon, ...)
 end
 
 function GetItemListingPrice(listing_index)
-  local price_text = string.gsub(GetNodeText("ItemSearchResult", 5, listing_index, 10), "%D", "")
+  local price_text = string.gsub(GetNewNodeText("ItemSearchResult", 1, 26, GetNodeListIndex(listing_index - 1, 4, 41000), 5), "%D", "")
   if StringIsEmpty(price_text) then
     return 0
   else
@@ -64,7 +64,7 @@ function IsItemListingHQ(listing_index)
 end
 
 function GetItemListingCount(listing_index)
-  local count_text = string.gsub(GetNodeText("ItemSearchResult", 5, listing_index, 9), "%D", "")
+  local count_text = string.gsub(GetNewNodeText("ItemSearchResult", 1, 26, GetNodeListIndex(listing_index - 1, 4, 41000), 6), "%D", "")
   if StringIsEmpty(count_text) then
     return 0
   else
@@ -73,7 +73,7 @@ function GetItemListingCount(listing_index)
 end
 
 function GetItemHistoryPrice(history_index)
-  local hist_price_text = string.gsub(GetNodeText("ItemHistory", 3, history_index + 1, 6), "%D", "")
+  local hist_price_text = string.gsub(GetNewNodeText("ItemHistory", 1, 10, GetNodeListIndex(history_index - 1, 4, 41000), 4), "%D", "")
   if StringIsEmpty(hist_price_text) then
     return 0
   else
@@ -91,7 +91,7 @@ end
 
 function GetItemHistoryPriceList(count)
   while GetItemHistoryPrice(1) == 0 do
-    if IsNodeVisible("ItemHistory", 1, 11) and string.find(GetNodeText("ItemHistory", 2), "No items found") then
+    if IsNodeVisible("ItemHistory", 1, 11) and string.find(GetNewNodeText("ItemHistory", 1, 11), "No items found") then
       Logging.Debug("no history")
       return {}, 0
     end
@@ -172,7 +172,7 @@ function FindMarketItem(item_name)
   MarketSearchItem(item_name)
   while not IsNodeVisible("ItemSearch", 1, 142, 148) or IsNodeVisible("ItemSearch", 1, 140) do
     if IsNodeVisible("ItemSearch", 1, 140) then
-      local msg_text = GetNodeText("ItemSearch", 10)
+      local msg_text = GetNewNodeText("ItemSearch", 1, 140)
       if string.find(msg_text, "Please wait") then
         MarketSearchItem(item_name)
       elseif string.find(msg_text, "No matching items") then
@@ -183,10 +183,12 @@ function FindMarketItem(item_name)
   end
   yield("/wait 0.1")
 
-  local count_text = string.gsub(GetNodeText("ItemSearch", 3), "[%d]+-", "")
+  local count_text = string.gsub(GetNewNodeText("ItemSearch", 1, 142, 148), "[%d]+-", "")
   for i = 1, tonumber(count_text) do
-    local item_text = GetNodeText("ItemSearch", 11, i, 4)
-    if StringEndsWith(item_text, "...") then
+    local item_text = GetNewNodeText("ItemSearch", 1, 139, GetNodeListIndex(i - 1, 5, 51000), 13)
+    if StringIsEmpty(item_text) then
+      break
+    elseif StringEndsWith(item_text, "...") then
       item_text = string.sub(item_text, 1, string.len(item_text) - 3)
       if StringStartsWith(item_name, item_text) then
         return i

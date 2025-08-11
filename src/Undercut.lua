@@ -123,7 +123,7 @@ function UndercutItems(return_function, sell_table, undercut_other, default_floo
       break
     end
 
-    local item_name = GetNodeText("RetainerSell", 18)
+    local item_name = GetNewNodeText("RetainerSell", 1, 5, 7)
     local current_price = GetCurrentItemSellPrice()
     Logging.Info("  Undercutting item "..item_number.." "..item_name)
     Logging.Debug("    current_price: "..current_price)
@@ -189,7 +189,7 @@ function UndercutItems(return_function, sell_table, undercut_other, default_floo
 end
 
 function UndercutRetainerItems(retainer_index, floor)
-  if GetNodeText("RetainerList", 2, retainer_index, 5) == "None" then
+  if GetNewNodeText("RetainerList", 1, 27, GetNodeListIndex(retainer_index - 1, 4, 41000), 2, 11) == "None" then
     Logging.Debug("skipping retainer "..retainer_index.." - no items listed")
     return
   end

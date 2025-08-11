@@ -20,7 +20,7 @@ function ShouldBuyMarketItem(list_index, max_price, gil_floor)
 
   local list_price = GetItemListingPrice(list_index)
   if list_price <= 0 then
-    if string.find(GetNodeText("ItemSearchResult", 26), "No items found") then
+    if string.find(GetNewNodeText("ItemSearchResult", 1, 5), "No items found") then
       Logging.Trace("no item listings")
       return nil, nil
     else
