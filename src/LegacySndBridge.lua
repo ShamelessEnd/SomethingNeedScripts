@@ -116,17 +116,11 @@ function GetItemCount(id, includeHQ)
 end
 
 function GetItemIdInSlot(page, slot)
-  -- wrong or broken
-  -- return Inventory.GetInventoryItem(page, slot).ItemId
-  -- return Svc.GameInventory:GetInventoryItems(page)[slot].ItemId
-  return 0
+  return Inventory[page][slot].ItemId
 end
 
 function GetItemCountInSlot(page, slot)
-  -- wrong or broken
-  -- return Inventory.GetInventoryItem(page, slot).Count
-  -- return Svc.GameInventory:GetInventoryItems(page)[slot].Quantity
-  return 0
+  return Inventory[page][slot].Count
 end
 
 function GetGil()
