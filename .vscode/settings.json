@@ -14,7 +14,8 @@
         "Actions",
         "Fates",
         "Quests",
-        "InstancedContent"
+        "InstancedContent",
+        "Dalamud"
     ],
     "Lua.diagnostics.disable": [
         "undefined-field",

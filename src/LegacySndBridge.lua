@@ -1,7 +1,7 @@
 import "System.Numerics"
 
 function LogDebug(msg)
-  -- Currently Broken
+  Dalamud.LogDebug(msg)
 end
 
 function ExecuteGeneralAction(action)
