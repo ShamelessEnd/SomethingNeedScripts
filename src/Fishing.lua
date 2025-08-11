@@ -105,7 +105,7 @@ function DoOceanFishing()
 
   WaitForNavReady()
   NavToPoint(7, 7, -6, 0.5, false, 60)
-  EquipBait(oceanMapBait[GetNodeText("IKDFishingLog", 20)])
+  EquipBait(oceanMapBait[GetNewNodeText("IKDFishingLog", 1, 6)])
   SetAutoHookState(true)
   repeat yield("/ac cast") until WaitUntil(IsFishingWaiting, 0.5)
   WaitWhile(IsGathering, 420, 1)
@@ -114,7 +114,7 @@ end
 
 function GetFishingZoneTimeLeft()
   if not IsAddonReady("IKDFishingLog") then return 0 end
-  local time_text = GetNodeText("IKDFishingLog", 18)
+  local time_text = GetNewNodeText("IKDFishingLog", 1, 8)
   if StringIsEmpty(time_text) then return 0 end
   local colon_index, _ = string.find(time_text, ":")
   if not colon_index or colon_index <= 1 then return 0 end
