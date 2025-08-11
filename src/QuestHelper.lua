@@ -172,9 +172,9 @@ function QuestWatch(target_level, silent)
         end
       end
     else
-      last_x = GetPlayerRawXPos()
-      last_y = GetPlayerRawYPos()
-      last_z = GetPlayerRawZPos()
+      last_x = GetPlayerRawXPos() or 0
+      last_y = GetPlayerRawYPos() or 0
+      last_z = GetPlayerRawZPos() or 0
       resetCounts()
     end
 
