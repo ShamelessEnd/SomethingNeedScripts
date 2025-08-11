@@ -138,7 +138,7 @@ function GetRetainerName(retainer_index)
   local name = nil
   local retry_count = 3
   for i = 1, retry_count do
-    name = GetNewNodeText("RetainerList", 1, 27, GetNodeListIndex(retainer_index - 1, 4, 41000), 2, 3)
+    name = GetNewNodeText("RetainerList", 1, 27, GetNodeListIndex(retainer_index - 1, 4), 2, 3)
     if not StringIsEmpty(name) then
       break
     end

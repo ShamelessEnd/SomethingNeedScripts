@@ -2,9 +2,11 @@ require "Logging"
 
 function StringIsEmpty(s) return s == nil or s == "" end
 
-function StringStartsWith(s, prefix) return string.sub(s, 1, string.len(prefix)) == prefix end
+function StringStartsWith(s, prefix) if StringIsEmpty(s) then return false else return string.sub(s, 1, string.len(prefix)) == prefix end end
 
 function StringEndsWith(s, suffix) return string.sub(s, 1 + string.len(s) - string.len(suffix)) == suffix end
+
+function StringTrim(s) if s == nil then return nil else return s:match("^%s*(.-)%s*$") end end
 
 function IsInCombat() return GetCharacterCondition(26) end
 
@@ -36,10 +38,7 @@ function GetARJobLevel(ar_data, job_id) return ar_data.ClassJobLevelArray[job_id
 
 function GetMaxLevel() return 100 end
 
-function GetNodeListIndex(i, zero_val, zero_point)
-  if i == 0 then return zero_val end
-  return zero_point + i
-end
+function GetNodeListIndex(i, base) if i == 0 then return base else return (base * 10000) + 1000 + i end end
 
 function Target(target)
   yield("/target \""..target.."\"")

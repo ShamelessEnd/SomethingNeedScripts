@@ -47,7 +47,7 @@ function OpenItemListings(attempts, addon, ...)
 end
 
 function GetItemListingPrice(listing_index)
-  local price_text = string.gsub(GetNewNodeText("ItemSearchResult", 1, 26, GetNodeListIndex(listing_index - 1, 4, 41000), 5), "%D", "")
+  local price_text = string.gsub(GetNewNodeText("ItemSearchResult", 1, 26, GetNodeListIndex(listing_index - 1, 4), 5), "%D", "")
   if StringIsEmpty(price_text) then
     return 0
   else
@@ -64,7 +64,7 @@ function IsItemListingHQ(listing_index)
 end
 
 function GetItemListingCount(listing_index)
-  local count_text = string.gsub(GetNewNodeText("ItemSearchResult", 1, 26, GetNodeListIndex(listing_index - 1, 4, 41000), 6), "%D", "")
+  local count_text = string.gsub(GetNewNodeText("ItemSearchResult", 1, 26, GetNodeListIndex(listing_index - 1, 4), 6), "%D", "")
   if StringIsEmpty(count_text) then
     return 0
   else
@@ -73,7 +73,7 @@ function GetItemListingCount(listing_index)
 end
 
 function GetItemHistoryPrice(history_index)
-  local hist_price_text = string.gsub(GetNewNodeText("ItemHistory", 1, 10, GetNodeListIndex(history_index - 1, 4, 41000), 4), "%D", "")
+  local hist_price_text = string.gsub(GetNewNodeText("ItemHistory", 1, 10, GetNodeListIndex(history_index - 1, 4), 4), "%D", "")
   if StringIsEmpty(hist_price_text) then
     return 0
   else
@@ -185,7 +185,7 @@ function FindMarketItem(item_name)
 
   local count_text = string.gsub(GetNewNodeText("ItemSearch", 1, 142, 148), "[%d]+-", "")
   for i = 1, tonumber(count_text) do
-    local item_text = GetNewNodeText("ItemSearch", 1, 139, GetNodeListIndex(i - 1, 5, 51000), 13)
+    local item_text = GetNewNodeText("ItemSearch", 1, 139, GetNodeListIndex(i - 1, 5), 13)
     if StringIsEmpty(item_text) then
       break
     elseif StringEndsWith(item_text, "...") then

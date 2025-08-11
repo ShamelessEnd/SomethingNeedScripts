@@ -129,7 +129,7 @@ end
 function SelectStringOption(text)
   if not AwaitAddonReady("SelectString", 5) then return false end
   for i = 0,11 do
-    if StringStartsWith(GetNewNodeText("SelectString", 1, 3, GetNodeListIndex(i, 5, 51000), 2), text) then
+    if StringStartsWith(GetNewNodeText("SelectString", 1, 3, GetNodeListIndex(i, 5), 2), text) then
       Callback("SelectString", true, i)
       return true
     end

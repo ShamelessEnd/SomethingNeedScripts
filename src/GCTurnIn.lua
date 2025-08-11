@@ -46,7 +46,7 @@ function GCMissionSubmit()
   Callback("SelectString", true, 0)
   AwaitAddonReady("GrandCompanySupplyList")
   for i = 7,0,-1 do
-    local node_i = GetNodeListIndex(i, 4, 41000)
+    local node_i = GetNodeListIndex(i, 4)
     local text = GetNewNodeText("GrandCompanySupplyList", 1, 22, node_i, 5, 10)
     local hq_index = string.find(text, "")
     if hq_index and hq_index > 0 then

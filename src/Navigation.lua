@@ -270,7 +270,7 @@ function WorldVisitTo(server_name)
       return doTravelToWorld(dest_index)
     end
     dest_index = dest_index + 1
-    dest_name = GetNewNodeText("WorldTravelSelect", 1, 14, GetNodeListIndex(dest_index - 2, 5, 51000), 4, 5)
+    dest_name = GetNewNodeText("WorldTravelSelect", 1, 14, GetNodeListIndex(dest_index - 2, 5), 4, 5)
   until StringIsEmpty(dest_name)
 
   Logging.Error("failed to find server in list "..server_name)

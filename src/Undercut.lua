@@ -189,7 +189,7 @@ function UndercutItems(return_function, sell_table, undercut_other, default_floo
 end
 
 function UndercutRetainerItems(retainer_index, floor)
-  if GetNewNodeText("RetainerList", 1, 27, GetNodeListIndex(retainer_index - 1, 4, 41000), 2, 11) == "None" then
+  if GetNewNodeText("RetainerList", 1, 27, GetNodeListIndex(retainer_index - 1, 4), 2, 11) == "None" then
     Logging.Debug("skipping retainer "..retainer_index.." - no items listed")
     return
   end
