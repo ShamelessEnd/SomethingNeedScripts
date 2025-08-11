@@ -160,28 +160,28 @@ function GetDistanceToTarget()
   if HasTarget() then
     return Entity.Target.DistanceTo
   end
-  return 0
+  return nil
 end
 
 function GetTargetRawXPos()
   if HasTarget() then
     return Entity.Target.Position.X
   end
-  return 0
+  return nil
 end
 
 function GetTargetRawYPos()
   if HasTarget() then
     return Entity.Target.Position.Y
   end
-  return 0
+  return nil
 end
 
 function GetTargetRawZPos()
   if HasTarget() then
     return Entity.Target.Position.Z
   end
-  return 0
+  return nil
 end
 
 function IsTargetInCombat()
@@ -202,7 +202,7 @@ function GetTargetFateID()
  if HasTarget() then
     return Entity.Target.FateId
   end
-  return 0
+  return nil
 end
 
 function GetDistanceToObject(name)
@@ -210,7 +210,7 @@ function GetDistanceToObject(name)
   if obj then
     return obj.DistanceTo
   end
-  return 0
+  return nil
 end
 
 function GetObjectRawXPos(name)
@@ -218,7 +218,7 @@ function GetObjectRawXPos(name)
   if obj then
     return obj.Position.X
   end
-  return 0
+  return nil
 end
 
 function GetObjectRawYPos(name)
@@ -226,7 +226,7 @@ function GetObjectRawYPos(name)
   if obj then
     return obj.Position.Y
   end
-  return 0
+  return nil
 end
 
 function GetObjectRawZPos(name)
@@ -234,7 +234,7 @@ function GetObjectRawZPos(name)
   if obj then
     return obj.Position.Z
   end
-  return 0
+  return nil
 end
 
 function GetPartyMemberName(index)
@@ -250,7 +250,7 @@ function GetDistanceToPartyMember(index)
   if member then
     return Vector3.Distance(member.Position, Player.Entity.Position)
   end
-  return 0
+  return nil
 end
 
 function GetPartyLeadIndex()
@@ -274,7 +274,9 @@ function GetPartyMemberMaxHP(index)
 end
 
 function GetPartyMemberHPP(index)
-  return GetPartyMemberHP(index) / GetPartyMemberMaxHP(index) * 100
+  local maxHp = GetPartyMemberMaxHP(index)
+  if maxHp <= 0 then return 0 end
+  return 100 * GetPartyMemberHP(index) / maxHp
 end
 
 function IsPartyMemberInCombat(index)
@@ -291,7 +293,7 @@ function GetPartyMemberRawXPos(index)
   if member then
     return member.Position.X
   end
-  return 0
+  return nil
 end
 
 function GetPartyMemberRawYPos(index)
@@ -299,7 +301,7 @@ function GetPartyMemberRawYPos(index)
   if member then
     return member.Position.Y
   end
-  return 0
+  return nil
 end
 
 function GetPartyMemberRawZPos(index)
@@ -307,7 +309,7 @@ function GetPartyMemberRawZPos(index)
   if member then
     return member.Position.Z
   end
-  return 0
+  return nil
 end
 
 function IsAddonReady(target)
