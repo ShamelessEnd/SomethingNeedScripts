@@ -4,12 +4,6 @@ require "Purchase"
 require "ServerData"
 
 function BailGCTurnIn()
-  local dellyrooStop = true
-  while dellyrooStop do
-    yield("/deliveroo disable")
-    yield("/wait 1")
-    dellyrooStop = DeliverooIsTurnInRunning()
-  end
   yield("/pcall GrandCompanySupplyReward True -1 <wait.2>")
   yield("/pcall SelectYesno True -1 <wait.2>")
   yield("/pcall GrandCompanySupplyList True -1 <wait.1>")
@@ -18,21 +12,9 @@ function BailGCTurnIn()
 end
 
 function GCTurnIn()
-  GoToGCHQ()
-  yield("/deliveroo enable")
-  yield("/wait 3")
-  local dellyroo = true
-  local timeout = 0
-  while dellyroo do
-    dellyroo = DeliverooIsTurnInRunning()
-    yield("/wait 1")
-    if timeout == 1000 then
-      BailGCTurnIn()
-      yield("/wait 1")
-      return
-    end
-    timeout = timeout + 1
-  end
+  yield("/ays deliver")
+  yield("/wait 1")
+  if not WaitWhile(function () return ARIsBusy() end, 600, 1) then BailGCTurnIn() end
   yield("/wait 1")
 end
 

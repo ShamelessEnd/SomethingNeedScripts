@@ -136,3 +136,12 @@ function SelectStringOption(text)
   end
   return false
 end
+
+function Logout()
+  repeat
+    yield("/logout")
+  until AwaitAddonReady("SelectYesno", 3)
+  Callback("SelectYesno", true, 0)
+  AwaitAddonGone("SelectYesno")
+  yield("/wait 2")
+end

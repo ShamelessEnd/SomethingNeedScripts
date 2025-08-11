@@ -33,6 +33,8 @@ function ARPostProcess(retainer_tables, thresholds)
   if not retainer_tables then retainer_tables = _default_tables end
   if not thresholds then thresholds = _default_thresholds end
 
+  local last_multi = ARKillMulti()
+
   if ar_data.Enabled == true then
     UndercutAndSellAllRetainers(retainer_tables)
     local lacks_inv_space = thresholds.inv ~= nil and GetInventoryFreeSlotCount() < thresholds.inv
@@ -57,12 +59,15 @@ function ARPostProcess(retainer_tables, thresholds)
   if thresholds.fish then
     local fisher = ARFindFishCharacterToLevel()
     if fisher and IsTimeToGoFish(thresholds.fish.offset, thresholds.fish.pre_time, thresholds.fish.end_buf) then
-      local last_multi = ARKillMulti()
       ARRelogTo(fisher)
       GoDoOceanFishing(thresholds.fish.food, thresholds.fish.offset)
       ReturnToBell()
-      ARSetMultiModeEnabled(last_multi)
     end
+  end
+
+  if last_multi then
+    Logout()
+    ARSetMultiModeEnabled(true)
   end
 end
 

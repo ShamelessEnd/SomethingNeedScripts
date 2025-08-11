@@ -57,13 +57,13 @@ end
 
 function ARKillMulti()
   local last_multi = ARGetMultiModeEnabled()
-  yield("/wait 0.5")
+  yield("/wait 0.1")
   ARSetMultiModeEnabled(false)
-  yield("/wait 0.5")
+  yield("/wait 0.1")
   ARAbortAllTasks()
-  yield("/wait 0.5")
+  yield("/wait 0.1")
   ARFinishCharacterPostProcess()
-  yield("/wait 0.5")
+  yield("/wait 0.1")
   return last_multi
 end
 
