@@ -8,7 +8,10 @@ function ExecuteGeneralAction(action)
   Actions.ExecuteGeneralAction(action)
 end
 
-function GetCharacterName()
+function GetCharacterName(includeWorld)
+  if includeWorld then
+    return Player.Entity.Name.."@"..Excel.World:GetRow(Player.Entity.HomeWorld).Name
+  end
   return Player.Entity.Name
 end
 
@@ -48,8 +51,11 @@ function GetPlayerRawZPos()
   return Player.Entity.Position.Z
 end
 
-function GetLevel()
-  return Player.Job.Level
+function GetLevel(jobId)
+  if jobId == nil then
+    return Player.Job.Level
+  end
+  return Player.GetJob(jobId).Level
 end
 
 function GetHP()
@@ -102,8 +108,11 @@ function GetInventoryFreeSlotCount()
   return Inventory.GetFreeInventorySlots()
 end
 
-function GetItemCount(id)
-  return Inventory.GetItemCount(id)
+function GetItemCount(id, includeHQ)
+  if includeHQ == false then
+    return Inventory.GetItemCount(id)
+  end
+  return Inventory.GetItemCount(id) + Inventory.GetHqItemCount(id)
 end
 
 function GetItemIdInSlot(page, slot)
