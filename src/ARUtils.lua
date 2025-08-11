@@ -6,7 +6,7 @@ function GetARCharacterData(cid)
   if not cid then return nil end
   Logging.Debug("fetching AR character data "..cid)
   local data = ARGetCharacterData(cid)
-  if data ~= nil and type(data) == "userdata" then
+  if data and data.CID == cid then
     return data
   end
   return nil

@@ -61,7 +61,7 @@ function CollectGilTo(target, server, exclude)
   for i = 0, chars.Count - 1 do
     local cid = chars[i]
     if not TableContains(exclude, cid) then
-      local data = ARGetCharacterData(cid)
+      local data = GetARCharacterData(cid)
       if data and data.Gil > 5000000 then
         local server_data = FindServerData(data.World)
         if server_data and server_data.dc == target_server_data.dc then
