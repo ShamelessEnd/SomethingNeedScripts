@@ -426,7 +426,7 @@ function LifestreamExecuteCommand(command)
 end
 
 function ARSetSuppressed(suppressed)
-  -- not available
+  IPC.AutoRetainer.SetSuppressed(suppressed)
 end
 
 function ARGetCharacterCIDs()
@@ -450,7 +450,7 @@ function ARAbortAllTasks()
 end
 
 function ARFinishCharacterPostProcess()
-  -- not available
+  IPC.AutoRetainer.FinishCharacterPostProcess()
 end
 
 function ARIsBusy()
