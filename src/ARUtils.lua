@@ -55,18 +55,6 @@ function ARGetRetainerCount(cid)
   return ar_data.RetainerData.Count
 end
 
-function ARKillMulti()
-  local last_multi = ARGetMultiModeEnabled()
-  yield("/wait 0.1")
-  ARSetMultiModeEnabled(false)
-  yield("/wait 0.1")
-  ARAbortAllTasks()
-  yield("/wait 0.1")
-  ARFinishCharacterPostProcess()
-  yield("/wait 0.1")
-  return last_multi
-end
-
 function ARFindFishCharacterToLevel(level)
   local fish_job_id = 18
   local function hasFishingRetainer(retainer_data)

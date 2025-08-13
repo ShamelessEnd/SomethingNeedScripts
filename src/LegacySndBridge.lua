@@ -450,7 +450,7 @@ function ARAbortAllTasks()
 end
 
 function ARFinishCharacterPostProcess()
-  IPC.AutoRetainer.FinishCharacterPostProcess()
+  -- no longer supported
 end
 
 function ARIsBusy()

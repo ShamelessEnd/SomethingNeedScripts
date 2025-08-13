@@ -1,4 +1,5 @@
 require "ARUtils"
+require "AsyncUtils"
 require "Fishing"
 require "GCTurnIn"
 require "Navigation"
@@ -27,13 +28,18 @@ local _default_thresholds = {
   },
 }
 
-function ARPostProcess(retainer_tables, thresholds)
+function ARPostProcess(retainer_tables, thresholds, skip_multi_check)
+  if not skip_multi_check and ARGetMultiModeEnabled() then
+    ARSetMultiModeEnabled(false)
+    ARAbortAllTasks()
+    RunAsync({ "ARPostProcess" }, { OnAsyncPostProcess = { retainer_tables, thresholds } })
+    return
+  end
+
   local ar_data = GetARCharacterData()
   if not ar_data then return end
   if not retainer_tables then retainer_tables = _default_tables end
   if not thresholds then thresholds = _default_thresholds end
-
-  local last_multi = ARKillMulti()
 
   if ar_data.Enabled == true then
     UndercutAndSellAllRetainers(retainer_tables)
@@ -64,11 +70,12 @@ function ARPostProcess(retainer_tables, thresholds)
       ReturnToBell()
     end
   end
+end
 
-  if last_multi then
-    Logout()
-    ARSetMultiModeEnabled(true)
-  end
+function OnAsyncPostProcess(retainer_tables, thresholds)
+  ARPostProcess(retainer_tables, thresholds, true)
+  Logout()
+  ARSetMultiModeEnabled(true)
 end
 
 function ARPostSimple(thresholds)
