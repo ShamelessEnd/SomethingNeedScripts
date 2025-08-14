@@ -16,12 +16,12 @@ end
 
 function LoadLazyInventoryData()
   Logging.Debug("attempting to load inventory data")
-  local char_data = GetARCharacterData()
+  local cid = GetPlayerContentId()
+  local char_data = GetARCharacterData(cid)
   if char_data == nil then
-    Logging.Error("failed to load character data")
-    return
+    Logging.Info("failed to load AR character data - no retainer data will be available")
   end
-  local inv_data = ParseItemODR(char_data.CID)
+  local inv_data = ParseItemODR(cid)
   if inv_data == nil then
     Logging.Error("failed to load inventory data")
     return
@@ -33,7 +33,7 @@ function LoadLazyInventoryData()
     end
   end
   lazy_inventory_data.retainers = {}
-  if char_data.RetainerData.Count > 0 then
+  if char_data and char_data.RetainerData.Count > 0 then
     for i = 0, char_data.RetainerData.Count - 1 do
       local retainer_data = char_data.RetainerData[i]
       lazy_inventory_data.retainers[retainer_data.Name] = inv_data.retainers[retainer_data.RetainerID]
