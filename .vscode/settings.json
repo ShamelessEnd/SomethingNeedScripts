@@ -16,7 +16,8 @@
         "Quests",
         "InstancedContent",
         "Dalamud",
-        "Engines"
+        "Engines",
+        "TriggerData"
     ],
     "Lua.diagnostics.disable": [
         "undefined-field",
