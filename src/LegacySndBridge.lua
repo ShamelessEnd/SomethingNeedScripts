@@ -386,7 +386,7 @@ function PathStop()
 end
 
 function PathIsRunning()
-  IPC.vnavmesh.IsRunning()
+  return IPC.vnavmesh.IsRunning()
 end
 
 function NavRebuild()
