@@ -62,9 +62,9 @@ function ARPostProcess(retainer_tables, thresholds, skip_multi_check)
     end
   end
 
-  if thresholds.fish then
+  if thresholds.fish and IsTimeToGoFish(thresholds.fish.offset, thresholds.fish.pre_time, thresholds.fish.end_buf) then
     local fisher = ARFindFishCharacterToLevel()
-    if fisher and IsTimeToGoFish(thresholds.fish.offset, thresholds.fish.pre_time, thresholds.fish.end_buf) then
+    if fisher then
       ARRelogTo(fisher)
       GoDoOceanFishing(thresholds.fish.food, thresholds.fish.offset)
       ReturnToBell()
