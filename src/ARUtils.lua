@@ -98,6 +98,11 @@ function ARHasCrafterToLevel(cid, level)
 end
 
 function ARApplyToAllCharacters(cids, lambda, condition, timeout)
+  cids = ToTable(cids)
+  if not cids then
+    Logging.Error("invalid cids")
+    return
+  end
   for _, cid in pairs(cids) do
     if not condition or condition(cid) then
       if ARRelogTo(cid, timeout) then
