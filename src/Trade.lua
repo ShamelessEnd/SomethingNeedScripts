@@ -11,7 +11,7 @@ function TradeGilTo(target, trade_gil)
   Logging.Info("trading "..trade_gil.." to "..target)
   local end_gil = GetItemCount(1) - trade_gil
 
-  if not NavToTarget(target, 2, false, 5) then
+  if not NavToTarget(target, 2, false, 10) then
     Logging.Error("failed to find target "..target)
     return
   end
@@ -110,7 +110,7 @@ function GoFetchCeruleumFrom(target, server, min_tanks, password)
   NavToGridaniaTrade(server)
 
   Logging.Info("trading ceruleum from "..target)
-  if NavToTarget(target, 2, false, 5) then
+  if NavToTarget(target, 2, false, 10) then
     repeat
       if not TradeCeruleumOnceFromTarget(password) then break end
     until GetItemCount(10155) >= min_tanks

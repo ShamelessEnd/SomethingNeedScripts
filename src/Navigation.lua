@@ -144,6 +144,7 @@ function NavToPoint(x, y, z, stop_dist, fly, timeout)
       end
     end
     if rebuild_once and timeout_count > 1 and not PathIsRunning() then
+      Logging.Warning("nav to point timed out, rebuilding navmesh")
       RebuildNavMesh()
       rebuild_once = false
       PathfindAndMoveTo(x, y, z, fly)
