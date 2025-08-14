@@ -309,6 +309,7 @@ VentureSellTable = {
       { 17545,        9500,      false,          1,            1,        0 }, -- "Pink Cherry Blossom Corsag" },
       { 38566,       14500,      false,          1,            1,        0 }, -- "White Sweet Pea Necklace"   },
       { 38567,       14500,      false,          1,            1,        0 }, -- "Black Sweet Pea Necklace"   },
+      { 45977,       14500,      false,          1,            1,        0 }, -- "Cronopio Leather"           },
       { 28809,        9500,      false,          1,            1,        0 }, -- " Sky Pirate's Coat of Fend" },
       { 28834,        9500,      false,          1,            1,        0 }, -- " Sky Pirate's Coat of Heal" },
       { 28839,        9500,      false,          1,            1,        0 }, -- " Sky Pirate's Coat of Cast" },
