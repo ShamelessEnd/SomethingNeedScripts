@@ -54,6 +54,13 @@ function TeleportToZone(zone)
   return false
 end
 
+function LifestreamTo(dest)
+  yield("/li "..dest)
+  yield("/wait 1")
+  WaitWhile(function () return LifestreamIsBusy() end)
+  WaitForNavReady()
+end
+
 function DoReturn()
   yield("/ac return")
   if AwaitAddonReady("SelectYesno", 5) then
