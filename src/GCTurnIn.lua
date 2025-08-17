@@ -14,7 +14,7 @@ end
 function GCTurnIn()
   yield("/ays deliver")
   yield("/wait 1")
-  if not WaitWhile(function () return ARIsBusy() end, 600, 1) then BailGCTurnIn() end
+  if not WaitWhile(function () return ARIsBusy() end, 1200, 1) then BailGCTurnIn() end
   yield("/wait 1")
 end
 
