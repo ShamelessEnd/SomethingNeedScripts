@@ -78,29 +78,33 @@ function RebuildNavMesh()
   WaitUntil(function () return NavBuildProgress() < 0 end)
 end
 
-function WalkToTarget(target)
+function WalkToTarget(target, dist, timeout)
+  dist = dist or 3
   if not Target(target) then
     return false
   end
-  if GetDistanceToTarget() > 20 then
+  if GetDistanceToTarget() > 50 then
     return false
   end
-  if GetDistanceToTarget() > 3 then
+  if GetDistanceToTarget() > dist then
     yield("/facetarget")
     yield("/lockon on")
     yield("/automove on")
     yield("/lockon off")
-    local timeout = 0
-    while GetDistanceToTarget() > 1 do
-      timeout = timeout + 1
-      if timeout > 300 then
-        break
+    local timeout_count = 0
+    timeout = timeout or 300
+    while GetDistanceToTarget() > dist do
+      timeout_count = timeout_count + 1
+      if timeout_count > timeout then
+        yield("/automove off")
+        return false
       end
       yield("/wait 0.1")
     end
     yield("/automove off")
   end
   yield("/wait 0.1")
+  return true
 end
 
 function PathToNearestGroundPoint(x_t, y_t, z_t)
@@ -396,7 +400,7 @@ function ReturnToBell()
   local apartmentDistance = GetDistanceToObject("Apartment Building Entrance")
   if IsInHousingDistrict() == false or (apartmentDistance and apartmentDistance < 50) then
     -- walk to bell if at hawkers or apartment
-    WalkToTarget(bell_target)
+    WalkToTarget(bell_target, 2)
   end
 end
 

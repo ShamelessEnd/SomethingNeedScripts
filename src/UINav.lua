@@ -137,6 +137,27 @@ function SelectStringOption(text)
   return false
 end
 
+function SelectIconStringOption(text)
+  if not AwaitAddonReady("SelectIconString", 5) then return false end
+  for i = 0,11 do
+    if StringStartsWith(GetNewNodeText("SelectIconString", 1, 3, GetNodeListIndex(i, 5), 2), text) then
+      Callback("SelectIconString", true, i)
+      return true
+    end
+  end
+  return false
+end
+
+function SelectYesno(option)
+  if not AwaitAddonReady("SelectYesno", 2) then return false end
+  if option == true or option == 0 then
+    Callback("SelectYesno", true, 0)
+  else
+    Callback("SelectYesno", true, 1)
+  end
+  return AwaitAddonGone("SelectYesno", 2)
+end
+
 function Logout()
   repeat
     yield("/logout")

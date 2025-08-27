@@ -1,4 +1,5 @@
 require "Callback"
+require "FreeCompany"
 require "Inventory"
 require "Logging"
 require "Navigation"
@@ -56,21 +57,30 @@ function TradeCeruleumOnTellMessage(password)
   if not IsAddonReady("Trade") then return end
 
   Logging.Echo("ceruleum trade request from "..tostring(TriggerData.sender))
+  TradeCeruleumStacks(5)
+end
 
+function TradeCeruleumStacks(stacks, max_only)
+  stacks = math.min(stacks, 5)
   local inventory = FindItemsInCharacterInventory()
   local item_stacks = inventory[10155] or {}
   local stack_count = 0
   for _, stack in pairs(item_stacks) do
-    if not TradeItemFromSlot(stack) then return end
-    stack_count = stack_count + 1
-    if stack_count >= 5 then break end
+    if stack.count >= 999 or not max_only then
+      if not TradeItemFromSlot(stack) then return end
+      stack_count = stack_count + 1
+    end
+    if stack_count >= stacks then break end
   end
   if stack_count <= 0 then
     Logging.Error("no ceruleum to trade")
     CallbackTimeout(2, "Trade", true, -1)
+    return false
   elseif not CallbackTimeout(2, "Trade", true, 0) then
     Logging.Error("failed to trade - trade window closed")
+    return false
   end
+  return AwaitAddonGone("Trade", 5)
 end
 
 function TradeCeruleumOnceFromTarget(password)
@@ -104,6 +114,39 @@ function GoTradeAllGilTo(target, server)
   TradeGilTo(target, trade_gil)
 
   ReturnToFC()
+end
+
+function GoTradeCeruleumStacksTo(target, server, stacks)
+  if not stacks or stacks <= 0 then return false end
+
+  local start_ceruleum = GetItemCount(10155)
+  if start_ceruleum < stacks * 999 then
+    Logging.Error("not enough ceruleum to trade")
+    return false
+  end
+
+  NavToGridaniaTrade(server)
+
+  if not NavToTarget(target, 2, false, 10) then
+    Logging.Error("failed to find target "..target)
+  else
+    yield("/wait 0.2")
+    while stacks > 0 do
+      while not IsAddonReady("Trade") do
+        yield("/trade")
+        yield("/wait 0.2")
+      end
+      local to_trade = math.min(stacks, 5)
+      if not TradeCeruleumStacks(to_trade, true) then
+        while not AwaitAddonGone("Trade", 1) do Callback("Trade", true, -1) end
+        break
+      end
+      stacks = stacks - to_trade
+    end
+  end
+
+  ReturnToFC()
+  return stacks <= 0
 end
 
 function GoFetchCeruleumFrom(target, server, min_tanks, password)
@@ -161,4 +204,51 @@ function CollectCeruleumFrom(target, server, exclude, password)
   ARApplyToAllCharacters(cids, goCollect, collectIf)
 
   Logging.Notify("ceruleum collection complete")
+end
+
+function TopUpCeruleumTanks(target, server, exclude, password)
+  local target_server_data = FindServerData(server)
+  if not target_server_data then return end
+
+  local cids = ARGetCharacterCIDs()
+  local cids_need_tanks = {}
+  local cids_retainer_char = {}
+  for i = 0, cids.Count - 1 do
+    local cid = cids[i]
+    local data = ARGetCharacterData(cid)
+    if data then
+      local server_data = FindServerData(data.World)
+      if server_data and server_data.dc == target_server_data.dc and not TableContains(exclude, cid) then
+        if data.Ceruleum < 2500 and TableSize(cids_need_tanks) < 12 then
+            table.insert(cids_need_tanks, cid)
+        end
+        if data.Enabled == true then
+          table.insert(cids_retainer_char, cid)
+        end
+      end
+    end
+  end
+
+  local tanks_stacks_needed = TableSize(cids_need_tanks) * 10
+  local function goBuyTanks()
+    local bought = GoBuyCeruleumTanks(tanks_stacks_needed)
+    if not bought then
+      Logging.Error("failed to buy tanks")
+      return
+    elseif bought == 0 then
+      Logging.Info("not enough credits to buy tanks")
+      return
+    end
+    if GoTradeCeruleumStacksTo(target, server, bought) then
+      tanks_stacks_needed = tanks_stacks_needed - bought
+    else
+      Logging.Error("failed to trade tanks to target")
+      return
+    end
+  end
+  local function buyTanksIf() return tanks_stacks_needed > 0 end
+  ARApplyToAllCharacters(cids_retainer_char, goBuyTanks, buyTanksIf)
+
+  local function goCollectTanks() GoFetchCeruleumFrom(target, server, GetItemCount(10155) + 9990, password) end
+  ARApplyToAllCharacters(cids_need_tanks, goCollectTanks)
 end
