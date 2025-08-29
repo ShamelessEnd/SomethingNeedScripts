@@ -1,6 +1,7 @@
 require "ARUtils"
 require "AsyncUtils"
 require "Fishing"
+require "FreeCompany"
 require "GCTurnIn"
 require "Navigation"
 require "Purchase"
@@ -14,6 +15,7 @@ local _default_tables = {
 local _default_thresholds = {
   inv = 40,
   venture = nil,
+  tanks = 999,
   repair = {
     min = 200,
     max = 900,
@@ -61,6 +63,12 @@ function ARPostProcess(retainer_tables, thresholds, skip_multi_check)
       end
       GoPurchaseItems({{ 10373, thresholds.repair.max, thresholds.repair.price }}, thresholds.repair.gil_floor)
       ReturnToFC()
+    end
+  end
+
+  if ar_data.Enabled and ar_data.WorkshopEnabled and thresholds.tanks then
+    if GetItemCount(10155) < thresholds.tanks then
+      GoBuyCeruleumTanks(4)
     end
   end
 

@@ -86,7 +86,10 @@ function GoBuyCeruleumTanks(stacks)
     local credits = GetFCCredits()
     local tank_stacks_can_buy = math.floor(credits / (100 * 999))
     local stacks_to_buy = math.min(tank_stacks_can_buy, stacks, GetInventoryFreeSlotCount() - 1)
-    if stacks_to_buy <= 0 then return 0 end
+    if stacks_to_buy <= 0 then
+      Logging.Error("no stacks to buy, insufficient credits or inventory spaces")
+      return 0
+    end
     if not NavToCompanyCreditShop() then
       Logging.Error("could not navigate to company credit shop")
       return nil
