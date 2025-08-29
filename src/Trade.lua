@@ -206,7 +206,9 @@ function CollectCeruleumFrom(target, server, exclude, password)
   Logging.Notify("ceruleum collection complete")
 end
 
-function TopUpCeruleumTanks(target, server, exclude, password)
+function TopUpCeruleumTanks(target, server, exclude, password, thresholds)
+  if not thresholds then thresholds = { min_tanks = 2500, buy_stacks = 5 } end
+
   local target_server_data = FindServerData(server)
   if not target_server_data then return end
 
@@ -219,7 +221,7 @@ function TopUpCeruleumTanks(target, server, exclude, password)
     if data then
       local server_data = FindServerData(data.World)
       if server_data and server_data.dc == target_server_data.dc and not TableContains(exclude, cid) then
-        if data.Ceruleum < 2500 and TableSize(cids_need_tanks) < 12 then
+        if data.Ceruleum < thresholds.min_tanks and TableSize(cids_need_tanks) < 12 then
             table.insert(cids_need_tanks, cid)
         end
         if data.Enabled == true then
@@ -229,7 +231,7 @@ function TopUpCeruleumTanks(target, server, exclude, password)
     end
   end
 
-  local tanks_stacks_needed = TableSize(cids_need_tanks) * 10
+  local tanks_stacks_needed = TableSize(cids_need_tanks) * thresholds.buy_stacks
   local function goBuyTanks()
     local bought = GoBuyCeruleumTanks(tanks_stacks_needed)
     if not bought then
@@ -249,6 +251,6 @@ function TopUpCeruleumTanks(target, server, exclude, password)
   local function buyTanksIf() return tanks_stacks_needed > 0 end
   ARApplyToAllCharacters(cids_retainer_char, goBuyTanks, buyTanksIf)
 
-  local function goCollectTanks() GoFetchCeruleumFrom(target, server, GetItemCount(10155) + 9990, password) end
+  local function goCollectTanks() GoFetchCeruleumFrom(target, server, GetItemCount(10155) + (999 * thresholds.buy_stacks), password) end
   ARApplyToAllCharacters(cids_need_tanks, goCollectTanks)
 end

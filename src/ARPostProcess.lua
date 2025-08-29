@@ -15,7 +15,10 @@ local _default_tables = {
 local _default_thresholds = {
   inv = 40,
   venture = nil,
-  tanks = 999,
+  tanks = {
+    min_tanks = 999,
+    buy_stacks = 4,
+  },
   repair = {
     min = 200,
     max = 900,
@@ -67,8 +70,8 @@ function ARPostProcess(retainer_tables, thresholds, skip_multi_check)
   end
 
   if ar_data.Enabled and ar_data.WorkshopEnabled and thresholds.tanks then
-    if GetItemCount(10155) < thresholds.tanks then
-      GoBuyCeruleumTanks(4)
+    if GetItemCount(10155) < thresholds.tanks.min_tanks then
+      GoBuyCeruleumTanks(thresholds.tanks.buy_stacks)
     end
   end
 
