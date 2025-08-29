@@ -26,9 +26,13 @@ local _default_thresholds = {
     pre_time = -450,
     end_buf = 150,
   },
+  kill_after = 200000,
 }
 
 function ARPostProcess(retainer_tables, thresholds, skip_multi_check)
+  if not retainer_tables then retainer_tables = _default_tables end
+  if not thresholds then thresholds = _default_thresholds end
+
   if not skip_multi_check and ARGetMultiModeEnabled() then
     ARSetMultiModeEnabled(false)
     ARAbortAllTasks()
@@ -38,8 +42,6 @@ function ARPostProcess(retainer_tables, thresholds, skip_multi_check)
 
   local ar_data = GetARCharacterData()
   if not ar_data then return end
-  if not retainer_tables then retainer_tables = _default_tables end
-  if not thresholds then thresholds = _default_thresholds end
 
   if ar_data.Enabled == true then
     UndercutAndSellAllRetainers(retainer_tables)
@@ -75,6 +77,9 @@ end
 function OnAsyncPostProcess(retainer_tables, thresholds)
   ARPostProcess(retainer_tables, thresholds, true)
   Logout()
+  if thresholds.kill_after and thresholds.kill_after < Svc.PluginInterface.LoadTimeDelta.TotalSeconds then
+    ExitGameFromTitle()
+  end
   ARSetMultiModeEnabled(true)
 end
 

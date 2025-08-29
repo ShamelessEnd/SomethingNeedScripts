@@ -166,3 +166,7 @@ function Logout()
   AwaitAddonGone("SelectYesno")
   yield("/wait 2")
 end
+
+function ExitGameFromTitle()
+  Callback("_TitleMenu", true, 12, 1)
+end
