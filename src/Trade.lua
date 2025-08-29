@@ -221,7 +221,8 @@ function TopUpCeruleumTanks(target, server, exclude, password, thresholds)
     if data then
       local server_data = FindServerData(data.World)
       if server_data and server_data.dc == target_server_data.dc and not TableContains(exclude, cid) then
-        if data.Ceruleum < thresholds.min_tanks and TableSize(cids_need_tanks) < 12 then
+        -- limit to max 120 stacks for target inventory
+        if data.Ceruleum < thresholds.min_tanks and TableSize(cids_need_tanks) < math.floor(120 / thresholds.buy_stacks) then
             table.insert(cids_need_tanks, cid)
         end
         if data.Enabled == true then
