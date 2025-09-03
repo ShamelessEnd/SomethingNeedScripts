@@ -7,14 +7,14 @@ require "UINav"
 require "Utils"
 
 function TradeGilTo(target, trade_gil)
-  if trade_gil <= 0 then return end
+  if trade_gil <= 0 then return 0 end
 
   Logging.Info("trading "..trade_gil.." to "..target)
   local end_gil = GetItemCount(1) - trade_gil
 
   if not NavToTarget(target, 2, false, 10) then
     Logging.Error("failed to find target "..target)
-    return
+    return 0
   end
 
   yield("/wait 0.2")
@@ -34,6 +34,7 @@ function TradeGilTo(target, trade_gil)
       Callback("Trade", true, -1)
     end
   end
+  return trade_gil
 end
 
 function TradeItemFromSlot(stack)
@@ -106,14 +107,15 @@ function NavToGridaniaTrade(server)
   yield("/wait 1")
 end
 
-function GoTradeAllGilTo(target, server)
+function GoTradeAllGilTo(target, server, limit)
   NavToGridaniaTrade(server)
 
   local start_gil = GetItemCount(1)
-  local trade_gil = (math.floor(start_gil / 1000000) - 1) * 1000000
-  TradeGilTo(target, trade_gil)
+  local trade_gil = math.min((math.floor(start_gil / 1000000) - 1) * 1000000, limit)
+  local traded_gil = TradeGilTo(target, trade_gil)
 
   ReturnToFC()
+  return traded_gil
 end
 
 function GoTradeCeruleumStacksTo(target, server, stacks)
@@ -169,8 +171,13 @@ function CollectGilTo(target, server, exclude)
   if not target_server_data then return end
 
   local cids = ARGetCharacterCIDs()
-  local function goCollect(cid) GoTradeAllGilTo(target, target_server_data.name) end
+  local MAX_TRADED_GIL = 900000000
+  local traded_gil = 0
+  local function goCollect(cid)
+    traded_gil = traded_gil + GoTradeAllGilTo(target, target_server_data.name, MAX_TRADED_GIL - traded_gil)
+  end
   local function collectIf(cid)
+    if traded_gil >= MAX_TRADED_GIL then return false end
     local data = GetARCharacterData(cid)
     if TableContains(exclude, cid) then return false end
     if not data or data.Gil < 5000000 then return false end
@@ -182,6 +189,7 @@ function CollectGilTo(target, server, exclude)
   ARApplyToAllCharacters(cids, goCollect, collectIf)
 
   Logging.Notify("gil collection complete")
+  Logging.Echo("total gil collected: "..traded_gil)
 end
 
 function CollectCeruleumFrom(target, server, exclude, password)
