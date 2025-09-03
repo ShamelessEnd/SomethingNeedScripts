@@ -32,8 +32,6 @@ local function sTrunc(str)
   return str
 end
 
-Logging.Echo = function (msg) if msg ~= nil then yield(sTrunc("/e "..sFix(msg))) end end
-Logging.Notify = function (msg) Logging.Echo("[Notification] "..sFix(msg)) end
 Logging.Message = function (level, prefix, msg)
   if msg == nil then return end
 
@@ -51,3 +49,11 @@ Logging.Debug   = function (msg) Logging.Message(0, "", msg) end
 Logging.Info    = function (msg) Logging.Message(1, "", msg) end
 Logging.Warning = function (msg) Logging.Message(2, "WARNING: ", msg) end
 Logging.Error   = function (msg) Logging.Message(3, "ERROR: ", msg) end
+
+Logging.Echo = function (msg)
+  local s = sTrunc("/e "..sFix(msg))
+  yield(s)
+  Logging.Info(s)
+end
+
+Logging.Notify = function (msg) Logging.Echo("[Notification] "..sFix(msg)) end
