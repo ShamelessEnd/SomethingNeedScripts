@@ -21,7 +21,7 @@ end
 function GCMissionSubmit()
   yield("/at y")
   GoToGCHQ()
-  if not InteractWith("Serpent Personnel Officer", "SelectString") then
+  if not InteractWith("Serpent Personnel Officer", "SelectString", 5.5) then
     return
   end
 
