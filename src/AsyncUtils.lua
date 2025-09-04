@@ -44,5 +44,5 @@ function RunAsync(requires, calls)
   for func, args in pairs(calls) do
     lua_code = lua_code..func.."("..toLuaArgs(args)..")\n"
   end
-  Engines.NLua.RunAsync(lua_code)
+  Engines.NLua.Run(lua_code)
 end
