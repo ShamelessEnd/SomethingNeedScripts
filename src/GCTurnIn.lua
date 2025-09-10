@@ -22,10 +22,9 @@ end
 function GCTurnIn()
   yield("/ays deliver")
   yield("/wait 1")
-  if not WaitWhile(function () return ARIsBusy() end, 900, 1) then
-    ARAbortAllTasks()
-    BailGCTurnIn()
-  end
+  WaitWhile(function () return ARIsBusy() or not IsPlayerAvailable() end, 900, 1)
+  ARAbortAllTasks()
+  BailGCTurnIn()
   yield("/wait 1")
 end
 
