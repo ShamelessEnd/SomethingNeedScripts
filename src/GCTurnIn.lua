@@ -1,20 +1,31 @@
 require "ARUtils"
+require "Logging"
 require "Navigation"
 require "Purchase"
 require "ServerData"
+require "UINav"
+require "Utils"
 
 function BailGCTurnIn()
-  yield("/pcall GrandCompanySupplyReward True -1 <wait.2>")
-  yield("/pcall SelectYesno True -1 <wait.2>")
-  yield("/pcall GrandCompanySupplyList True -1 <wait.1>")
-  yield("/pcall GrandCompanyExchange True -1 <wait.1>")
-  yield("/pcall SelectString True -1 <wait.2>")
+  while not IsPlayerAvailable() do
+    CloseAddonFast("GrandCompanySupplyReward")
+    CloseAddonFast("SelectYesno")
+    CloseAddonFast("GrandCompanySupplyList")
+    CloseAddonFast("GrandCompanyExchange")
+    CloseAddonFast("ShowExchangeCurrencyDialog")
+    CloseAddonFast("SelectString")
+    CloseAddonFast("SelectIconString")
+    yield("/wait 0.1")
+  end
 end
 
 function GCTurnIn()
   yield("/ays deliver")
   yield("/wait 1")
-  if not WaitWhile(function () return ARIsBusy() end, 1200, 1) then BailGCTurnIn() end
+  if not WaitWhile(function () return ARIsBusy() end, 900, 1) then
+    ARAbortAllTasks()
+    BailGCTurnIn()
+  end
   yield("/wait 1")
 end
 
