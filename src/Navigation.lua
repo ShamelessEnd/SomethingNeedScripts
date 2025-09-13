@@ -46,8 +46,8 @@ function TeleportToUldah() TeleportToAetheryte(9) end
 
 function TeleportToZone(zone)
   local aetherytes = GetAetherytesInZone(zone)
-  for i = 0, aetherytes.Count -1 do
-    if TeleportToAetheryte(aetherytes[i]) then
+  for _, aetheryte in pairs(aetherytes) do
+    if TeleportToAetheryte(aetheryte) then
       return true
     end
   end
