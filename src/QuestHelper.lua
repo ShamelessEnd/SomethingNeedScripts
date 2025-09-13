@@ -88,7 +88,7 @@ function QuestWatch(target_level, silent)
   local last_y = 0
   local last_z = 0
   local coffer_opened = false
-  while not target_level or GetLevel() < target_level do
+  while not target_level or not IsPlayerAvailable() or GetLevel() < target_level do
     if IsPlayerDead() and IsAddonVisible("SelectYesno") and StringStartsWith(GetNewNodeText("SelectYesno", 1, 2), "Return to ") then
       Logging.Info("player dead, attempting to recover")
       yield("/qst stop")
