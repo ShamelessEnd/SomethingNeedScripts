@@ -35,7 +35,7 @@ local function nameChocoboAdder()
     InteractWith("Chocobo", "InputString")
   end
   yield("/wait 1")
-  Callback("InputString", true, 0, "Choco", "")
+  Callback("InputString", true, 0, "Choco", " ")
   yield("/wait 1")
   AwaitAddonReady("SelectYesno")
   Callback("SelectYesno", true, 0)
