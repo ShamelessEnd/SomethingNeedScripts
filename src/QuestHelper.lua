@@ -317,12 +317,13 @@ function FollowPartyLeader()
     elseif IsTargetMounted() and GetDistanceToTarget() < 5 then
       if not GetCharacterCondition(10) then yield("/ridepillion <t>") end
     elseif not TerritorySupportsMounting() then
-      if GetDistanceToObject("Aetherial Flow") < 20 then
+      local flow = GetDistanceToObject("Aetherial Flow")
+      if flow and flow < 20 then
         enterAetherialFlow()
       else
         NavToTarget(GetTargetName(), 1, false, 10)
       end
-    elseif GetDistanceToTarget() > 5 then
+    elseif HasTarget() and GetDistanceToTarget() > 5 then
       yield("/follow")
       yield("/gaction jump")
     end
@@ -438,7 +439,7 @@ local function goToMobLocation(zone, aetheryte, x, y, z, timeout)
   KillMobs({})
   ResPartyMembers()
   if not IsInZone(zone) then
-    TeleportToAetheryte(aetheryte)
+    while not TeleportToAetheryte(aetheryte) do yield("/wait 5") end
   end
   if TerritorySupportsMounting() then
     MountAndWaitPillion()
@@ -759,10 +760,10 @@ function GoUnlockRetainerVentures()
   yield("/xlenablecollection Questionable")
   NavToPoint(-51.7, -9, 296.9, 1, false, 100)
   yield("/wrath auto on")
-  yield("/bmrai on")
+  yield("/bmai on")
   WaitUntil(IsInCombat, 10)
   WaitWhile(IsInCombat)
-  yield("/bmrai off")
+  yield("/bmai off")
   yield("/wrath auto off")
   yield("/xldisablecollection Questionable")
   yield("/wait 2")
@@ -818,7 +819,7 @@ function GoEquipFishingRetainers(count)
     SelectStringOption("Fisher")
     Callback("SelectYesno", true, 0)
     SelectStringOption("View retainer attributes")
-    Callback("RetainerCharacter", true, 19, 0)
+    Callback("RetainerCharacter", true, 20, 0)
     Callback("ArmouryBoard", true, 8, rod_stacks[rod_stacks_index].slot)
     rod_stacks_index = rod_stacks_index + 1
     Callback("RetainerCharacter", true, -1)
