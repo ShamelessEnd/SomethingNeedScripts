@@ -27,7 +27,7 @@ local _default_thresholds = {
   },
   fish = {
     food = 4673,
-    offset = 0,
+    offset = 3600,
     pre_time = -450,
     end_buf = 150,
   },

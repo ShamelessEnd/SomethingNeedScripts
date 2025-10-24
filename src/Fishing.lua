@@ -34,7 +34,7 @@ function GetTimeToNextBoat(offset)
 end
 
 function GoToOceanFishing()
-  if not IsInLimsa() or GetDistanceToObject("Dryskthota") > 100 then
+  if not IsInLimsa() or not GetDistanceToObject("Dryskthota") then
     TeleportToLimsa()
     yield("/li Arcanists")
     yield("/wait 3")
