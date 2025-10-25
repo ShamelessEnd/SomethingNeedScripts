@@ -180,9 +180,8 @@ function GoDoOceanFishing(food, offset)
   until AwaitAddonGone("SelectYesno", 1)
 
   if food then
-    yield("/wait 1")
-    yield("/item "..GetItemName(food))
-    yield("/item "..GetItemName(food))
+    UseItem(food)
+    UseItem(food)
   end
 
   if not AwaitAddonReady("ContentsFinderConfirm", 16 * 60) then return end

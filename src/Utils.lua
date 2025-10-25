@@ -78,6 +78,14 @@ function WaitForNavReady(timeout, sleep)
   return WaitUntil(function () return NavIsReady() and IsPlayerAvailable() end, timeout, sleep)
 end
 
+function UseItem(id)
+  if not id then return true end
+  if not WaitForPlayerReady(5) then return false end
+  yield("/item "..GetItemName(id))
+  WaitForPlayerReady(5)
+  return true
+end
+
 function Dismount()
   while IsMounted() do
     yield("/mount")
