@@ -1,5 +1,6 @@
 require "ARUtils"
 require "AsyncUtils"
+require "Callback"
 require "Fishing"
 require "FreeCompany"
 require "GCTurnIn"
@@ -86,6 +87,7 @@ function ARPostProcess(retainer_tables, thresholds, skip_multi_check)
 end
 
 function OnAsyncPostProcess(retainer_tables, thresholds)
+  CallbackConfig.ExitOnDC = true
   ARPostProcess(retainer_tables, thresholds, true)
   Logout()
   if thresholds.kill_after and thresholds.kill_after < Svc.PluginInterface.LoadTimeDelta.TotalSeconds then

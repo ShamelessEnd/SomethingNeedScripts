@@ -3,41 +3,11 @@ require "Logging"
 require "Utils"
 
 function AwaitAddonReady(addon_name, timeout)
-  if timeout == nil or timeout <= 0 then
-    -- /waitaddon slows things down a lot, but might be more reliable
-    -- yield("/waitaddon "..addon_name)
-    while not IsAddonReady(addon_name) do
-      yield("/wait 0.1")
-    end
-  else
-    local timeout_count = 0
-    while not IsAddonReady(addon_name) do
-      yield("/wait 0.1")
-      timeout_count = timeout_count + 0.1
-      if timeout_count >= timeout then
-        return false
-      end
-    end
-  end
-  return true
+  return WaitUntil(function () return IsAddonReady(addon_name) end, timeout)
 end
 
 function AwaitAddonGone(addon_name, timeout)
-  if timeout == nil or timeout <= 0 then
-    while IsAddonVisible(addon_name) do
-      yield("/wait 0.1")
-    end
-  else
-    local timeout_count = 0
-    while IsAddonVisible(addon_name) do
-      yield("/wait 0.1")
-      timeout_count = timeout_count + 0.1
-      if timeout_count >= timeout then
-        return false
-      end
-    end
-  end
-  return true
+  return WaitWhile(function () return IsAddonVisible(addon_name) end, timeout)
 end
 
 function CloseAddon(addon_name, await_other)

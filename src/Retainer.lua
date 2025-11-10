@@ -105,7 +105,7 @@ end
 
 -- Read UI
 
-function GetSellListCount(timeout)
+function GetSellListCount()
   local timeout_count = 0
   repeat
     local full_text = GetNewNodeText("RetainerSellList", 1, 14, 19)
@@ -119,7 +119,7 @@ function GetSellListCount(timeout)
     end
     yield("/wait 0.1")
     timeout_count = timeout_count + 0.1
-  until timeout and timeout_count > timeout
+  until timeout_count > 20
   Logging.Error("GetSellListCount timed out")
   return nil
 end

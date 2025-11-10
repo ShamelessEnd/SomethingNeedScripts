@@ -1,3 +1,4 @@
+require "Callback"
 require "Logging"
 
 function StringIsEmpty(s) return s == nil or s == "" end
@@ -106,12 +107,20 @@ end
 function WaitWhile(condition, timeout, sleep)
   if not sleep then sleep = 0.1 end
   local timeout_count = 0
+  local error_check_count = 0
   while condition() do
     if timeout then
       if timeout_count > timeout then
         return false
       end
       timeout_count = timeout_count + sleep
+    end
+    if CallbackConfig.ExitOnDC then
+      if error_check_count > 1 then
+        ExitGameIfServerError(10)
+        error_check_count = 0
+      end
+      error_check_count = error_check_count + sleep
     end
     yield("/wait "..sleep)
   end

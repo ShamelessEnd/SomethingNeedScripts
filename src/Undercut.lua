@@ -107,7 +107,7 @@ function UndercutItems(return_function, sell_table, undercut_other, default_floo
     Logging.Debug("undercutting sell_table items")
   end
 
-  local item_count = GetSellListCount(5)
+  local item_count = GetSellListCount()
   if not item_count or item_count <= 0 then return {} end
   Logging.Info("  Found "..item_count.." items listed")
 
