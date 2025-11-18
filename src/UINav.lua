@@ -129,6 +129,10 @@ function SelectYesno(option)
 end
 
 function Logout()
+  while IsPlayerOccupied() do
+    yield("/send ESCAPE")
+    yield("/wait 1")
+  end
   repeat
     yield("/logout")
   until AwaitAddonReady("SelectYesno", 3)
