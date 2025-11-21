@@ -215,7 +215,7 @@ function CollectCeruleumFrom(target, server, exclude, password)
 end
 
 function TopUpCeruleumTanks(target, server, exclude, password, thresholds)
-  if not thresholds then thresholds = { min_tanks = 2500, buy_stacks = 5 } end
+  if not thresholds then thresholds = { min_tanks = 4996, buy_stacks = 5 } end
 
   local target_server_data = FindServerData(server)
   if not target_server_data then return end
