@@ -41,14 +41,13 @@ function BuyCeruleumTanks(stacks)
     end
     local last_tanks = GetItemCount(10155)
     Callback("FreeCompanyCreditShop", true, 0, 0, purchase_count)
-    if SelectYesno(true) then
-      local function purchaseComplete()
-        local next_credits_text = GetNewNodeText("FreeCompanyCreditShop", 1, 2, 9, 10):gsub("%D", "")
-        return GetItemCount(10155) > last_tanks and next_credits_text ~= credits_text
-      end
-      if WaitUntil(purchaseComplete, 2) then
-        tanks_to_buy = tanks_to_buy - purchase_count
-      end
+    SelectYesno(true)
+    local function purchaseComplete()
+      local next_credits_text = GetNewNodeText("FreeCompanyCreditShop", 1, 2, 9, 10):gsub("%D", "")
+      return GetItemCount(10155) > last_tanks and next_credits_text ~= credits_text
+    end
+    if WaitUntil(purchaseComplete, 5) then
+      tanks_to_buy = tanks_to_buy - purchase_count
     end
   end
   CloseAddonFast("FreeCompanyCreditShop")
