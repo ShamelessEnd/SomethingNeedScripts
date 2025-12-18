@@ -14,8 +14,6 @@ local _default_tables = {
 }
 
 local _default_thresholds = {
-  inv = 40,
-  venture = nil,
   tanks = {
     min_tanks = 999,
     buy_stacks = 4,
@@ -51,11 +49,11 @@ function ARPostProcess(retainer_tables, thresholds, skip_multi_check)
 
   if ar_data.Enabled == true then
     UndercutAndSellAllRetainers(retainer_tables)
-    local lacks_inv_space = thresholds.inv ~= nil and GetInventoryFreeSlotCount() < thresholds.inv
-    local lacks_ventures = thresholds.venture ~= nil and GetItemCount(21072) < thresholds.venture
-    if lacks_inv_space or lacks_ventures then
-      GCTurnIn()
-      ReturnToBell()
+  end
+
+  if ar_data.Enabled and ar_data.WorkshopEnabled and thresholds.tanks then
+    if GetItemCount(10155) < thresholds.tanks.min_tanks then
+      GoBuyCeruleumTanks(thresholds.tanks.buy_stacks)
     end
   end
 
@@ -67,12 +65,6 @@ function ARPostProcess(retainer_tables, thresholds, skip_multi_check)
       end
       GoPurchaseItems({{ 10373, thresholds.repair.max, thresholds.repair.price }}, thresholds.repair.gil_floor)
       ReturnToFC()
-    end
-  end
-
-  if ar_data.Enabled and ar_data.WorkshopEnabled and thresholds.tanks then
-    if GetItemCount(10155) < thresholds.tanks.min_tanks then
-      GoBuyCeruleumTanks(thresholds.tanks.buy_stacks)
     end
   end
 
@@ -92,21 +84,7 @@ function OnAsyncPostProcess(retainer_tables, thresholds)
   Logout()
   if thresholds.kill_after and thresholds.kill_after < Svc.PluginInterface.LoadTimeDelta.TotalSeconds then
     ExitGameFromTitle()
-  end
-  ARSetMultiModeEnabled(true)
-end
-
-function ARPostSimple(thresholds)
-  local ar_data = GetARCharacterData()
-  if not ar_data then return end
-  if not thresholds then thresholds = _default_thresholds end
-
-  if ar_data.Enabled == true then
-    local lacks_inv_space = thresholds.inv ~= nil and GetInventoryFreeSlotCount() < thresholds.inv
-    local lacks_ventures = thresholds.venture ~= nil and GetItemCount(21072) < thresholds.venture
-    if lacks_inv_space or lacks_ventures then
-      GCTurnIn()
-      ReturnToFC()
-    end
+  else
+    ARSetMultiModeEnabled(true)
   end
 end
