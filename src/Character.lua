@@ -3,7 +3,7 @@ require "Logging"
 require "UINav"
 require "Utils"
 
-function OpenCharacterWindow() return OpenMainCommandWindow("Character") end
+function OpenCharacterWindow() return OpenCommandWindow("character", "Character") end
 
 function EquipRecommendedGear()
   if OpenCharacterWindow() then

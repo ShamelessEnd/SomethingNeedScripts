@@ -66,7 +66,7 @@ function GCMissionSubmit()
 end
 
 function GetGCSupplyMissions()
-  OpenMainCommandWindow("Timers", "ContentsInfo")
+  OpenCommandWindow("timers", "ContentsInfo")
   if not IsAddonReady("ContentsInfoDetail") then
     repeat
       Callback("ContentsInfo", true, 12, 1, "")

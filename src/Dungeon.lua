@@ -3,7 +3,7 @@ require "Logging"
 require "Navigation"
 require "UINav"
 
-function OpenCurrencyWindow() return OpenMainCommandWindow("Currency") end
+function OpenCurrencyWindow() return OpenCommandWindow("currency", "Currency") end
 
 function GetWeeklyTomeCount(max_cap)
     if not OpenCurrencyWindow() then

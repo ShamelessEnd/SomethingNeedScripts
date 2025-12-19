@@ -4,7 +4,7 @@ require "UINav"
 require "Utils"
 
 function GetFCCredits()
-  if not OpenMainCommandWindow("Free Company", "FreeCompany") then return 0 end
+  if not OpenCommandWindow("freecompanycmd", "FreeCompany") then return 0 end
   local credits_text = nil
   local timeout = 2
   repeat

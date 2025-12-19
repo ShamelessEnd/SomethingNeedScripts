@@ -82,7 +82,7 @@ function GetErrorText()
   return nil
 end
 
-function OpenMainCommandWindow(command, window)
+function OpenCommandWindow(command, window)
   if not window then window = command end
   if IsAddonReady(window) then return true end
   local timeout_count = 0
@@ -90,7 +90,7 @@ function OpenMainCommandWindow(command, window)
     if timeout_count > 5 then
       return false
     end
-    yield("/maincommand "..command)
+    yield("/"..command)
     timeout_count = timeout_count + 1
   until AwaitAddonReady(window, 1)
   return true
