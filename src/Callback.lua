@@ -2,11 +2,21 @@ require "Logging"
 
 CallbackConfig = {
   ExitOnDC = false,
+  PCall = nil,
 }
 
+function IsPCallAvailable()
+  if CallbackConfig.PCall == nil then
+    CallbackConfig.PCall = IPC.IsInstalled("PandorasBox")
+  end
+  return CallbackConfig.PCall
+end
+
 function CallbackCommand(target, update, ...)
-  -- even with all these checks, /callback will randomly crash, so fallback to /pcall
-  local command = "/pcall "..target.." "..tostring(update)
+  -- even with all these checks, /callback will randomly crash, so use /pcall when available
+  local prefix
+  if IsPCallAvailable() then prefix = "/pcall " else prefix = "/callback " end
+  local command = prefix..target.." "..tostring(update)
   for _, arg in pairs({...}) do
     if type(arg) == "string"then
       if string.find(arg, " ") then

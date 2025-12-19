@@ -4,6 +4,10 @@ require "ServerData"
 require "UINav"
 require "Utils"
 
+function IsNavAvailable()
+  return IPC.IsInstalled("vnavmesh") and IPC.IsInstalled("Lifestream")
+end
+
 function IsInHousingDistrict()
   return IsInZone(341) or IsInZone(340) or IsInZone(339) or IsInZone(641) or IsInZone(979)
 end

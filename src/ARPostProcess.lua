@@ -51,6 +51,10 @@ function ARPostProcess(retainer_tables, thresholds, skip_multi_check)
     UndercutAndSellAllRetainers(retainer_tables)
   end
 
+  if not IsNavAvailable() then
+    return
+  end
+
   if ar_data.Enabled and ar_data.WorkshopEnabled and thresholds.tanks then
     if GetItemCount(10155) < thresholds.tanks.min_tanks then
       GoBuyCeruleumTanks(thresholds.tanks.buy_stacks)
@@ -68,7 +72,7 @@ function ARPostProcess(retainer_tables, thresholds, skip_multi_check)
     end
   end
 
-  if thresholds.fish and IsTimeToGoFish(thresholds.fish.offset, thresholds.fish.pre_time, thresholds.fish.end_buf) then
+  if thresholds.fish and IsFishingAvailable() and IsTimeToGoFish(thresholds.fish.offset, thresholds.fish.pre_time, thresholds.fish.end_buf) then
     local fisher = ARFindFishCharacterToLevel()
     if fisher then
       ARRelogTo(fisher)

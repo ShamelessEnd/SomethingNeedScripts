@@ -5,6 +5,10 @@ require "Navigation"
 require "UINav"
 require "Utils"
 
+function IsFishingAvailable()
+  return IPC.IsInstalled("AutoHook") and IPC.IsInstalled("TextAdvance")
+end
+
 function IsGathering()
   return GetCharacterCondition(6)
 end
