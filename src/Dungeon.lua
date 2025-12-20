@@ -65,8 +65,8 @@ end
 
 function RunDutyUntilCap(duty, cap)
     local current_tomes, cap_tomes = GetWeeklyTomeCount(cap)
-    PreDutyRunChecks()
     while current_tomes < cap_tomes do
+        PreDutyRunChecks()
         ADRun(duty, 1)
         WaitUntil(ADIsStopped, nil, 1)
         current_tomes, cap_tomes = GetWeeklyTomeCount(cap)
