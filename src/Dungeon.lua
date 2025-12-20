@@ -35,8 +35,37 @@ function GetWeeklyTomeCount(max_cap)
     return current_tomes, cap_tomes
 end
 
+function EnableActionStance(action, status)
+    local timeout = 5
+    while not HasStatusId(status) and timeout > 0 do
+        Actions.ExecuteAction(action)
+        WaitUntil(function () return HasStatusId(status) end, 3)
+        timeout = timeout - 1
+    end
+end
+
+function EnableTankStance()
+    local job = GetClassJobId()
+    if job == 19 then -- PLD
+        EnableActionStance(28, 79)
+    elseif job == 21 then -- WAR
+        EnableActionStance(48, 91)
+    elseif job == 32 then -- DRK
+        EnableActionStance(3629, 743)
+    elseif job == 37 then -- GNB
+        EnableActionStance(16142, 1833)
+    end
+end
+
+function PreDutyRunChecks()
+    yield("/bmai on")
+    yield("/bmrai on")
+    EnableTankStance()
+end
+
 function RunDutyUntilCap(duty, cap)
     local current_tomes, cap_tomes = GetWeeklyTomeCount(cap)
+    PreDutyRunChecks()
     while current_tomes < cap_tomes do
         ADRun(duty, 1)
         WaitUntil(ADIsStopped, nil, 1)
