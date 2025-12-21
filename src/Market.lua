@@ -171,7 +171,10 @@ function FindMarketItem(item_name)
   end
   yield("/wait 0.1")
 
-  local count_text = string.gsub(GetNewNodeText("ItemSearch", 1, 142, 148), "[%d]+-", "")
+  local count_text = StringSplit(GetNewNodeText("ItemSearch", 1, 142, 148), "-")[2]
+  if not count_text then
+    return nil
+  end
   for i = 1, tonumber(count_text) do
     local item_text = GetNewNodeText("ItemSearch", 1, 139, GetNodeListIndex(i - 1, 5), 13)
     if StringIsEmpty(item_text) then
