@@ -22,26 +22,24 @@ local function sFix(data)
   return str.." }"
 end
 
-local function sTrunc(str)
-  local str_lim = 500
+local function sTrunc(str, str_lim)
   local str_len = str:len()
   if str_len > str_lim then
     Logging.Warning("message too long ("..str_len.."), truncating to limit ("..str_lim..")")
-    return str:sub(1, 500)
+    return str:sub(1, str_lim)
   end
   return str
 end
 
+local function logConsole(msg) LogDebug("[SomethingNeedScripts] "..msg) end
+local function logEcho(msg) yield(sTrunc("/e "..msg, 500)) end
+
 Logging.Message = function (level, prefix, msg)
   if msg == nil then return end
-
   msg = prefix..sFix(msg)
-  if level >= Logging.LogLevel then
-    LogDebug("[SomethingNeedScripts] "..msg)
-  end
-  if level >= Logging.EchoLevel then
-    Logging.Echo(msg)
-  end
+
+  if level >= Logging.LogLevel then logConsole(msg) end
+  if level >= Logging.EchoLevel then logEcho(msg) end
 end
 
 Logging.Trace   = function (msg) Logging.Message(-1, "-- ", msg) end
@@ -52,17 +50,14 @@ Logging.Error   = function (msg) Logging.Message(3, "ERROR: ", msg) end
 
 Logging.Echo = function (...)
   local args = table.pack(...)
+
   local s
   for i = 1, args.n do
-    if i == 1 then
-      s = "/e "..sFix(args[i])
-    else
-      s = s..", "..sFix(args[i])
-    end
+    if i == 1 then s = sFix(args[i]) else s = s..", "..sFix(args[i]) end
   end
-  s = sTrunc(s)
-  yield(s)
-  Logging.Info(s)
+
+  logConsole(s)
+  logEcho(s)
 end
 
 Logging.Notify = function (msg) Logging.Echo("[Notification] "..sFix(msg)) end
