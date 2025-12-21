@@ -9,7 +9,6 @@ function GetFCCredits()
   local timeout = 2
   repeat
     credits = ParseInt(GetNewNodeText("FreeCompany", 1, 4, 16, 17))
-    Logging.Echo(credits)
     yield("/wait 0.1")
     timeout = timeout - 0.1
   until credits or timeout <= 0
