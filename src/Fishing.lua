@@ -120,10 +120,9 @@ function GetFishingZoneTimeLeft()
   if not IsAddonReady("IKDFishingLog") then return 0 end
   local time_text = GetNewNodeText("IKDFishingLog", 1, 8)
   if StringIsEmpty(time_text) then return 0 end
-  local colon_index, _ = string.find(time_text, ":")
-  if not colon_index or colon_index <= 1 then return 0 end
-  local minute = tonumber(string.sub(time_text, 1, colon_index - 1)) or 0
-  local second = tonumber(string.sub(time_text, colon_index + 1, time_text:len())) or 0
+  local minute, second = StringSplit(time_text, ":")
+  if not minute or not second then return 0 end
+  minute, second = tonumber(minute) or 0, tonumber(second) or 0
   return minute * 60 + second
 end
 
