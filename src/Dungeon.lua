@@ -2,66 +2,39 @@ require "ARUtils"
 require "Logging"
 require "Navigation"
 require "UINav"
+require "Utils"
 
 function OpenCurrencyWindow() return OpenCommandWindow("currency", "Currency") end
 
 function GetWeeklyTomeCount(max_cap)
-
-    local function getTomeCount(get_total)
-
-        local function toNumberStripComma(str)
-            local comma_index, _ = string.find(str, ",")
-            if not comma_index or comma_index <= 1 then
-                return tonumber(str) or 0
-            end
-            a, b = str:match("([%d]+),([%d]+)")
-            return tonumber(table.concat({ a, b })) or 0
-        end
-
-
-        local node = 6
-        if get_total then
-            node = 5
-        end
-
-        local currency_text = GetNewNodeText("Currency", 1, 16, 200408, node)
-        while StringIsEmpty(currency_text) do
-            yield("/wait 0.1")
-            currency_text = GetNewNodeText("Currency", 1, 16, 200408, node)
-        end
-
-        local current_tomes, cap_tomes = currency_text:match("([%d,]+)/([%d,]+)")
-        current_tomes = toNumberStripComma(current_tomes)
-        cap_tomes = toNumberStripComma(cap_tomes)
-
-
-        Logging.Debug(currency_text..": "..current_tomes.."/"..cap_tomes)
-        return current_tomes, cap_tomes
-    end
-
-    if not OpenCurrencyWindow() then
-        return nil, nil, nil, nil
-    end
+    if not OpenCurrencyWindow() then return nil end
 
     while not IsNodeVisible("Currency", 1, 16, 200408) do
         Callback("Currency", true, 12, 1)
         yield("/wait 0.1")
     end
 
-    current_weekly_tomes, cap_weekly_tomes = getTomeCount(false)
-    if not current_weekly_tomes or not cap_weekly_tomes then
-        return nil, nil, nil, nil
+    local function parseTomes(node)
+        local currency_text
+        WaitWhile(function ()
+            currency_text = GetNewNodeText("Currency", 1, 16, 200408, node)
+            return StringIsEmpty(currency_text)
+        end)
+
+        local current_tomes, cap_tomes = StringSplit(currency_text, "/")
+        return ParseInt(current_tomes), ParseInt(cap_tomes)
     end
 
-    if max_cap and max_cap < cap_weekly_tomes then cap_weekly_tomes = max_cap end
-
-    current_total_tomes, cap_total_tomes = getTomeCount(true)
-    if not current_total_tomes or not cap_total_tomes then
-        return current_weekly_tomes, cap_weekly_tomes, nil, nil
-    end
-
+    local current_weekly, cap_weekly = parseTomes(6)
+    local current_total, cap_total = parseTomes(5)
     CloseAddonFast("Currency")
-    return current_weekly_tomes, cap_weekly_tomes, current_total_tomes, cap_total_tomes
+
+    if max_cap and (not cap_weekly or max_cap < cap_weekly) then cap_weekly = max_cap end
+
+    if not current_weekly or not cap_weekly then Logging.Warning("failed to read weekly tome count") end
+    if not current_total or not cap_total then Logging.Error("failed to read total tome count") end
+
+    return current_weekly, cap_weekly, current_total, cap_total
 end
 
 function EnableActionStance(action, status)
@@ -93,12 +66,16 @@ function PreDutyRunChecks()
 end
 
 function RunDutyUntilCap(duty, cap)
-    local current_weekly_tomes, cap_weekly_tomes, current_total_tomes, cap_total_tomes = GetWeeklyTomeCount(cap)
-    while current_weekly_tomes < cap_weekly_tomes and current_total_tomes < cap_total_tomes do
+    local function isCapped()
+        local current_weekly, cap_weekly, current_total, cap_total = GetWeeklyTomeCount(cap)
+        if current_weekly and cap_weekly and current_weekly >= cap_weekly then return true end
+        if current_total and cap_total and current_total >= cap_total then return true end
+        return false
+    end
+    while not isCapped() do
         PreDutyRunChecks()
         ADRun(duty, 1)
         WaitUntil(ADIsStopped, nil, 1)
-        current_weekly_tomes, cap_weekly_tomes, current_total_tomes, cap_total_tomes = GetWeeklyTomeCount(cap)
     end
 end
 
