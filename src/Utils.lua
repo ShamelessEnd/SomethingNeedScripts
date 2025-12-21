@@ -10,11 +10,11 @@ function StringEndsWith(s, suffix) return string.sub(s, 1 + string.len(s) - stri
 function StringTrim(s) if s == nil then return nil else return s:match("^%s*(.-)%s*$") end end
 
 function StringSplit(s, sep)
-  if StringIsEmpty(s) then return {} end
-  if StringIsEmpty(sep) then return { s } end
+  if StringIsEmpty(s) then return nil end
+  if StringIsEmpty(sep) then return s end
   local t = {}
   for part in s:gmatch("([^"..sep.."]+)") do table.insert(t, part) end
-  return t
+  return table.unpack(t)
 end
 
 function IsInCombat() return GetCharacterCondition(26) end

@@ -171,7 +171,7 @@ function FindMarketItem(item_name)
   end
   yield("/wait 0.1")
 
-  local count_text = StringSplit(GetNewNodeText("ItemSearch", 1, 142, 148), "-")[2]
+  local _, count_text = StringSplit(GetNewNodeText("ItemSearch", 1, 142, 148), "-")
   if not count_text then
     return nil
   end
