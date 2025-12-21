@@ -59,7 +59,7 @@ function EnableTankStance()
     end
 end
 
-function PreDutyRunChecks()
+function PreRunDutyChecks()
     yield("/bmai on")
     yield("/bmrai on")
     EnableTankStance()
@@ -73,7 +73,7 @@ function RunDutyUntilCap(duty, cap)
         return false
     end
     while not isCapped() do
-        PreDutyRunChecks()
+        PreRunDutyChecks()
         ADRun(duty, 1)
         WaitUntil(ADIsStopped, nil, 1)
     end
