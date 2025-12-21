@@ -50,8 +50,17 @@ Logging.Info    = function (msg) Logging.Message(1, "", msg) end
 Logging.Warning = function (msg) Logging.Message(2, "WARNING: ", msg) end
 Logging.Error   = function (msg) Logging.Message(3, "ERROR: ", msg) end
 
-Logging.Echo = function (msg)
-  local s = sTrunc("/e "..sFix(msg))
+Logging.Echo = function (...)
+  local args = table.pack(...)
+  local s
+  for i = 1, args.n do
+    if i == 1 then
+      s = "/e "..sFix(args[i])
+    else
+      s = s..", "..sFix(args[i])
+    end
+  end
+  s = sTrunc(s)
   yield(s)
   Logging.Info(s)
 end
