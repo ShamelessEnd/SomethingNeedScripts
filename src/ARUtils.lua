@@ -1,4 +1,5 @@
 require "Logging"
+require "ServerData"
 require "Utils"
 
 function GetARCharacterData(cid)
@@ -53,6 +54,23 @@ function ARGetRetainerCount(cid)
   local ar_data = GetARCharacterData(cid)
   if not ar_data then return 0 end
   return ar_data.RetainerData.Count
+end
+
+function ARFindRetainer(name, server_id)
+  local chars = ARGetCharacterCIDs()
+  for i = 0, chars.Count - 1 do
+    local cid = chars[i]
+    local ar_data = GetARCharacterData(cid)
+    if ar_data.World == GetServerData(server_id).name and ar_data.RetainerData then
+      local retainer_data = ar_data.RetainerData
+      for j = 0, retainer_data.Count - 1 do
+        if retainer_data[j].Name == name then
+          return retainer_data[j]
+        end
+      end
+    end
+  end
+  return nil
 end
 
 function ARFindFishCharacterToLevel(level)

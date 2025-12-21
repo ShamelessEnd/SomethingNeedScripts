@@ -1,3 +1,4 @@
+require "ARUtils"
 require "Inventory"
 require "Logging"
 require "Market"
@@ -55,6 +56,11 @@ function CalculateUndercutPrice(p1, p2, p3, h)
   end
 end
 
+function IsMinListingSelf()
+  local retainer_text = GetNewNodeText("ItemSearchResult", 1, 26, GetNodeListIndex(0, 4), 10)
+  return ARFindRetainer(retainer_text, GetHomeWorld()) ~= nil
+end
+
 function GetUndercutPrice()
   Logging.Debug("calculating suggested price")
   if not OpenItemListings(10, "RetainerSell", 4) then
@@ -63,6 +69,10 @@ function GetUndercutPrice()
   end
 
   local p1 = GetItemListingPrice(1)
+  if IsMinListingSelf() then
+    return p1
+  end
+
   local p2 = GetItemListingPrice(2)
   local p3 = GetItemListingPrice(3)
   Logging.Debug("list prices: "..p1..", "..p2..", "..p3)
