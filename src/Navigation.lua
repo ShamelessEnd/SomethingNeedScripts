@@ -232,17 +232,10 @@ function WorldVisitTo(server_name)
     Logging.Error("failed to interact with aetheryte")
     return false
   end
-  local iSelectString
-  for i = 1,8 do
-    if string.find(GetNewNodeText("SelectString", 1, 3, 51000 + i, 2), "Visit Another World Server") then
-      iSelectString = i
-    end
-  end
-  if not iSelectString then
+  if not SelectStringOption("Visit Another World Server") then
     Logging.Error("could not find world visit option")
     return false
   end
-  Callback("SelectString", true, iSelectString)
   AwaitAddonReady("WorldTravelSelect")
 
   local curr_world = ""
