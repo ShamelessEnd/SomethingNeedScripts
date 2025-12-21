@@ -111,7 +111,7 @@ function GetSellListCount()
     local full_text = GetNewNodeText("RetainerSellList", 1, 14, 19)
     local slash_index, _ = string.find(full_text, "/")
     if slash_index and slash_index > 1 then
-      local count_text = string.sub(full_text, 1, slash_index - 1)
+      local count_text = full_text:sub(1, slash_index - 1)
       if count_text then
         Logging.Debug("found "..count_text.." items for sale on retainer ("..full_text..")")
         return tonumber(count_text)

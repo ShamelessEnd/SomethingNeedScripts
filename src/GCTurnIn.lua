@@ -42,7 +42,7 @@ function GCMissionSubmit()
     local text = GetNewNodeText("GrandCompanySupplyList", 1, 22, node_i, 5, 10)
     local hq_index = string.find(text, "")
     if hq_index and hq_index > 0 then
-      local hq_count = tonumber(string.sub(text, hq_index+3))
+      local hq_count = tonumber(text:sub(hq_index + 3))
       local required_count = tonumber(GetNewNodeText("GrandCompanySupplyList", 1, 22, node_i, 5, 7))
       if hq_count and required_count and hq_count >= required_count then
         Callback("GrandCompanySupplyList", true, 1, i, "")
@@ -80,7 +80,7 @@ function GetGCSupplyMissions()
     if not StringIsEmpty(item) and not StringIsEmpty(count) then
       local item_id = nil
       if StringEndsWith(item, "...") then
-        item_id = FindItemId(string.sub(item, 1, item:len() - 3))
+        item_id = FindItemId(item:sub(1, item:len() - 3))
       else
         item_id = GetItemId(item)
       end

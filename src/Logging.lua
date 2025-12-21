@@ -27,7 +27,7 @@ local function sTrunc(str)
   local str_len = str:len()
   if str_len > str_lim then
     Logging.Warning("message too long ("..str_len.."), truncating to limit ("..str_lim..")")
-    return string.sub(str, 1, 500)
+    return str:sub(1, 500)
   end
   return str
 end
