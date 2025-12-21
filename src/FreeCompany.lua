@@ -5,19 +5,19 @@ require "Utils"
 
 function GetFCCredits()
   if not OpenCommandWindow("freecompanycmd", "FreeCompany") then return 0 end
-  local credits_text = nil
+  local credits = nil
   local timeout = 2
   repeat
-    credits_text = GetNewNodeText("FreeCompany", 1, 4, 16, 17):gsub("%D", "")
+    credits = ParseInt(GetNewNodeText("FreeCompany", 1, 4, 16, 17))
+    Logging.Echo(credits)
     yield("/wait 0.1")
     timeout = timeout - 0.1
-  until not StringIsEmpty(credits_text) or timeout <= 0
+  until credits or timeout <= 0
   CloseAddonFast("FreeCompany")
-  if StringIsEmpty(credits_text) then
+  if not credits then
     Logging.Error("could not get FC credits")
-    return 0
   end
-  return tonumber(credits_text) or 0
+  return credits or 0
 end
 
 function BuyCeruleumTanks(stacks)
@@ -34,8 +34,8 @@ function BuyCeruleumTanks(stacks)
       break
     end
     local purchase_count = math.min(tanks_to_buy, 99)
-    local credits_text = GetNewNodeText("FreeCompanyCreditShop", 1, 2, 9, 10):gsub("%D", "")
-    if tonumber(credits_text) < purchase_count * 100 then
+    local credits = ParseInt(GetNewNodeText("FreeCompanyCreditShop", 1, 2, 9, 10))
+    if credits < purchase_count * 100 then
       Logging.Error("insufficient credits to buy tanks")
       break
     end
@@ -43,8 +43,8 @@ function BuyCeruleumTanks(stacks)
     Callback("FreeCompanyCreditShop", true, 0, 0, purchase_count)
     SelectYesno(true)
     local function purchaseComplete()
-      local next_credits_text = GetNewNodeText("FreeCompanyCreditShop", 1, 2, 9, 10):gsub("%D", "")
-      return GetItemCount(10155) > last_tanks and next_credits_text ~= credits_text
+      local next_credits = ParseInt(GetNewNodeText("FreeCompanyCreditShop", 1, 2, 9, 10))
+      return GetItemCount(10155) > last_tanks and next_credits ~= credits
     end
     if WaitUntil(purchaseComplete, 5) then
       tanks_to_buy = tanks_to_buy - purchase_count

@@ -47,12 +47,8 @@ function OpenItemListings(attempts, addon, ...)
 end
 
 function GetItemListingPrice(listing_index)
-  local price_text = string.gsub(GetNewNodeText("ItemSearchResult", 1, 26, GetNodeListIndex(listing_index - 1, 4), 5), "%D", "")
-  if StringIsEmpty(price_text) then
-    return 0
-  else
-    return tonumber(price_text)
-  end
+  local price = ParseInt(GetNewNodeText("ItemSearchResult", 1, 26, GetNodeListIndex(listing_index - 1, 4), 5))
+  return price or 0
 end
 
 function IsItemListingHQ(listing_index)
@@ -64,21 +60,13 @@ function IsItemListingHQ(listing_index)
 end
 
 function GetItemListingCount(listing_index)
-  local count_text = string.gsub(GetNewNodeText("ItemSearchResult", 1, 26, GetNodeListIndex(listing_index - 1, 4), 6), "%D", "")
-  if StringIsEmpty(count_text) then
-    return 0
-  else
-    return tonumber(count_text)
-  end
+  local count = ParseInt(GetNewNodeText("ItemSearchResult", 1, 26, GetNodeListIndex(listing_index - 1, 4), 6))
+  return count or 0
 end
 
 function GetItemHistoryPrice(history_index)
-  local hist_price_text = string.gsub(GetNewNodeText("ItemHistory", 1, 10, GetNodeListIndex(history_index - 1, 4), 4), "%D", "")
-  if StringIsEmpty(hist_price_text) then
-    return 0
-  else
-    return tonumber(hist_price_text)
-  end
+  local hist_price = ParseInt(GetNewNodeText("ItemHistory", 1, 10, GetNodeListIndex(history_index - 1, 4), 4))
+  return hist_price or 0
 end
 
 function IsItemHistoryMannequin(history_index)

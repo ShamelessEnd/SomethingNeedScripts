@@ -27,6 +27,8 @@ function ToTable(c)
   return t
 end
 
+function ParseInt(s) local n = s:gsub("%D", "") return tonumber(n) end
+
 function RoundUpToNext(x, increment) return math.floor(((x + increment - 1) // increment) * increment + 0.5) end
 
 function IsCasting() return GetCharacterCondition(27) end
