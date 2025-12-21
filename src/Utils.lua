@@ -13,7 +13,7 @@ function StringSplit(s, sep)
   if StringIsEmpty(s) then return nil end
   if StringIsEmpty(sep) then return s end
   local t = {}
-  for part in s:gmatch("([^"..sep.."]+)") do table.insert(t, part) end
+  for part in s:gmatch("([^"..sep.."]*)") do table.insert(t, part) end
   return table.unpack(t)
 end
 
