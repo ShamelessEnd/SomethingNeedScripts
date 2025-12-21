@@ -68,19 +68,21 @@ function GetUndercutPrice()
     return 0
   end
 
-  local p1 = GetItemListingPrice(1)
+  local price = 0
   if IsMinListingSelf() then
-    return p1
+    price = GetItemListingPrice(1)
+  else
+    local p1 = GetItemListingPrice(1)
+    local p2 = GetItemListingPrice(2)
+    local p3 = GetItemListingPrice(3)
+    Logging.Debug("list prices: "..p1..", "..p2..", "..p3)
+
+    local hist = GetItemHistoryTrimmedMean()
+    price = CalculateUndercutPrice(p1, p2, p3, hist)
   end
 
-  local p2 = GetItemListingPrice(2)
-  local p3 = GetItemListingPrice(3)
-  Logging.Debug("list prices: "..p1..", "..p2..", "..p3)
-
-  local hist = GetItemHistoryTrimmedMean()
-
   CloseItemListings("RetainerSell")
-  return CalculateUndercutPrice(p1, p2, p3, hist)
+  return price
 end
 
 function ParseSellEntry(raw_sell_entry)
