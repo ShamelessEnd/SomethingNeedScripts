@@ -25,13 +25,14 @@ function OpenItemListings(attempts, addon, ...)
       yield("/wait 0.5")
       for wait_time = 1, 100 do
         local msg_text = GetNewNodeText("ItemSearchResult", 1, 5)
-        if string.find(msg_text, "Please wait") then
+        if msg_text:find("Please wait") then
           break
         end
-        if string.find(msg_text, "No items found") then
+        if msg_text:find("No items found") then
           return true
         end
-        if string.find(GetNewNodeText("ItemSearchResult", 1, 29), "hit") then
+        local hit_text = GetNewNodeText("ItemSearchResult", 1, 29)
+        if hit_text:find("hit") then
           if not StringIsEmpty(GetNewNodeText("ItemSearchResult", 1, 26, 4, 5)) then
             return true
           end
@@ -161,9 +162,9 @@ function FindMarketItem(item_name)
   while not IsNodeVisible("ItemSearch", 1, 142, 148) or IsNodeVisible("ItemSearch", 1, 140) do
     if IsNodeVisible("ItemSearch", 1, 140) then
       local msg_text = GetNewNodeText("ItemSearch", 1, 140)
-      if string.find(msg_text, "Please wait") then
+      if msg_text:find("Please wait") then
         MarketSearchItem(item_name)
-      elseif string.find(msg_text, "No matching items") then
+      elseif msg_text:find("No matching items") then
         return nil
       end
     end

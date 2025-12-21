@@ -19,7 +19,7 @@ function CallbackCommand(target, update, ...)
   local command = prefix..target.." "..tostring(update)
   for _, arg in pairs({...}) do
     if type(arg) == "string"then
-      if string.find(arg, " ") then
+      if arg:find(" ") then
         command = command.." \""..arg.."\""
       else
         command = command.." "..arg

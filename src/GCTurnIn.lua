@@ -39,10 +39,10 @@ function GCMissionSubmit()
   AwaitAddonReady("GrandCompanySupplyList")
   for i = 7,0,-1 do
     local node_i = GetNodeListIndex(i, 4)
-    local text = GetNewNodeText("GrandCompanySupplyList", 1, 22, node_i, 5, 10)
-    local hq_index = string.find(text, "")
+    local hq_text = GetNewNodeText("GrandCompanySupplyList", 1, 22, node_i, 5, 10)
+    local hq_index = hq_text:find("")
     if hq_index and hq_index > 0 then
-      local hq_count = tonumber(text:sub(hq_index + 3))
+      local hq_count = tonumber(hq_text:sub(hq_index + 3))
       local required_count = tonumber(GetNewNodeText("GrandCompanySupplyList", 1, 22, node_i, 5, 7))
       if hq_count and required_count and hq_count >= required_count then
         Callback("GrandCompanySupplyList", true, 1, i, "")
