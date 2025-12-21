@@ -73,7 +73,7 @@ function PurchaseItem(item_table, gil_floor)
   local hq = item_table[5]
 
   local item_name = GetItemName(item_id)
-  if type(item_name) ~= "string" or string.len(item_name) <= 0 then
+  if type(item_name) ~= "string" or item_name:len() <= 0 then
     Logging.Error("failed to fetch item name "..item_id)
     return false
   end

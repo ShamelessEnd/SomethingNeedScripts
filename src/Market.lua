@@ -180,7 +180,7 @@ function FindMarketItem(item_name)
     if StringIsEmpty(item_text) then
       break
     elseif StringEndsWith(item_text, "...") then
-      item_text = string.sub(item_text, 1, string.len(item_text) - 3)
+      item_text = string.sub(item_text, 1, item_text:len() - 3)
       if StringStartsWith(item_name, item_text) then
         return i
       end

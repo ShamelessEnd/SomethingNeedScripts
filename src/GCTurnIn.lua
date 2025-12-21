@@ -80,7 +80,7 @@ function GetGCSupplyMissions()
     if not StringIsEmpty(item) and not StringIsEmpty(count) then
       local item_id = nil
       if StringEndsWith(item, "...") then
-        item_id = FindItemId(string.sub(item, 1, string.len(item) - 3))
+        item_id = FindItemId(string.sub(item, 1, item:len() - 3))
       else
         item_id = GetItemId(item)
       end

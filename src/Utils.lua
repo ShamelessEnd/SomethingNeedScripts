@@ -3,9 +3,9 @@ require "Logging"
 
 function StringIsEmpty(s) return s == nil or s == "" end
 
-function StringStartsWith(s, prefix) if StringIsEmpty(s) then return false else return string.sub(s, 1, string.len(prefix)) == prefix end end
+function StringStartsWith(s, prefix) if StringIsEmpty(s) then return false else return string.sub(s, 1, prefix:len()) == prefix end end
 
-function StringEndsWith(s, suffix) return string.sub(s, 1 + string.len(s) - string.len(suffix)) == suffix end
+function StringEndsWith(s, suffix) return string.sub(s, 1 + s:len() - suffix:len()) == suffix end
 
 function StringTrim(s) if s == nil then return nil else return s:match("^%s*(.-)%s*$") end end
 

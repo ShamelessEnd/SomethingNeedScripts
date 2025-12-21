@@ -123,7 +123,7 @@ function GetFishingZoneTimeLeft()
   local colon_index, _ = string.find(time_text, ":")
   if not colon_index or colon_index <= 1 then return 0 end
   local minute = tonumber(string.sub(time_text, 1, colon_index - 1)) or 0
-  local second = tonumber(string.sub(time_text, colon_index + 1, string.len(time_text))) or 0
+  local second = tonumber(string.sub(time_text, colon_index + 1, time_text:len())) or 0
   return minute * 60 + second
 end
 
