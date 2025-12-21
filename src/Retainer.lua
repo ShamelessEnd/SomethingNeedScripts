@@ -109,13 +109,10 @@ function GetSellListCount()
   local timeout_count = 0
   repeat
     local full_text = GetNewNodeText("RetainerSellList", 1, 14, 19)
-    local slash_index, _ = string.find(full_text, "/")
-    if slash_index and slash_index > 1 then
-      local count_text = full_text:sub(1, slash_index - 1)
-      if count_text then
-        Logging.Debug("found "..count_text.." items for sale on retainer ("..full_text..")")
-        return tonumber(count_text)
-      end
+    local count_text, max_text = StringSplit(full_text, "/")
+    if count_text and max_text then
+      Logging.Debug("found "..count_text.." items for sale on retainer ("..full_text..")")
+      return tonumber(count_text)
     end
     yield("/wait 0.1")
     timeout_count = timeout_count + 0.1
