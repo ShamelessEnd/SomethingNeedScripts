@@ -120,29 +120,45 @@ function ReadXORData(file, key, bytes)
   return x
 end
 
-function WaitWhile(condition, timeout, sleep)
-  if not sleep then sleep = 0.1 end
+function RepeatUntil(action, condition, timeout, sleep)
+  if not sleep or sleep <= 0 then sleep = 0.1 end
   local timeout_count = 0
   local error_check_count = 0
-  while condition() do
-    if timeout then
-      if timeout_count > timeout then
-        return false
-      end
-      timeout_count = timeout_count + sleep
-    end
+  local error_check_threshold = 1
+  if timeout and timeout < 0 then return false end
+  if timeout and timeout < error_check_threshold then error_check_threshold = timeout end
+  repeat
+    if action then action() end
     if CallbackConfig.ExitOnDC then
-      if error_check_count > 1 then
-        ExitGameIfServerError(10)
+      if error_check_count >= error_check_threshold then
+        ExitGameIfServerError()
         error_check_count = 0
       end
       error_check_count = error_check_count + sleep
     end
+    if timeout then
+      if timeout_count >= timeout then return false end
+      timeout_count = timeout_count + sleep
+    end
     yield("/wait "..sleep)
-  end
+  until condition()
   return true
 end
 
+function RepeatWhile(action, condition, timeout, sleep)
+  return RepeatUntil(action, function () return not condition() end, timeout, sleep)
+end
+
+function While(action, condition, timeout, sleep)
+  if not condition() then return true end
+  return RepeatWhile(action, condition, timeout, sleep)
+end
+
+function WaitWhile(condition, timeout, sleep)
+  return While(nil, condition, timeout, sleep)
+end
+
 function WaitUntil(condition, timeout, sleep)
-  return WaitWhile(function () return not condition() end, timeout, sleep)
+  if condition() then return true end
+  return RepeatUntil(nil, condition, timeout, sleep)
 end
