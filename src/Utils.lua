@@ -107,6 +107,7 @@ function Dismount()
   while IsMounted() do
     yield("/mount")
     yield("/wait 0.1")
+    MaybeCheckForServerError()
   end
 end
 

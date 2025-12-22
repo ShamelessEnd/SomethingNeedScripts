@@ -22,10 +22,7 @@ function ARRelogTo(cid, timeout)
   if data then
     local name = ""..data.Name.."@"..data.World
     Logging.Debug("relogging to character "..name)
-    while not ARIsBusy() do
-      yield("/ays relog "..name)
-      yield("/wait 1")
-    end
+    RepeatUntil(function () yield("/ays relog "..name) end, ARIsBusy, nil, 1)
     if WaitUntil(function () return cid == GetPlayerContentId() end, timeout, 1) then
       WaitForNavReady()
       yield("/wait 3")

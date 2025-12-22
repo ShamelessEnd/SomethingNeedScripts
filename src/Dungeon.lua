@@ -9,10 +9,10 @@ function OpenCurrencyWindow() return OpenCommandWindow("currency", "Currency") e
 function GetWeeklyTomeCount(max_cap)
     if not OpenCurrencyWindow() then return nil end
 
-    while not IsNodeVisible("Currency", 1, 16, 200408) do
-        Callback("Currency", true, 12, 1)
-        yield("/wait 0.1")
-    end
+    RepeatUntil(
+        function () Callback("Currency", true, 12, 1) end,
+        function () return IsNodeVisible("Currency", 1, 16, 200408) end
+    )
 
     local function parseTomes(node)
         local currency_text
@@ -70,6 +70,7 @@ function RunDutyUntilCap(duty, cap)
         local current_weekly, cap_weekly, current_total, cap_total = GetWeeklyTomeCount(cap)
         if current_weekly and cap_weekly and current_weekly >= cap_weekly then return true end
         if current_total and cap_total and current_total >= cap_total then return true end
+        if (not current_weekly) and (not cap_weekly) and (not current_total) and (not cap_total) then return true end
         return false
     end
     while not isCapped() do

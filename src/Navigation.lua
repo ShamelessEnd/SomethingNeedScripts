@@ -95,15 +95,9 @@ function WalkToTarget(target, dist, timeout)
     yield("/lockon on")
     yield("/automove on")
     yield("/lockon off")
-    local timeout_count = 0
-    timeout = timeout or 300
-    while GetDistanceToTarget() > dist do
-      timeout_count = timeout_count + 1
-      if timeout_count > timeout then
-        yield("/automove off")
-        return false
-      end
-      yield("/wait 0.1")
+    if not WaitWhile(function () return GetDistanceToTarget() > dist end, timeout or 300) then
+      yield("/automove off")
+      return false
     end
     yield("/automove off")
   end
@@ -116,13 +110,16 @@ function PathToNearestGroundPoint(x_t, y_t, z_t)
   local y_g
   local z_g
   local extent = 0
-  while not x_g or not y_g or not z_g do
-    local vec_g = IPC.vnavmesh.PointOnFloor(Vector3(x_t, y_t, z_t), false, extent)
-    x_g = vec_g.X
-    y_g = vec_g.Y
-    z_g = vec_g.Z
-    extent = extent + 1
-  end
+  While(
+    function ()
+      local vec_g = IPC.vnavmesh.PointOnFloor(Vector3(x_t, y_t, z_t), false, extent)
+      x_g = vec_g.X
+      y_g = vec_g.Y
+      z_g = vec_g.Z
+      extent = extent + 1
+    end,
+    function () return not x_g or not y_g or not z_g end
+  )
 
   PathfindAndMoveTo(x_g, y_g, z_g, false)
 end
@@ -389,9 +386,7 @@ function ReturnToBell()
   if IsInZone(129) then
     yield("/li hawkers")
     yield("/wait 3")
-    while LifestreamIsBusy() == true or NavIsReady() == false or IsPlayerAvailable() == false or GetTargetName() == "Aetheryte" do
-      yield("/wait 0.1")
-    end
+    WaitWhile(function () return LifestreamIsBusy() == true or NavIsReady() == false or IsPlayerAvailable() == false or GetTargetName() == "Aetheryte" end)
     yield("/wait 1")
   end
   local apartmentDistance = GetDistanceToObject("Apartment Building Entrance")
@@ -419,13 +414,5 @@ function GoToGCHQ()
   end
 
   Sprint()
-  timeout = 0
-  while LifestreamIsBusy() == true do
-    yield("/wait 1")
-    timeout = timeout + 1
-    if timeout == 60 then
-      LifestreamAbort()
-      return
-    end
-  end
+  if not WaitWhile(LifestreamIsBusy, 60, 1) then LifestreamAbort() end
 end

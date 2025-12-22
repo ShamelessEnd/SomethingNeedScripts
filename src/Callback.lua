@@ -99,6 +99,10 @@ function GetServerError()
   return error_val
 end
 
+function MaybeCheckForServerError()
+  if CallbackConfig.ExitOnDC then ExitGameIfServerError() end
+end
+
 function ExitGameIfServerError()
   if not GetServerError() then return end
   repeat

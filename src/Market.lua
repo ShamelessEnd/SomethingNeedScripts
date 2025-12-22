@@ -84,6 +84,7 @@ function GetItemHistoryPriceList(count)
       Logging.Debug("no history")
       return {}, 0
     end
+    MaybeCheckForServerError()
     yield("/wait 0.1")
   end
 
@@ -147,9 +148,7 @@ end
 function MarketSearchItem(item_name)
   Logging.Trace("MarketSearchItem")
   Callback("ItemSearch", true, 7, -1, 0, -1, -1, -1, -1, -1)
-  while IsNodeVisible("ItemSearch", 1, 142, 148) do
-    yield("/wait 0.1")
-  end
+  WaitWhile(function () return IsNodeVisible("ItemSearch", 1, 142, 148) end)
   Callback("ItemSearch", true, 0, -1, 0, item_name, item_name, 100, 100, 34)
 end
 
@@ -168,6 +167,7 @@ function FindMarketItem(item_name)
         return nil
       end
     end
+    MaybeCheckForServerError()
     yield("/wait 0.1")
   end
   yield("/wait 0.1")
@@ -203,15 +203,8 @@ function BuyMarketItem(list_index)
   Callback("SelectYesno", true, 0)
   AwaitAddonGone("SelectYesno")
 
-  local timeout_count = 0
-  while GetGil() == gil_before do
-    timeout_count = timeout_count + 0.1
-    if timeout_count > 3 then
-      return false
-    end
-    yield("/wait 0.1")
-  end
+  local success = WaitWhile(function () return GetGil() == gil_before end, 3)
   yield("/wait 0.5")
 
-  return true
+  return success
 end

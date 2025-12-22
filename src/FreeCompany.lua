@@ -6,12 +6,11 @@ require "Utils"
 function GetFCCredits()
   if not OpenCommandWindow("freecompanycmd", "FreeCompany") then return 0 end
   local credits = nil
-  local timeout = 2
-  repeat
-    credits = ParseInt(GetNewNodeText("FreeCompany", 1, 4, 16, 17))
-    yield("/wait 0.1")
-    timeout = timeout - 0.1
-  until credits or timeout <= 0
+  RepeatUntil(
+    function () credits = ParseInt(GetNewNodeText("FreeCompany", 1, 4, 16, 17)) end,
+    function () return credits ~= nil end,
+    2
+  )
   CloseAddonFast("FreeCompany")
   if not credits then
     Logging.Error("could not get FC credits")
@@ -24,7 +23,7 @@ function BuyCeruleumTanks(stacks)
     Logging.Error("FreeCompanyCreditShop not open")
     return false
   end
-  repeat yield("/wait 0.1") until not StringIsEmpty(GetNewNodeText("FreeCompanyCreditShop", 1, 2, 9, 10))
+  WaitWhile(function () return StringIsEmpty(GetNewNodeText("FreeCompanyCreditShop", 1, 2, 9, 10)) end)
   local tanks_to_buy = stacks * 999
   local target_tanks = GetItemCount(10155) + tanks_to_buy
   while tanks_to_buy > 0 do

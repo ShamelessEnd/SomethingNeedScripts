@@ -30,13 +30,10 @@ function CloseAddonFast(addon_name)
 end
 
 function ClearTalkAndAwait(addon_name)
-  while not IsAddonReady(addon_name) do
-    if IsAddonReady("Talk") then
-      Callback("Talk", true, 1)
-    end
-    yield("/wait 0.1")
-  end
-  AwaitAddonReady(addon_name)
+  While(
+    function () TryCallback("Talk", true, 1) end,
+    function () return not IsAddonReady(addon_name) end
+  )
 end
 
 function InteractWith(target, addon, range)
@@ -132,6 +129,7 @@ function Logout()
   while IsPlayerOccupied() do
     yield("/send ESCAPE")
     yield("/wait 1")
+    MaybeCheckForServerError()
   end
   repeat
     yield("/logout")

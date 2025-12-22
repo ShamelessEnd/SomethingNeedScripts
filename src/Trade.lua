@@ -19,10 +19,7 @@ function TradeGilTo(target, trade_gil)
 
   yield("/wait 0.2")
   while (GetItemCount(1) > end_gil) do
-    while not IsAddonReady("Trade") do
-      yield("/trade")
-      yield("/wait 0.2")
-    end
+    repeat yield("/trade") until AwaitAddonReady("Trade", 0.2)
     Callback("Trade", true, 2)
     if AwaitAddonReady("InputNumeric", 2) then
       Callback("InputNumeric", true, 1000000)
@@ -87,10 +84,7 @@ end
 function TradeCeruleumOnceFromTarget(password)
   local start_count = GetItemCount(10155)
   yield("/wait 0.2")
-  while not IsAddonReady("Trade") do
-    yield("/trade")
-    yield("/wait 0.5")
-  end
+  repeat yield("/trade") until AwaitAddonReady("Trade", 0.2)
   repeat
     if password then yield("/t <t> "..password) end
   until AwaitAddonGone("Trade", 8)
@@ -134,10 +128,7 @@ function GoTradeCeruleumStacksTo(target, server, stacks)
   else
     yield("/wait 0.2")
     while stacks > 0 do
-      while not IsAddonReady("Trade") do
-        yield("/trade")
-        yield("/wait 0.2")
-      end
+      repeat yield("/trade") until AwaitAddonReady("Trade", 0.2)
       local to_trade = math.min(stacks, 5)
       if not TradeCeruleumStacks(to_trade, true) then
         while not AwaitAddonGone("Trade", 1) do Callback("Trade", true, -1) end

@@ -41,13 +41,10 @@ end
 function CloseSellList()
   Logging.Debug("closing retainer sell list")
   Callback("RetainerSellList", true, -1)
-  while IsAddonReady("RetainerSellList") do
-    if IsAddonReady("SelectYesno") then
-      Callback("SelectYesno", true, 0)
-      break
-    end
-    yield("/wait 0.1")
-  end
+  While(
+    function () TryCallback("SelectYesno", true, 0) end,
+    function () return IsAddonReady("RetainerSellList") end
+  )
   AwaitAddonReady("SelectString")
 end
 
@@ -151,15 +148,7 @@ function ReturnItemToTarget(item_index, target_id, attempts)
     if OpenSellListItemContext(item_index, 1) then
       local sell_count = GetSellListCount()
       if CallbackTimeout(1, "ContextMenu", true, 0, target_id) then
-        local timeout_count = 0
-        while sell_count == GetSellListCount() do
-          yield("/wait 0.1")
-          timeout_count = timeout_count + 0.1
-          if timeout_count >= 5 then
-            return false
-          end
-        end
-        return true
+        return WaitWhile(function () return GetSellListCount() == sell_count end, 5)
       end
     end
   end
@@ -177,9 +166,7 @@ function ReturnItemToRetainer(item_index, attempts)
 end
 
 function ReturnAllItemsToRetainer()
-  while GetSellListCount() > 0 do
-    ReturnItemToRetainer(1, 1)
-  end
+  while GetSellListCount() > 0 do ReturnItemToRetainer(1, 1) end
 end
 
 function EntrustSingleItem(item_id, item_stack)
