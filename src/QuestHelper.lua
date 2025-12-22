@@ -820,7 +820,7 @@ function GoEquipFishingRetainers(count)
     Callback("SelectYesno", true, 0)
     SelectStringOption("View retainer attributes")
     Callback("RetainerCharacter", true, 20, 0)
-    Callback("ArmouryBoard", true, 8, rod_stacks[rod_stacks_index].slot)
+    Callback("ArmouryBoard", true, 8, rod_stacks[rod_stacks_index].visible.slot)
     rod_stacks_index = rod_stacks_index + 1
     Callback("RetainerCharacter", true, -1)
     Callback("SelectString", true, -1)
