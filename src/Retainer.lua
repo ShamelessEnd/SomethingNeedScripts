@@ -170,7 +170,7 @@ function ReturnAllItemsToRetainer()
 end
 
 function EntrustSingleItem(item_id, item_stack)
-  Logging.Debug("entrusting item "..item_id.." at "..item_stack.page.."."..item_stack.slot.." to retainer")
+  Logging.Debug("entrusting item "..item_id.." at "..item_stack.visible.page.."."..item_stack.visible.slot.." to retainer")
   local retry_timeout = 1
   local fail_timeout = 0
   while GetItemIdInSlot(item_stack.internal.page, item_stack.internal.slot) == item_id do
@@ -178,7 +178,7 @@ function EntrustSingleItem(item_id, item_stack)
       Logging.Warning("failed to entrust item, skipping")
       break
     elseif retry_timeout >= 1 then
-      Callback("InventoryExpansion", true, 14, 48 + item_stack.page, item_stack.slot)
+      Callback("InventoryExpansion", true, 14, 48 + item_stack.visible.page, item_stack.visible.slot)
       retry_timeout = 0
     end
     yield("/wait 0.1")

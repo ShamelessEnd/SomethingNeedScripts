@@ -53,8 +53,7 @@ function FindItemsInInventory(inventory_map)
   for _, mapping in pairs(inventory_map) do
     local item_id = GetItemIdInSlot(mapping.internal.page, mapping.internal.slot)
     local item_stack = {
-      page = mapping.visible.page,
-      slot = mapping.visible.slot,
+      visible = mapping.visible,
       internal = mapping.internal,
       count = GetItemCountInSlot(mapping.internal.page, mapping.internal.slot),
     }

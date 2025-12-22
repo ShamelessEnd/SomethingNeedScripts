@@ -35,7 +35,7 @@ function TradeGilTo(target, trade_gil)
 end
 
 function TradeItemFromSlot(stack)
-  if not CallbackTimeout(2, "InventoryExpansion", true, 12, 48 + stack.page, stack.slot) then
+  if not CallbackTimeout(2, "InventoryExpansion", true, 12, 48 + stack.visible.page, stack.visible.slot) then
     Logging.Error("failed to trade - inventory not open")
     return false
   end

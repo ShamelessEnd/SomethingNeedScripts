@@ -228,7 +228,7 @@ function ListItemForSaleFromStack(item_stack, stack_size, max_slots, price_floor
     return 0, list_price
   end
 
-  OpenItemRetainerSell(item_stack.page, item_stack.slot)
+  OpenItemRetainerSell(item_stack.visible.page, item_stack.visible.slot)
 
   if list_price <= 0 then
     list_price = GetUndercutPrice()
@@ -251,7 +251,7 @@ function ListItemForSaleFromStack(item_stack, stack_size, max_slots, price_floor
   Logging.Debug("listing item "..num_listings.." times")
   for i = 1, num_listings do
     if i > 1 then
-      OpenItemRetainerSell(item_stack.page, item_stack.slot)
+      OpenItemRetainerSell(item_stack.visible.page, item_stack.visible.slot)
     end
 
     if stack_size > 0 and stack_size ~= GetCurrentItemSellCount() then
@@ -301,7 +301,7 @@ function ListItemForSale(sell_entry, max_slots, item_stacks, listed_item)
   local num_listings = 0
   local min_keep = sell_entry.min_keep
   for _, item_stack in pairs(item_stacks) do
-    Logging.Debug("processing stack "..item_stack.count.." at "..item_stack.page.."."..item_stack.slot)
+    Logging.Debug("processing stack "..item_stack.count.." at "..item_stack.visible.page.."."..item_stack.visible.slot)
     local original_count = item_stack.count
     if item_stack.count <= 0 then
       Logging.Debug("cannot process stack, failed to fetch item count")
