@@ -173,7 +173,7 @@ function EntrustSingleItem(item_id, item_stack)
   Logging.Debug("entrusting item "..item_id.." at "..item_stack.page.."."..item_stack.slot.." to retainer")
   local retry_timeout = 1
   local fail_timeout = 0
-  while GetItemIdInSlot(item_stack.page, item_stack.slot) == item_id do
+  while GetItemIdInSlot(item_stack.internal.page, item_stack.internal.slot) == item_id do
     if fail_timeout >= 5 then
       Logging.Warning("failed to entrust item, skipping")
       break

@@ -55,6 +55,7 @@ function FindItemsInInventory(inventory_map)
     local item_stack = {
       page = mapping.visible.page,
       slot = mapping.visible.slot,
+      internal = mapping.internal,
       count = GetItemCountInSlot(mapping.internal.page, mapping.internal.slot),
     }
     if items[item_id] == nil then
