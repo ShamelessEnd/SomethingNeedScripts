@@ -33,8 +33,8 @@ function CallbackCommand(target, update, ...)
 end
 
 function TryCallback(target, update, ...)
-  local command = CallbackCommand(target, update, ...)
   if IsAddonReady(target) then
+    local command = CallbackCommand(target, update, ...)
     yield(command)
   end
 end
@@ -48,10 +48,10 @@ function Callback(target, update, ...)
 end
 
 function CallbackUnsafe(target, update, ...)
-  local command = CallbackCommand(target, update, ...)
   while not IsAddonReady(target) do
     yield("/wait 0.1")
   end
+  local command = CallbackCommand(target, update, ...)
   yield(command)
 end
 
@@ -68,7 +68,7 @@ function CallbackTimeout(timeout, target, update, ...)
     timeout_count = timeout_count + 0.1
     error_check_count = error_check_count + 0.1
     if CallbackConfig.ExitOnDC and error_check_count > 1 then
-      ExitGameIfServerError(10)
+      ExitGameIfServerError()
       error_check_count = 0
     end
   end
@@ -83,7 +83,7 @@ function CallbackErrorCheck(target, update, ...)
     yield("/wait 0.1")
     error_check_count = error_check_count + 0.1
     if error_check_count > 1 then
-      ExitGameIfServerError(10)
+      ExitGameIfServerError()
       error_check_count = 0
     end
   end
@@ -99,17 +99,11 @@ function GetServerError()
   return error_val
 end
 
-function ExitGameIfServerError(timeout)
-  local timeout_count = 0
-  local server_error = GetServerError()
-  while server_error do
-    if not timeout or timeout_count > timeout then
-      yield("/click Dialogue Ok")
-      CallbackUnsafe("_TitleMenu", true, 12, 1)
-      return
-    end
-    yield("/wait 1")
-    timeout_count = timeout_count + 1
-    server_error = GetServerError()
-  end
+function ExitGameIfServerError()
+  if not GetServerError() then return end
+  repeat
+    Engines.Native.Run("/click Dialogue Ok")
+    yield("/wait 0.1")
+  until not GetServerError()
+  CallbackUnsafe("_TitleMenu", true, 12, 1)
 end
