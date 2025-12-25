@@ -126,3 +126,45 @@ function ARApplyToAllCharacters(cids, lambda, condition, timeout)
     end
   end
 end
+
+function TimeUntilARTask()
+    chars = ARGetCharacterCIDs()
+
+    local min_seconds = nil
+    local now = os.time()
+    for i = 0, chars.Count - 1 do
+        cid = chars[i]
+
+        char_data = ARGetCharacterData(cid)
+
+        if char_data.Enabled then
+            time_until_venture = IPC.AutoRetainer.GetClosestRetainerVentureSecondsRemaining(cid)
+
+            if time_until_venture then
+                Logging.Debug(time_until_venture.." seconds for retainer venture for "..char_data.Name.."@"..char_data.World)
+
+                if not min_seconds or time_until_venture < min_seconds then min_seconds = time_until_venture end
+                if min_seconds <= 0 then return 0 end
+            end
+        end
+
+        if char_data.WorkshopEnabled then
+            sub_data = char_data.OfflineSubmarineData
+
+            for j = 0, sub_data.Count -1 do
+                return_time = sub_data[j].ReturnTime
+
+                if return_time then
+                    time_until_sub = return_time - now
+
+                    Logging.Debug(time_until_sub.." seconds for submarine for "..char_data.Name.."@"..char_data.World)
+
+                    if not min_seconds or time_until_sub < min_seconds then min_seconds = time_until_sub end
+                    if min_seconds <= 0 then return 0 end
+                end
+            end
+        end
+    end
+    Logging.Debug("Time until next task: "..min_seconds.." seconds")
+    return min_seconds
+end
