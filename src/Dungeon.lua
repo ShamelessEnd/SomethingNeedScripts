@@ -36,7 +36,7 @@ end
 
 function RunDutyUntilCap(duty, cap, tomestone_config)
     local function isCapped()
-        local current_weekly, cap_weekly, current_total, cap_total = GetWeeklyTomeCount(cap)
+        local current_weekly, cap_weekly, current_total, cap_total = GetWeeklyTomeCount()
         if cap and (not cap_weekly or cap < cap_weekly) then cap_weekly = cap end
 
         if current_weekly and cap_weekly and current_weekly >= cap_weekly then return true end
