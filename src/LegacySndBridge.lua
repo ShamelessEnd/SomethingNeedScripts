@@ -131,6 +131,15 @@ function GetItemName(id)
   return Excel.Item:GetRow(id).Name
 end
 
+function GetItemFromIcon(icon)
+    for i = 0, Excel.Item.Count - 1 do
+        if Excel.Item[i]:GetProperty("Icon") == icon then
+            return Excel.Item[i]
+        end
+    end
+    return nil
+end
+
 function TargetClosestEnemy()
   yield("/targetenemy")
 end
