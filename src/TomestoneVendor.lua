@@ -2,10 +2,10 @@ require "Navigation"
 require "LegacySndBridge"
 require "UINav"
 
-local function getTomesToSpend() return ParseInt(vendor_addon:GetAtkValue(84).ValueString) end
+local function getTomesToSpend(vendor_addon) return ParseInt(vendor_addon:GetAtkValue(84).ValueString) end
 
-function BuyItem(vendor_item, wanted_item)
-    local tomes = getTomesToSpend()
+function BuyItem(vendor_item, wanted_item, vendor_addon)
+    local tomes = getTomesToSpend(vendor_addon)
 
     local item_name = GetItemName(wanted_item.id)
     if wanted_item.amount <= 0 then
@@ -36,7 +36,7 @@ function BuyItem(vendor_item, wanted_item)
         SelectYesno(true)
 
         local function purchaseComplete()
-            local tomes_left = getTomesToSpend()
+            local tomes_left = getTomesToSpend(vendor_addon)
             return GetItemCount(wanted_item.id) > owned_amount and tomes_left ~= tomes
         end
         if WaitUntil(purchaseComplete, 5) then
@@ -54,13 +54,13 @@ end
 
 function GetItemList(vendor_addon)
     local items = {}
-    count = GetAmountOfItemsInList(vendor_addon)
+    local count = GetAmountOfItemsInList(vendor_addon)
 
     for i = 0, count-1 do
-        item_id = ParseInt(vendor_addon:GetAtkValue(1064 + i).ValueString)
+        local item_id = ParseInt(vendor_addon:GetAtkValue(1064 + i).ValueString)
 
         if item_id and item_id >= 0 then
-            cost = ParseInt(vendor_addon:GetAtkValue(454 + i).ValueString)
+            local cost = ParseInt(vendor_addon:GetAtkValue(454 + i).ValueString)
 
             items[item_id] = {
                 index = i,
@@ -73,7 +73,7 @@ function GetItemList(vendor_addon)
 end
 
 function SpendTomestone(item_table, minimum_tomes)
-    current_tomes, _ = GetUncappedTomeCount()
+    local current_tomes = GetUncappedTomeCount()
 
     if current_tomes < minimum_tomes then
         Logging.Debug("Not enough tomes to spend")
@@ -82,15 +82,15 @@ function SpendTomestone(item_table, minimum_tomes)
 
     if not IsInZone(1186) or not GetDistanceToObject("Zircon") then
         LifestreamTo("nexus")
-
         WaitWhile(function () return LifestreamIsBusy() or not IsPlayerAvailable() end)
     end
+
     NavToObject("Zircon", 3, false, 30)
     InteractWith("Zircon", "SelectIconString", 3)
     if AwaitAddonReady("SelectIconString", 5) then
         Callback("SelectIconString", true, 3)
         yield("/wait 2")
-        
+
         if AwaitAddonReady("ShopExchangeCurrency") then
             local vendor_addon = Addons.GetAddon("ShopExchangeCurrency")
 
@@ -107,7 +107,7 @@ function SpendTomestone(item_table, minimum_tomes)
                 return CloseAddonFast("ShopExchangeCurrency")
             end
 
-            local tomes_to_spend = getTomesToSpend()
+            local tomes_to_spend = getTomesToSpend(vendor_addon)
             if not tomes_to_spend then
                 Logging.Error("Couldn't read amount of tomes to spend, aborting")
                 return CloseAddonFast("ShopExchangeCurrency")
@@ -136,7 +136,7 @@ function SpendTomestone(item_table, minimum_tomes)
                     break
                 end
 
-                tomes_to_spend = BuyItem(vendor_item, item)
+                tomes_to_spend = BuyItem(vendor_item, item, vendor_addon)
             end
 
         end
