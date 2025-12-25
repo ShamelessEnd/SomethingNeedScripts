@@ -5,16 +5,16 @@ require "UINav"
 local function getTomesToSpend() return ParseInt(vendor_addon:GetAtkValue(84).ValueString) end
 
 function BuyItem(vendor_item, wanted_item)
-    tomes = getTomesToSpend()
+    local tomes = getTomesToSpend()
 
-    item_name = GetItemName(wanted_item.id)
+    local item_name = GetItemName(wanted_item.id)
     if wanted_item.amount <= 0 then
         Logging.Debug("Skipping buying "..item_name..", desired amount is "..wanted_item.amount)
         return tomes
     end
 
-    owned_amount = GetItemCount(wanted_item.id)
-    remaining = wanted_item.amount - owned_amount
+    local owned_amount = GetItemCount(wanted_item.id)
+    local remaining = wanted_item.amount - owned_amount
 
     if remaining <= 0 then
         Logging.Debug("Skipping buying "..item_name..", "..owned_amount.." already in inventory")
@@ -92,11 +92,11 @@ function SpendTomestone(item_table, minimum_tomes)
         yield("/wait 2")
         
         if AwaitAddonReady("ShopExchangeCurrency") then
-            vendor_addon = Addons.GetAddon("ShopExchangeCurrency")
+            local vendor_addon = Addons.GetAddon("ShopExchangeCurrency")
 
             -- Check if we're actually in the correct tomes page (sanity check)
-            icon_atk = ParseInt(vendor_addon:GetAtkValue(85).ValueString)
-            currency = GetItemFromIcon(icon_atk)
+            local icon_atk = ParseInt(vendor_addon:GetAtkValue(85).ValueString)
+            local currency = GetItemFromIcon(icon_atk)
             if not currency then
                 Logging.Error("Failed to find currency for exchange")
                 return CloseAddonFast("ShopExchangeCurrency")
@@ -107,7 +107,7 @@ function SpendTomestone(item_table, minimum_tomes)
                 return CloseAddonFast("ShopExchangeCurrency")
             end
 
-            tomes_to_spend = getTomesToSpend()
+            local tomes_to_spend = getTomesToSpend()
             if not tomes_to_spend then
                 Logging.Error("Couldn't read amount of tomes to spend, aborting")
                 return CloseAddonFast("ShopExchangeCurrency")
@@ -120,12 +120,12 @@ function SpendTomestone(item_table, minimum_tomes)
 
             Logging.Debug("Spending up to "..tomes_to_spend.." "..currency.Name)
 
-            vendor_items = GetItemList(vendor_addon)
+            local vendor_items = GetItemList(vendor_addon)
 
             for i, item in ipairs(item_table) do
                 Logging.Debug("Attempting to buy item "..GetItemName(item.id))
 
-                vendor_item = vendor_items[item.id]
+                local vendor_item = vendor_items[item.id]
 
                 if not vendor_item then
                     Logging.Error("Item "..item.id.." not found in vendor, skipping")
