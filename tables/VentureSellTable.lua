@@ -47,6 +47,7 @@ VentureSellTable = {
       { 44246,       99500,      false,          1,            1,        0 }, -- "Turali Trader's Shirt"      },
       { 47922,       99500,      false,          1,            1,        0 }, -- "Bouncer's Slacks"           },
       { 47918,       29500,      false,          1,            1,        0 }, -- "Neon Street Shoes"          },
+      { 47915,       29500,      false,          1,            1,        0 }, -- "Neon Street Cap"            },
       { 28590,        9500,      false,          1,            1,        0 }, -- "Rebel Coat"                 },
       { 28591,        9500,      false,          1,            1,        0 }, -- "Rebel Boots"                },
       { 28588,        9500,      false,          1,            1,        0 }, -- "Urban Coat"                 },
