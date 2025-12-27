@@ -434,6 +434,6 @@ function UndercutAndSellAllRetainers(retainer_tables)
     CloseRetainerList()
   end
   yield("/xlenablecollection UndercutAndSellAllRetainers")
-  yield("/wait 1")
   ARSetSuppressed(false)
+  yield("/wait 1")
 end
