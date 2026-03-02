@@ -205,7 +205,7 @@ function CollectCeruleumFrom(target, server, exclude, password)
 end
 
 function TopUpCeruleumTanks(target, server, exclude, password, thresholds)
-  if not thresholds then thresholds = { min_tanks = 4996, buy_stacks = 5 } end
+  if not thresholds then thresholds = { min_tanks = 4996, buy_stacks = 5, target_space = 10 } end
 
   local target_server_data = FindServerData(server)
   if not target_server_data then return end
@@ -219,37 +219,46 @@ function TopUpCeruleumTanks(target, server, exclude, password, thresholds)
     if data then
       local server_data = FindServerData(data.World)
       if server_data and server_data.dc == target_server_data.dc and not TableContains(exclude, cid) then
-        -- limit to max 120 stacks for target inventory
-        if data.Ceruleum < thresholds.min_tanks and TableSize(cids_need_tanks) < math.floor(120 / thresholds.buy_stacks) then
-            table.insert(cids_need_tanks, cid)
-        end
         if data.Enabled == true then
-          table.insert(cids_retainer_char, cid)
+          cids_retainer_char[math.random(math.maxinteger)] = cid
+        elseif data.Ceruleum < thresholds.min_tanks then
+          table.insert(cids_need_tanks, cid)
         end
       end
     end
   end
 
-  local tanks_stacks_needed = TableSize(cids_need_tanks) * thresholds.buy_stacks
-  local function goBuyTanks()
-    local bought = GoBuyCeruleumTanks(tanks_stacks_needed)
-    if not bought then
-      Logging.Error("failed to buy tanks")
-      return
-    elseif bought == 0 then
-      Logging.Info("not enough credits to buy tanks")
-      return
+  local cids_retainer_char_empty = {}
+  local function applyCidChunk(cids_need_tanks_chunk)
+    local tanks_stacks_needed = TableSize(cids_need_tanks_chunk) * thresholds.buy_stacks
+    local function goBuyTanks(cid)
+      local bought = GoBuyCeruleumTanks(tanks_stacks_needed)
+      if not bought or bought < tanks_stacks_needed then
+        table.insert(cids_retainer_char_empty, cid)
+      end
+      if not bought then
+        Logging.Error("failed to buy tanks")
+        return
+      elseif bought == 0 then
+        Logging.Info("not enough credits to buy tanks")
+        return
+      end
+      if GoTradeCeruleumStacksTo(target, server, bought) then
+        tanks_stacks_needed = tanks_stacks_needed - bought
+      else
+        Logging.Error("failed to trade tanks to target")
+        return
+      end
     end
-    if GoTradeCeruleumStacksTo(target, server, bought) then
-      tanks_stacks_needed = tanks_stacks_needed - bought
-    else
-      Logging.Error("failed to trade tanks to target")
-      return
+    local function buyTanksIf(cid)
+      return tanks_stacks_needed > 0 and not TableContains(cids_retainer_char_empty, cid)
     end
+    ARApplyToAllCharacters(cids_retainer_char, goBuyTanks, buyTanksIf)
+    local function goCollectTanks() GoFetchCeruleumFrom(target, server, GetItemCount(10155) + (999 * thresholds.buy_stacks), password) end
+    ARApplyToAllCharacters(cids_need_tanks_chunk, goCollectTanks)
   end
-  local function buyTanksIf() return tanks_stacks_needed > 0 end
-  ARApplyToAllCharacters(cids_retainer_char, goBuyTanks, buyTanksIf)
 
-  local function goCollectTanks() GoFetchCeruleumFrom(target, server, GetItemCount(10155) + (999 * thresholds.buy_stacks), password) end
-  ARApplyToAllCharacters(cids_need_tanks, goCollectTanks)
+  local chunk_size = math.max(math.floor(thresholds.target_space / thresholds.buy_stacks), 1)
+  local chunked_cids_need_tanks = ChunkedTable(cids_need_tanks, chunk_size) or {}
+  for _, chunk in pairs(chunked_cids_need_tanks) do applyCidChunk(chunk) end
 end
