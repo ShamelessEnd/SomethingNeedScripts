@@ -12,9 +12,8 @@ function TradeGilTo(target, trade_gil)
   Logging.Info("trading "..trade_gil.." to "..target)
   local end_gil = GetItemCount(1) - trade_gil
 
-  if not NavToTarget(target, 2, false, 10) then
+  while not NavToTarget(target, 2, false, 10) do
     Logging.Error("failed to find target "..target)
-    return 0
   end
 
   yield("/wait 0.2")
@@ -123,19 +122,19 @@ function GoTradeCeruleumStacksTo(target, server, stacks)
 
   NavToGridaniaTrade(server)
 
-  if not NavToTarget(target, 2, false, 10) then
+  while not NavToTarget(target, 2, false, 10) do
     Logging.Error("failed to find target "..target)
-  else
-    yield("/wait 0.2")
-    while stacks > 0 do
-      repeat yield("/trade") until AwaitAddonReady("Trade", 0.2)
-      local to_trade = math.min(stacks, 5)
-      if not TradeCeruleumStacks(to_trade, true) then
-        while not AwaitAddonGone("Trade", 1) do Callback("Trade", true, -1) end
-        break
-      end
-      stacks = stacks - to_trade
+  end
+
+  yield("/wait 0.2")
+  while stacks > 0 do
+    repeat yield("/trade") until AwaitAddonReady("Trade", 0.2)
+    local to_trade = math.min(stacks, 5)
+    if not TradeCeruleumStacks(to_trade, true) then
+      while not AwaitAddonGone("Trade", 1) do Callback("Trade", true, -1) end
+      break
     end
+    stacks = stacks - to_trade
   end
 
   ReturnToFC()
@@ -146,13 +145,13 @@ function GoFetchCeruleumFrom(target, server, min_tanks, password)
   NavToGridaniaTrade(server)
 
   Logging.Info("trading ceruleum from "..target)
-  if NavToTarget(target, 2, false, 10) then
-    repeat
-      if not TradeCeruleumOnceFromTarget(password) then break end
-    until GetItemCount(10155) >= min_tanks
-  else
+  while not NavToTarget(target, 2, false, 10) do
     Logging.Error("failed to find target "..target)
   end
+
+  repeat
+    if not TradeCeruleumOnceFromTarget(password) then break end
+  until GetItemCount(10155) >= min_tanks
 
   ReturnToFC()
 end
