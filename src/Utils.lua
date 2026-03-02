@@ -63,6 +63,8 @@ function GetFoodTime() return GetStatusTimeRemaining(48) end
 
 function Sprint() ExecuteGeneralAction(4) end
 
+function Jump() ExecuteGeneralAction(2) end
+
 function GetNQItemCount(item_id) return GetItemCount(item_id, false) end
 
 function GetHQItemCount(item_id) return GetItemCount(item_id) - GetNQItemCount(item_id) end

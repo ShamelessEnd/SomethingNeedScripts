@@ -32,6 +32,10 @@ function IsInHomeWorld()
   return GetCurrentWorld() == GetHomeWorld()
 end
 
+function GetPlayerXYZ()
+  return GetPlayerRawXPos() or 0, GetPlayerRawYPos() or 0, GetPlayerRawZPos() or 0
+end
+
 function TeleportToAetheryte(aetheryte)
   if IsAetheryteUnlocked(aetheryte) then
     LifestreamTeleport(aetheryte, 0)
@@ -138,21 +142,42 @@ function NavToPoint(x, y, z, stop_dist, fly, timeout)
 
   local timeout_count = 0
   local rebuild_once = true
+  local last_x, last_y, last_z = GetPlayerXYZ()
+  local stuck_count = 0
+  local jump_once = true
+  local jump_timeout = 5
+  local function rebuildAndRetry()
+      RebuildNavMesh()
+      rebuild_once = false
+      PathfindAndMoveTo(x, y, z, fly)
+      timeout_count = 0
+      last_x, last_y, last_z = GetPlayerXYZ()
+      stuck_count = 0
+      jump_once = true
+  end
   while GetDistanceToPoint(x, y, z) > stop_dist do
     if timeout_count > timeout then
       PathStop()
       if rebuild_once then
-        timeout_count = 2
+        Logging.Warning("nav to point timed out, rebuilding navmesh")
+        rebuildAndRetry()
       else
         Logging.Warning("nav to point failed "..x..", "..y..", "..z)
         return false
       end
-    end
-    if rebuild_once and timeout_count > 1 and not PathIsRunning() then
-      Logging.Warning("nav to point timed out, rebuilding navmesh")
-      RebuildNavMesh()
-      rebuild_once = false
-      PathfindAndMoveTo(x, y, z, fly)
+    elseif rebuild_once and timeout_count > 1 and not PathIsRunning() then
+      Logging.Warning("nav stopped, rebuilding navmesh")
+      rebuildAndRetry()
+    elseif GetDistanceToPoint(last_x, last_y, last_z) < 2 then
+      stuck_count = stuck_count + 0.1
+      if jump_once and stuck_count > jump_timeout then
+        Jump()
+        jump_once = false
+      end
+    else
+      last_x, last_y, last_z = GetPlayerXYZ()
+      stuck_count = 0
+      jump_once = true
     end
     timeout_count = timeout_count + 0.1
     yield("/wait 0.1")
