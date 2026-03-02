@@ -41,6 +41,16 @@ function ToTable(c)
   return t
 end
 
+function ChunkedTable(t, size)
+  t = ToTable(t)
+  if t == nil or size <= 0 then return nil end
+  local chunked = {}
+  for i = 1,#t,size do
+    table.insert(chunked, {table.unpack(t, i, math.min(#t, i + size - 1))})
+  end
+  return chunked
+end
+
 function ParseInt(s) local n = s:gsub("%D", "") return tonumber(n) end
 
 function RoundUpToNext(x, increment) return math.floor(((x + increment - 1) // increment) * increment + 0.5) end
