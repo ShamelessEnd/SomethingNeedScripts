@@ -44,6 +44,31 @@ function RunDutyUntilCap(duty, cap, tomestone_config)
         if (not current_weekly) and (not cap_weekly) and (not current_total) and (not cap_total) then return true end
         return false
     end
+
+    local stuck_count = 0
+    local last_x, last_y, last_z = GetPlayerXYZ()
+    local reset_vnav = true
+    local function ADIsStoppedWithStuckCheck()
+        if IsInCombat() or GetDistanceToPoint(last_x, last_y, last_z) > 2.5 then
+            stuck_count = 0
+            last_x, last_y, last_z = GetPlayerXYZ()
+            reset_vnav = true
+        elseif stuck_count > 10 then
+            if reset_vnav then
+                yield("/vnav stop")
+                reset_vnav = false
+            else
+                LeaveDuty()
+                reset_vnav = true
+            end
+            stuck_count = 0
+            last_x, last_y, last_z = GetPlayerXYZ()
+        else
+            stuck_count = stuck_count + 1
+        end
+        return ADIsStopped()
+    end
+
     while not isCapped() do
         PreRunDutyChecks()
 
@@ -52,7 +77,7 @@ function RunDutyUntilCap(duty, cap, tomestone_config)
         end
 
         ADRun(duty, 1)
-        WaitUntil(ADIsStopped, nil, 1)
+        WaitUntil(ADIsStoppedWithStuckCheck, nil, 1)
     end
 end
 

@@ -40,15 +40,21 @@ function GetCurrentWorld()
 end
 
 function GetPlayerRawXPos()
-  return Player.Entity.Position.X
+  local pos = Player.Entity.Position
+  if pos then return pos.X end
+  return 0
 end
 
 function GetPlayerRawYPos()
-  return Player.Entity.Position.Y
+  local pos = Player.Entity.Position
+  if pos then return pos.Y end
+  return 0
 end
 
 function GetPlayerRawZPos()
-  return Player.Entity.Position.Z
+  local pos = Player.Entity.Position
+  if pos then return pos.Z end
+  return 0
 end
 
 function GetLevel(jobId)

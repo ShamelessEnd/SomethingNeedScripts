@@ -33,7 +33,9 @@ function IsInHomeWorld()
 end
 
 function GetPlayerXYZ()
-  return GetPlayerRawXPos() or 0, GetPlayerRawYPos() or 0, GetPlayerRawZPos() or 0
+  local pos = Player.Entity.Position
+  if pos then return pos.X, pos.Y, pos.Z end
+  return 0, 0, 0
 end
 
 function TeleportToAetheryte(aetheryte)
