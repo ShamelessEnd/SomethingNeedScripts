@@ -83,6 +83,7 @@ function DoReturn()
 end
 
 function RebuildNavMesh()
+  PathStop()
   NavRebuild()
   yield("/wait 3")
   WaitUntil(function () return NavBuildProgress() < 0 end)

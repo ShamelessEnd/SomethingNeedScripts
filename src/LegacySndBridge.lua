@@ -9,6 +9,7 @@ function ExecuteGeneralAction(action)
 end
 
 function GetCharacterName(includeWorld)
+  if not Player.Entity or not Player.Entity.Name or not Player.Entity.HomeWorld then return nil end
   if includeWorld then
     return Player.Entity.Name.."@"..Excel.World:GetRow(Player.Entity.HomeWorld).Name
   end
@@ -23,8 +24,9 @@ function GetPlayerGC()
   return Player.GrandCompany
 end
 
-function IsPlayerAvailable()
-  return Player.Available and not Player.IsBusy
+function IsPlayerAvailable(ignoreMovement)
+  ignoreMovement = ignoreMovement or false
+  return Player.Available and (not Player.IsBusy or (ignoreMovement and Player.IsMoving))
 end
 
 function IsPlayerOccupied()
@@ -413,6 +415,7 @@ function NavBuildProgress()
 end
 
 function GetDistanceToPoint(x, y, z)
+  if not x or not y or not z or not Player.Entity or not Player.Entity.Position then return math.maxinteger end
   return Vector3.Distance(Vector3(x, y, z), Player.Entity.Position)
 end
 
