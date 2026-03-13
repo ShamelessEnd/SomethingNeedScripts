@@ -75,7 +75,7 @@ function NavToCompanyCreditShop()
   end
   if not WalkToTarget("Mammet Voyager #004A") then return false end
   if not InteractWith("Mammet Voyager #004A", "SelectIconString") then return false end
-  if not SelectIconStringOption("Company Credit Exchange") then CloseAddonFast("SelectIconString") return false end
+  if not SelectStringOption("Company Credit Exchange") then CloseAddonFast("SelectIconString") return false end
   return AwaitAddonReady("FreeCompanyCreditShop", 5)
 end
 

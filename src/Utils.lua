@@ -99,6 +99,10 @@ function FindItemId(prefix)
   return nil
 end
 
+function WaitForReadyInZone(zone, timeout, sleep)
+  return WaitUntil(function () return GetZoneID() == zone and IsPlayerAvailable() and NavIsReady() end, timeout, sleep)
+end
+
 function WaitForPlayerReady(timeout, sleep)
   return WaitUntil(function () return IsPlayerAvailable() end, timeout, sleep)
 end

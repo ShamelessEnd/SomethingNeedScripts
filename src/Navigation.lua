@@ -48,11 +48,11 @@ function TeleportToAetheryte(aetheryte)
   return false
 end
 
-function TeleportToLimsa() TeleportToAetheryte(8) end
+function TeleportToLimsa() return TeleportToAetheryte(8) end
 
-function TeleportToGridania() TeleportToAetheryte(2) end
+function TeleportToGridania() return TeleportToAetheryte(2) end
 
-function TeleportToUldah() TeleportToAetheryte(9) end
+function TeleportToUldah() return TeleportToAetheryte(9) end
 
 function TeleportToZone(zone)
   local aetherytes = GetAetherytesInZone(zone)

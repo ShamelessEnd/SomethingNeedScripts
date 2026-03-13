@@ -93,25 +93,20 @@ function OpenCommandWindow(command, window)
   return true
 end
 
-function SelectStringOption(text)
-  if not AwaitAddonReady("SelectString", 5) then return false end
+local function selectStringAddonOption(addon, text)
   for i = 0,11 do
-    if StringStartsWith(GetNewNodeText("SelectString", 1, 3, GetNodeListIndex(i, 5), 2), text) then
-      Callback("SelectString", true, i)
+    if StringStartsWith(GetNewNodeText(addon, 1, 3, GetNodeListIndex(i, 5), 2), text) then
+      Callback(addon, true, i)
       return true
     end
   end
   return false
 end
 
-function SelectIconStringOption(text)
-  if not AwaitAddonReady("SelectIconString", 5) then return false end
-  for i = 0,11 do
-    if StringStartsWith(GetNewNodeText("SelectIconString", 1, 3, GetNodeListIndex(i, 5), 2), text) then
-      Callback("SelectIconString", true, i)
-      return true
-    end
-  end
+function SelectStringOption(text)
+  if not WaitUntil(function () return IsAddonReady("SelectString") or IsAddonReady("SelectIconString") end, 5) then return false end
+  if IsAddonReady("SelectString") then return selectStringAddonOption("SelectString", text) end
+  if IsAddonReady("SelectIconString") then return selectStringAddonOption("SelectIconString", text) end
   return false
 end
 
