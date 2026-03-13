@@ -8,11 +8,6 @@ require "Retainer"
 require "UINav"
 require "Utils"
 
-function GetGridaniaQuests()
-  Logging.Echo("qst:v1:Mzk7MTIzOzIx") -- starter
-  Logging.Echo("qst:v1:Mzk7MTIzOzIxOzY4MDs1MTM7NzEwOzcyNTszODYw") -- full
-end
-
 local function buyChocoboIssuanceAdder()
   WaitUntil(IsPlayerAvailable)
   InteractWith("Serpent Quartermaster", "GrandCompanyExchange")
@@ -45,16 +40,46 @@ end
 
 local function returnOrGridania() if not DoReturn() then TeleportToGridania() end end
 
-function QuestWatch(target_level, silent)
+local function enableQuestionableMulti()
+  yield("/xlenablecollection Questionable")
+  yield("/wait 15")
+  IPC.Questionable.ClearQuestPriority()
+  IPC.Questionable.AddQuestPriority("39")
+  IPC.Questionable.AddQuestPriority("123")
+  IPC.Questionable.AddQuestPriority("124")
+  IPC.Questionable.AddQuestPriority("21")
+  IPC.Questionable.AddQuestPriority("22")
+  IPC.Questionable.AddQuestPriority("46")
+  IPC.Questionable.AddQuestPriority("48")
+  IPC.Questionable.AddQuestPriority("67")
+  IPC.Questionable.AddQuestPriority("91")
+  IPC.Questionable.AddQuestPriority("680")
+  IPC.Questionable.AddQuestPriority("513")
+  IPC.Questionable.AddQuestPriority("710")
+  IPC.Questionable.AddQuestPriority("725")
+  IPC.Questionable.AddQuestPriority("3860")
+end
+
+function QuestWatch(target_level, gc, silent)
   yield("/at y")
   yield("/wait 0.1")
   yield("/qst start")
   yield("/wait 1")
 
   local function returnToZone(zone)
-    if not TeleportToZone(zone) then
+    if IPC.Questionable.GetCurrentQuestId() and IPC.Questionable.GetCurrentStepData() and type(IPC.Questionable.GetCurrentStepData()) ~= "function" then
+      zone = IPC.Questionable.GetCurrentStepData().TerritoryId or zone
+    end
+    if IPC.Questionable.IsQuestAccepted("22") then
+      yield("/li Conjurer")
+      yield("/wait 4")
+    elseif not TeleportToZone(zone) then
       Logging.Warning("no available teleport to original zone, trying aethernet")
-      yield("/li "..GetZoneName(zone))
+      if zone == 148 then
+        yield("/li Blue Badger")
+      else
+        yield("/li "..GetZoneName(zone))
+      end
       yield("/wait 5")
       WaitForNavReady()
       if not GetZoneID() == zone then
@@ -89,10 +114,9 @@ function QuestWatch(target_level, silent)
   local last_x = 0
   local last_y = 0
   local last_z = 0
-  local coffer_opened = false
-  while not target_level or not IsPlayerAvailable() or GetLevel() < target_level do
+  while not target_level or not IsPlayerAvailable() or GetLevel() < target_level or (gc and not Quests.IsQuestComplete(66219)) do
     if IsPlayerDead() and IsAddonVisible("SelectYesno") and StringStartsWith(GetNewNodeText("SelectYesno", 1, 2), "Return to ") then
-      Logging.Info("player dead, attempting to recover")
+      Logging.Warning("player dead, attempting to recover")
       yield("/qst stop")
       local zone = GetZoneID()
 
@@ -106,28 +130,52 @@ function QuestWatch(target_level, silent)
       yield("/wait 1")
     end
 
-    if not coffer_opened and GetItemCount(31329) > 0 then
+    if GetItemCount(31329) > 0 and ADIsStopped() and not IsInCombat() then
       yield("/qst stop")
       yield("/wait 5")
-      WaitUntil(IsPlayerAvailable)
-      yield("/item "..GetItemName(31329))
-      coffer_opened = true
-      yield("/wait 5")
+      if WaitForPlayerReady(10) then
+        local coffer_count = GetItemCount(31329)
+        repeat
+          yield("/item "..GetItemName(31329))
+          yield("/wait 3")
+          WaitForPlayerReady()
+        until GetItemCount(31329) < coffer_count
+        EquipRecommendedGear()
+      end
       yield("/qst start")
     end
 
-    if IsInCombat() or IsPlayerDead() or not NavIsReady() or not IsPlayerAvailable() or NavBuildProgress() > 0 then
+    if not ADIsStopped() or IsInCombat() then
+      --yield("/bmai on")
+      yield("/bmrai on")
+    else
+      --yield("/bmai off")
+      yield("/bmrai off")
+    end
+
+    if IsInCombat() or IsPlayerDead() or not NavIsReady() or not IsPlayerAvailable(true) or NavBuildProgress() > 0 then
       last_x = 0
       last_y = 0
       last_z = 0
       resetCounts()
-    elseif GetDistanceToPoint(last_x, last_y, last_z) < 1 then
+    elseif GetDistanceToPoint(last_x, last_y, last_z) < 2.5 then
       if PathIsRunning() then
         stuck_count = stuck_count + 1
         if stuck_count > 20 then
-          Logging.Info("nav stuck, rebuilding")
           yield("/qst stop")
+          PathStop()
+          yield("/xldisablecollection Questionable")
+          yield("/wait 2")
+          if fail_count > 2 then
+            Logging.Warning("repeated nav stuck, resetting")
+            local zone = GetZoneID()
+            returnOrGridania()
+            returnToZone(zone)
+          else
+            Logging.Warning("nav stuck, rebuilding")
+          end
           RebuildNavMesh()
+          enableQuestionableMulti()
           yield("/qst start")
           resetCounts(true)
         end
@@ -146,7 +194,7 @@ function QuestWatch(target_level, silent)
       elseif not QuestionableIsRunning() then
         stop_count = stop_count + 1
         if stop_count > 5 then
-          Logging.Info("questing stopped, restarting")
+          Logging.Warning("questing stopped, restarting")
           yield("/qst start")
           resetCounts(true)
         end
@@ -163,7 +211,7 @@ function QuestWatch(target_level, silent)
           yield("/qst start")
           resetCounts()
         elseif dead_count > 60 then
-          Logging.Info("questing dead, reloading")
+          Logging.Warning("questing dead, reloading")
           yield("/qst stop")
           local zone = GetZoneID()
           returnOrGridania()
@@ -196,16 +244,25 @@ function QuestWatch(target_level, silent)
   return true
 end
 
-function QuestMulti(chars, level)
+function QuestMulti(chars, level, gc, names, index, count)
   for _, character in pairs(chars) do
-    if GetCharacterName(true) ~= character then
+    local function isCharacter() return GetCharacterName(true) == character end
+    if not isCharacter() then
       yield("/ays relog "..character)
-      yield("/wait 10")
-      WaitForNavReady()
+      if WaitUntil(isCharacter, 300, 1) then WaitForNavReady() end
     end
-    if GetCharacterName(true) == character then
-      if QuestWatch(level, true) then
+    if isCharacter() then
+      enableQuestionableMulti()
+      if IsInHousingDistrict() then returnOrGridania() end
+      if QuestWatch(level, gc, true) then
         Logging.Info("levelling complete for "..character)
+        if names and index and count then
+          if TableIsEmpty(names) then
+            Logging.Error("no retainers to create")
+          else
+            InitOceanFishingRetainers(names, index, count)
+          end
+        end
       else
         Logging.Info("levelling failed for "..character)
       end
@@ -216,6 +273,10 @@ function QuestMulti(chars, level)
       Logging.Error("failed to find character "..character)
     end
   end
+
+  yield("/xldisablecollection Questionable")
+  yield("/wait 2")
+
   Logging.Notify("multi questing complete")
 end
 
@@ -651,9 +712,164 @@ function DoHuntingLogCarry()
   HuntingLogHalatali()
 end
 
-function GoUnlockOceanFishing()
-  yield("/at n")
+function AttuneToShard()
+  InteractWith("Aethernet shard")
+  if AwaitAddonReady("TelepotTown", 3) then
+    CloseAddonFast("TelepotTown")
+  end
+  WaitForPlayerReady()
+end
+
+function PartialGridaniaAethernet()
+  yield("/at y")
+  TeleportToGridania()
+  InteractWithAetheryte()
+  SelectStringOption("Aethernet")
+  AwaitAddonReady("TelepotTown")
+  local no_aethernet = StringIsEmpty(GetNewNodeText("TelepotTown", 1, 4, 9, 61007, 6))
+  CloseAddonFast("TelepotTown")
+  WaitForPlayerReady()
+  if no_aethernet then
+    yield("/li Leatherworker")
+    yield("/wait 4")
+    WaitForPlayerReady()
+    -- Lancer's
+    NavToPoint(121.2, 12.65, -229.6, 2, false, 100)
+    AttuneToShard()
+    -- Botanist
+    yield("/li Mih Khetto")
+    yield("/wait 4")
+    WaitForPlayerReady()
+    NavToPoint(-311.1, 7.95, -177.1, 2, false, 100)
+    AttuneToShard()
+  end
+end
+
+function PartialLimsaAethernet()
+  yield("/at y")
   TeleportToLimsa()
+  NavToAetheryte()
+  InteractWithAetheryte()
+  SelectStringOption("Aethernet")
+  AwaitAddonReady("TelepotTown")
+  local no_aethernet = StringIsEmpty(GetNewNodeText("TelepotTown", 1, 4, 9, 61007, 6))
+  CloseAddonFast("TelepotTown")
+  WaitForPlayerReady()
+  if no_aethernet then
+    -- Arcanist
+    NavToPoint(-335.2, 12.62, 56.4, 2, false, 100)
+    AttuneToShard()
+    -- Marauder
+    yield("/li Culinarian")
+    yield("/wait 4")
+    WaitForPlayerReady()
+    NavToPoint(-5.17, 44.6, -218.1, 2, false, 100)
+    AttuneToShard()
+  end
+end
+
+function PartialUldahAethernet()
+  yield("/at y")
+  TeleportToUldah()
+  InteractWithAetheryte()
+  SelectStringOption("Aethernet")
+  AwaitAddonReady("TelepotTown")
+  local no_aethernet = StringIsEmpty(GetNewNodeText("TelepotTown", 1, 4, 9, 61010, 6))
+  CloseAddonFast("TelepotTown")
+  WaitForPlayerReady()
+  if no_aethernet then
+    -- Thaumaturge
+    NavToPoint(-154.8, 14.6, 73.1, 2, false, 100)
+    AttuneToShard()
+    -- Miner
+    yield("/li Goldsmith")
+    yield("/wait 4")
+    WaitForPlayerReady()
+    NavToPoint(33.5, 13.2, 113.2, 2, false, 100)
+    AttuneToShard()
+    -- Alchemist
+    yield("/li Chamber of Rule")
+    yield("/wait 4")
+    WaitForPlayerReady()
+    NavToPoint(-98.3, 42.3, 88.5, 2, false, 100)
+    AttuneToShard()
+  end
+end
+
+function UnlockGridaniaAethernet()
+  yield("/at y")
+  TeleportToGridania()
+  InteractWithAetheryte()
+  SelectStringOption("Aethernet")
+  AwaitAddonReady("TelepotTown")
+  local no_aethernet = StringIsEmpty(GetNewNodeText("TelepotTown", 1, 4, 9, 61007, 6))
+  CloseAddonFast("TelepotTown")
+  WaitForPlayerReady()
+  if no_aethernet then
+    -- Archer's Guild
+    NavToPoint(166.6, -1.72, 86.1, 2, false, 100)
+    AttuneToShard()
+    -- Old Gridania
+    NavToPoint(101, 5, 14, 1, false, 100)
+    WaitUntil(function () return GetZoneID() == 133 end)
+    WaitForNavReady()
+    -- Leatherworkers
+    NavToPoint(101.2, 9.01, -111.3, 2, false, 100)
+    AttuneToShard()
+    -- Lancer's
+    NavToPoint(121.2, 12.65, -229.6, 2, false, 100)
+    AttuneToShard()
+    -- Mih Khetto
+    NavToPoint(-73.9, 7.98, -140.2, 2, false, 100)
+    AttuneToShard()
+    -- Botanist
+    NavToPoint(-311.1, 7.95, -177.1, 2, false, 100)
+    AttuneToShard()
+  end
+end
+
+function UnlockArcanistShard()
+  yield("/at y")
+  TeleportToLimsa()
+  NavToAetheryte()
+  InteractWithAetheryte()
+  SelectStringOption("Aethernet")
+  AwaitAddonReady("TelepotTown")
+  local no_aethernet = StringIsEmpty(GetNewNodeText("TelepotTown", 1, 4, 9, 61007, 6))
+  CloseAddonFast("TelepotTown")
+  WaitForPlayerReady()
+  if no_aethernet then
+    NavToPoint(-335.2, 12.62, 56.4, 2, false, 100)
+    AttuneToShard()
+  end
+end
+
+function GoCompleteClassQuests()
+  local function classComplete() return Quests.IsQuestComplete(65603) or Quests.IsQuestComplete(65627) end
+  if not classComplete() then
+    yield("/xlenablecollection Questionable")
+    yield("/wait 10")
+    IPC.Questionable.ClearQuestPriority()
+    IPC.Questionable.AddQuestPriority("21")
+    IPC.Questionable.AddQuestPriority("22")
+    IPC.Questionable.AddQuestPriority("46")
+    IPC.Questionable.AddQuestPriority("48")
+    IPC.Questionable.AddQuestPriority("67")
+    IPC.Questionable.AddQuestPriority("91")
+    yield("/qst start")
+    WaitUntil(classComplete)
+    yield("/qst stop")
+    yield("/xldisablecollection Questionable")
+    yield("/wait 2")
+    repeat
+      TryCallback("SelectString", true, -1)
+    until IsPlayerAvailable()
+  end
+end
+
+function GoUnlockOceanFishing()
+  UnlockArcanistShard()
+  yield("/at n")
   yield("/li Fishermen")
   yield("/wait 3")
   WaitWhile(function () return LifestreamIsBusy() or not IsPlayerAvailable() end)
@@ -681,7 +897,7 @@ function GoUnlockOceanFishing()
     end
     WaitForPlayerReady()
     yield("/at n")
-    repeat yield("/equipitem 2571") yield ("/wait 1") until IsFisher()
+    repeat yield("/equip 2571") yield ("/wait 1") until IsFisher()
     EquipRecommendedGear()
   end
   if InteractWith("Sisipu", "SelectIconString") then
@@ -703,7 +919,11 @@ function GoUnlockOceanFishing()
   if not NavToPoint(-168, 4.4, 165.7, 0.5, false, 20) then return end
   InteractWith("Sisipu", "Talk")
   yield("/at y")
-  WaitForPlayerReady()
+  repeat
+    TryCallback("SelectIconString", true, -1)
+    TryCallback("SelectString", true, -1)
+    yield("/wait 1")
+  until IsPlayerAvailable()
   yield("/at n")
   InteractWith("Fhilsnoe", "JournalAccept")
   yield("/at y")
@@ -717,9 +937,15 @@ function GoUnlockOceanFishing()
 end
 
 function GoSetupRetainers(names, index)
+  if TableIsEmpty(names) then return true end
   yield("/at y")
-  TeleportToLimsa()
-  if not NavToObject("Frydwyb", 3, false, 20) then return end
+  local dist = GetDistanceToObject("Frydwyb")
+  if (not IsInLimsa() or not dist or dist > 30) then
+    TeleportToLimsa()
+  end
+  while not NavToObject("Frydwyb", 3, false, 30) do
+    TeleportToLimsa()
+  end
   for _, name in pairs(names) do
     InteractWith("Frydwyb", "SelectString")
     Callback("SelectString", true, 0)
@@ -741,33 +967,56 @@ function GoSetupRetainers(names, index)
     WaitForPlayerReady()
     yield("/wait 0.2")
   end
+  return true
 end
 
-function GoUnlockRetainerVentures()
-  yield("/at y")
+function GoUnlockRetainerVentures(archer)
+  if Quests.IsQuestComplete(66968) then return end
   TeleportToGridania()
-  while GetClassJobId() ~= 5 do
-    yield("/equipitem 1889")
-    yield ("/wait 1")
+  yield("/at y")
+  if archer then
+    while GetClassJobId() ~= 5 do
+      yield("/equip 1889")
+      yield ("/wait 1")
+    end
   end
   EquipRecommendedGear()
   NavToObject("Troubled Adventurer", 3, false, 20)
   InteractWith("Troubled Adventurer")
   yield("/wait 1")
   WaitForPlayerReady()
-  TeleportToZone(152)
+  if IsAetheryteUnlocked(4) then
+    TeleportToZone(152)
+  else
+    NavToAetheryte()
+    yield("/li Lancer")
+    yield("/wait 3")
+    WaitForPlayerReady()
+    NavToPoint(181.4, -2.35, -240.4, 1, false, 100)
+    InteractWith("Romarique", "SelectIconString", 3)
+    SelectIconStringOption("Purchase Passge to Sweetbloom Pier")
+    Callback("SelectYesno", true, 0)
+    yield("/wait 1")
+    WaitForPlayerReady()
+  end
   yield("/at n")
   yield("/xlenablecollection Questionable")
   NavToPoint(-51.7, -9, 296.9, 1, false, 100)
-  yield("/wrath auto on")
-  yield("/bmai on")
-  WaitUntil(IsInCombat, 10)
-  WaitWhile(IsInCombat)
-  yield("/bmai off")
-  yield("/wrath auto off")
-  yield("/xldisablecollection Questionable")
-  yield("/wait 2")
-  InteractWith("Novice Retainer")
+  repeat
+    yield("/rsr auto on")
+    yield("/wrath auto on")
+    --yield("/bmai on")
+    yield("/bmrai on")
+    WaitUntil(IsInCombat, 10)
+    WaitWhile(IsInCombat)
+    --yield("/bmai off")
+    yield("/bmrai off")
+    yield("/wrath auto off")
+    yield("/rsr auto off")
+    yield("/xldisablecollection Questionable")
+    yield("/wait 2")
+  until not IsInCombat() and (NavToTarget("Novice Retainer", 1, false, 20) or not Target("Novice Retainer"))
+  InteractWith("Novice Retainer", "Talk", 3)
   yield("/at y")
   yield("/wait 1")
   WaitForPlayerReady()
@@ -780,6 +1029,67 @@ function GoUnlockRetainerVentures()
   yield("/at y")
   yield("/wait 2")
   WaitForPlayerReady()
+end
+
+function GoEquipPLDRetainers(count, skipBuy)
+  if not skipBuy then
+    yield("/at y")
+    TeleportToLimsa()
+    yield("/li hawkers")
+    yield("/wait 3")
+    WaitWhile(function () return LifestreamIsBusy() or not IsPlayerAvailable() end)
+    NavToObject("Faezghim", 3, false, 20)
+    InteractWith("Faezghim", "SelectIconString")
+    Callback("SelectIconString", true, 0)
+    Callback("SelectString", true, 0)
+    local bought = 0
+    while bought < count do
+      local last_count = GetItemCount(1601)
+      Callback("Shop", true, 0, 0, 1)
+      Callback("Shop", true, 7, 0)
+      Callback("SelectYesno", true, 0)
+      AwaitAddonGone("SelectYesno", 1)
+      WaitWhile(function () return GetItemCount(1601) == last_count end, 1)
+      bought = bought + 1
+    end
+    Callback("Shop", true, -1)
+    Callback("SelectString", true, -1)
+    AwaitAddonGone("SelectString", 1)
+    WaitForPlayerReady()
+    yield("/wait 0.5")
+  end
+
+  NavToObject("Summoning Bell", 3, false, 20)
+  OpenRetainerList()
+  local rod_stacks = FindItemsInCharacterArmoury("Main")[1601]
+  local armory = true
+  if not rod_stacks then
+    rod_stacks = FindItemsInCharacterInventory()[1601]
+    armory = false
+  end
+  local rod_stacks_index = 1
+  while count > 0 do
+    OpenRetainer(count)
+    SelectStringOption("Assign retainer class")
+    yield("/wait 0.2")
+    SelectStringOption("Gladiator")
+    Callback("SelectYesno", true, 0)
+    SelectStringOption("View retainer attributes")
+    Callback("RetainerCharacter", true, 20, 0)
+    if armory then
+      Callback("ArmouryBoard", true, 8, rod_stacks[rod_stacks_index].visible.slot + rod_stacks[rod_stacks_index].visible.page * 35)
+    else
+      Callback("ArmouryBoard", true, 10, 0)
+      Callback("InventoryExpansion", true, 16, 48 + rod_stacks[rod_stacks_index].visible.page, rod_stacks[rod_stacks_index].visible.slot)
+    end
+    yield("/wait 0.1")
+    rod_stacks_index = rod_stacks_index + 1
+    Callback("RetainerCharacter", true, -1)
+    Callback("SelectString", true, -1)
+    count = count - 1
+  end
+  AwaitAddonReady("RetainerList")
+  CloseRetainerList()
 end
 
 function GoEquipFishingRetainers(count)
@@ -809,8 +1119,12 @@ function GoEquipFishingRetainers(count)
   yield("/wait 0.5")
   NavToObject("Summoning Bell", 3, false, 20)
   OpenRetainerList()
-  local armoury_main = FindItemsInCharacterArmoury("Main")
-  local rod_stacks = armoury_main[2571]
+  local rod_stacks = FindItemsInCharacterArmoury("Main")[2571]
+  local armory = true
+  if not rod_stacks then
+    rod_stacks = FindItemsInCharacterInventory()[2571]
+    armory = false
+  end
   local rod_stacks_index = 1
   while count > 0 do
     OpenRetainer(count)
@@ -820,7 +1134,16 @@ function GoEquipFishingRetainers(count)
     Callback("SelectYesno", true, 0)
     SelectStringOption("View retainer attributes")
     Callback("RetainerCharacter", true, 20, 0)
-    Callback("ArmouryBoard", true, 8, rod_stacks[rod_stacks_index].visible.slot)
+    local inv_count = GetItemCount(2571)
+    repeat
+      if armory then
+        Callback("ArmouryBoard", true, 8, rod_stacks[rod_stacks_index].visible.slot + rod_stacks[rod_stacks_index].visible.page * 35)
+      else
+        Callback("ArmouryBoard", true, 10, 0)
+        Callback("InventoryExpansion", true, 16, 48 + rod_stacks[rod_stacks_index].visible.page, rod_stacks[rod_stacks_index].visible.slot)
+      end
+      yield("/wait 0.2")
+    until GetItemCount(2571) < inv_count
     rod_stacks_index = rod_stacks_index + 1
     Callback("RetainerCharacter", true, -1)
     Callback("SelectString", true, -1)
@@ -863,11 +1186,16 @@ function GoPurchaseFishingItems()
   GoPurchaseItems({{ 6141, 900, 999 }}, 100000)
 end
 
-function InitOceanFishingRetainers(names, index)
-  GoSetupRetainers(names, index)
+function InitOceanFishingRetainers(names, index, count)
+  if not GoSetupRetainers(names, index) then
+    Logging.Error("failed to setup retainers")
+    return
+  end
+  UnlockGridaniaAethernet()
+  GoCompleteClassQuests()
   GoUnlockRetainerVentures()
   GoUnlockOceanFishing()
-  GoEquipFishingRetainers(TableSize(names))
+  GoEquipFishingRetainers(count or TableSize(names))
   GoPurchaseFishingItems()
   ReturnToBell()
 end
