@@ -77,10 +77,10 @@ function GetMaxLevel() return 100 end
 
 function GetNodeListIndex(i, base) if i == 0 then return base else return (base * 10000) + 1000 + i end end
 
-function Target(target)
+function Target(target, timeout)
   yield("/target \""..target.."\"")
   yield("/wait 0.1")
-  return WaitUntil(function () return GetTargetName() == target end, 1)
+  return WaitUntil(function () return GetTargetName() == target end, timeout or 1)
 end
 
 function GetItemId(name)
