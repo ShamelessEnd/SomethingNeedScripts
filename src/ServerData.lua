@@ -122,6 +122,10 @@ function GetServerData(server_id)
   if not server_id then
     server_id = GetCurrentWorld()
   end
+  if not server_id then
+    Logging.Debug("cannot fetch server data when not logged in")
+    return nil
+  end
 
   for region, region_table in pairs(ServerDataTable) do
     for data_center, data_center_table in pairs(region_table) do
