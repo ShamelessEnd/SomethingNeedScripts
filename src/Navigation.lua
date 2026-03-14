@@ -28,6 +28,10 @@ function IsInLimsa()
   return IsInZone(129)
 end
 
+function IsInGridania()
+  return IsInZone(132)
+end
+
 function IsInHomeWorld()
   return GetCurrentWorld() == GetHomeWorld()
 end
@@ -132,6 +136,10 @@ function PathToNearestGroundPoint(x_t, y_t, z_t)
 end
 
 function NavToPoint(x, y, z, stop_dist, fly, timeout)
+  if not x or not y or not z then return false end
+  stop_dist = stop_dist or 1
+  fly = fly or false
+
   local distance = GetDistanceToPoint(x, y, z)
   if distance <= stop_dist then
     return true
@@ -159,7 +167,7 @@ function NavToPoint(x, y, z, stop_dist, fly, timeout)
       jump_once = true
   end
   while GetDistanceToPoint(x, y, z) > stop_dist do
-    if timeout_count > timeout then
+    if timeout and timeout_count > timeout then
       PathStop()
       if rebuild_once then
         Logging.Warning("nav to point timed out, rebuilding navmesh")
@@ -333,6 +341,20 @@ function DCTravelTo(region, dc_name)
   return true
 end
 
+function TravelToWorld(server)
+  if GetServerData().name == server then return true end
+  if not FindServerData(server) then return false end
+
+  LifestreamExecuteCommand(server)
+
+  local arrived = function () local data = GetServerData() return data and data.name == server end
+  if not WaitUntil(arrived, 900, 0.5) then return false end
+  LifestreamAbort()
+  Logging.Debug("arrived in world "..GetServerData().name)
+  WaitForNavReady()
+  return true
+end
+
 function ReturnToHomeWorld()
   if IsInHomeWorld() then
     return true
@@ -443,4 +465,15 @@ function GoToGCHQ()
 
   Sprint()
   if not WaitWhile(LifestreamIsBusy, 60, 1) then LifestreamAbort() end
+end
+
+function FollowUntil(target, condition, timeout, sleep)
+  RepeatUntil(function ()
+    if Target(target) then
+      local t_x = GetTargetRawXPos()
+      local t_y = GetTargetRawYPos()
+      local t_z = GetTargetRawZPos()
+      PathfindAndMoveTo(t_x, t_y, t_z, false)
+    end
+  end, condition, timeout, sleep)
 end
