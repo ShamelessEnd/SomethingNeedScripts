@@ -47,6 +47,14 @@ function ARFindCid(name)
   return nil
 end
 
+function ARFindCids(names)
+  local cids = {}
+  for i, name in pairs(names) do
+    cids[i] = ARFindCid(name)
+  end
+  return cids
+end
+
 function ARGetRetainerCount(cid)
   local ar_data = GetARCharacterData(cid)
   if not ar_data then return 0 end
