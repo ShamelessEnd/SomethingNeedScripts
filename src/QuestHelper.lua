@@ -560,6 +560,502 @@ function GoToKillMobsMulti(zone, aetheryte, x, y, z, targets, timeout)
   KillMobs(targets)
 end
 
+local function isInParty(name)
+  for i = 0, 7 do
+    if GetPartyMemberName(i) == name then return true end
+  end
+  return false
+end
+
+local function isPartyInCombat()
+  if IsInCombat() then return true end
+  for i = 0, 7 do
+    if GetPartyMemberName(i) ~= GetCharacterName() then
+      if Entity.GetPartyMember(i).IsInCombat or (GetPartyMemberHP(i) / GetPartyMemberMaxHP(i)) < 0.8 then return true end      
+    end
+  end
+  return false
+end
+
+local function getPartyCount()
+  local count = 0
+  for i = 0, 7 do
+    if not StringIsEmpty(GetPartyMemberName(i)) then count = count + 1 end
+  end
+  return count
+end
+
+local function equipCombatJob(min_level)
+  if GetClassJobId() ~= 18 then return true end
+  repeat
+    yield("/armoury")
+  until AwaitAddonReady("ArmouryBoard", 1)
+  local weapons = FindItemsInCharacterArmoury("Main")
+  for key, value in pairs(weapons) do
+    yield("/equip "..key)
+    if WaitUntil(function () return GetClassJobId() ~= 18 end, 3) then
+      if GetLevel() >= min_level then
+        EquipRecommendedGear()
+        CloseAddonFast("ArmouryBoard")
+        return true
+      end
+    end
+  end
+  CloseAddonFast("ArmouryBoard")
+  return false
+end
+
+local function gcHuntLogInit(target)
+  if not equipCombatJob(25) then
+    Logging.Error("failed to swap to combat job")
+    return
+  end
+  if isInParty(target) and Target(target) then return GetServerData(Entity.Target.HomeWorld).name end
+  if not IsInGridania() or GetDistanceToObject("aetheryte") > 20 then TeleportToGridania() end
+  repeat until Target(target)
+  local world = GetServerData(Entity.Target.HomeWorld).name
+  repeat
+    yield("/t <t> hunt-log")
+    if AwaitAddonReady("SelectYesno", 10) then
+      if GetNewNodeText("SelectYesno", 1, 2):find(target) then
+        SelectYesno(0)
+        yield("/wait 2")
+      else
+        SelectYesno(1)
+      end
+    end
+  until isInParty(target)
+  return world
+end
+
+local function gcHuntCarryInit(sender)
+  if not Target(sender) then return end
+  yield("/invite <t>")
+  if not WaitUntil(function () return isInParty(sender) end, 60) then return end
+  if not IsInGridania() or GetDistanceToObject("aetheryte") > 20 then TeleportToGridania() end
+end
+
+function RidePillion(target)
+  WaitUntil(function () return Target(target) end, 10, 1)
+  if not NavToTarget(target, 2, false, 10) then return end
+  repeat
+    yield("/ridepillion <t>")
+    yield("/wait 1")
+  until not IsPlayerAvailable()
+end
+
+function TryRidePillion(target)
+  if not NavToTarget(target, 2, false, 15) then return end
+  yield("/ridepillion <t>")
+  yield("/wait 1")
+end
+
+local function acceptTeleportTo(name, zone, timeout)
+  if AwaitAddonReady("SelectYesno", timeout or 8) then
+    if GetNewNodeText("SelectYesno", 1, 2):find(name) then
+      SelectYesno(0)
+      yield("/wait 4")
+      return WaitForReadyInZone(zone, 30)
+    else
+      SelectYesno(1)
+    end
+  end
+  return false
+end
+
+local function talkWithNpc(name)
+  if NavToTarget(name, 2, false, 15) then
+    InteractWith(name)
+    yield("/at y")
+    WaitUntil(function ()
+      TryCallback("SelectIconString", true, 0)
+      yield("/wait 0.2")
+      TryCallback("JournalAccept", true, -1)
+      return IsPlayerAvailable()
+    end)
+    yield("/at n")
+    yield("/wait 0.1")
+  end
+end
+
+local function gcHuntLogUnlockHalatali(target, fullname)
+  if Quests.IsQuestComplete(66233) then return end
+  repeat until Target(target)
+
+  repeat yield("/t "..fullname.." unlock-halatali-quest") until acceptTeleportTo("Horizon", 140)
+  RidePillion(target)
+  WaitForPlayerReady()
+  repeat talkWithNpc("Nedrick Ironheart") until IsQuestAccepted(66233)
+
+  repeat yield("/t "..fullname.." unlock-halatali-dungeon") until acceptTeleportTo("Drybone", 145)
+  RidePillion(target)
+  WaitForPlayerReady()
+  repeat talkWithNpc("Fafajoni") until Quests.IsQuestComplete(66233)
+end
+
+function IsAdderHuntLogComplete(...)
+  repeat
+    CloseAddonFast("MonsterNote")
+    yield("/wait 0.3")
+    if OpenCommandWindow("huntinglog", "MonsterNote") then
+      Callback("MonsterNote", true, 3, 9, 2)
+      if WaitUntil(function () return GetNewNodeText("MonsterNote", 1, 18, 19, 24):find("Order of the Twin Adder") end, 5) then
+        yield("/send NUMPAD0")
+        yield("/send NUMPAD0")
+        yield("/send NUMPAD0")
+        for i = 1, 30 do
+          yield("/send DOWN")
+        end
+      end
+    end
+  until not StringIsEmpty(GetNewNodeText("MonsterNote", 1, 46, GetNodeListIndex(9, 5), 4))
+  for _, arg in pairs({...}) do
+    if not IsNodeVisible("MonsterNote", 1, 46, GetNodeListIndex(arg, 6), 3) then
+      CloseAddonFast("MonsterNote")
+      return false
+    end
+  end
+  CloseAddonFast("MonsterNote")
+  return true
+end
+
+local function fightUntilLogComplete(sender, t1, t2)
+  local x, y, z = GetPlayerXYZ()
+  local check_in = 0
+  yield("/bmrai on")
+  yield("/wrath auto on")
+  repeat
+    if Fates.CurrentFate then
+      if (GetHP() / GetMaxHP()) < 0.25 then
+        yield("/levelsync off")
+      elseif Fates.CurrentFate.MaxLevel < GetLevel() then
+        yield("/levelsync on")
+      end
+    end
+    yield("/wait 0.1")
+    if not IsInCombat() then
+      if isPartyInCombat() then
+        TargetClosestEnemy()
+      elseif Target(t1, 0.25) and check_in < 2 and math.abs(GetTargetRawYPos() - GetPlayerRawYPos()) < 15 then
+        NavToTarget(t1, 3, false, 10)
+        check_in = check_in + 1
+      elseif t2 and Target(t2, 0.25) and check_in < 2 and math.abs(GetTargetRawYPos() - GetPlayerRawYPos()) < 15 then
+        NavToTarget(t2, 3, false, 10)
+        check_in = check_in + 1
+      elseif Target(sender, 0.25) then
+        NavToTarget(sender, 1, false, 15)
+        yield("/wait 2")
+        check_in = 0
+      else
+        yield("/bmrai off")
+        NavToPoint(x, y, z, 2, false, 20)
+        yield("/bmrai on")
+      end
+    elseif GetTargetRawYPos() and math.abs(GetTargetRawYPos() - GetPlayerRawYPos()) > 15 then
+      yield("/bmrai off")
+      NavToPoint(x, y, z, 2, false, 20)
+      yield("/bmrai on")
+    else
+      CloseAddonFast("Trade")
+      TargetClosestEnemy()
+    end
+  until IsAddonReady("Trade") and not IsInCombat()
+  While(function ()
+    CloseAddonFast("Trade")
+    TargetClosestEnemy()
+  end, isPartyInCombat)
+  yield("/bmrai off")
+  yield("/wrath auto off")
+  NavToTarget(sender, 1, false, 10)
+  local gil = GetGil()
+  while GetGil() >= gil do
+    if AwaitAddonReady("Trade", 0.2) then
+      Callback("Trade", true, 2)
+      if AwaitAddonReady("InputNumeric", 2) then
+        Callback("InputNumeric", true, 1)
+        if AwaitAddonGone("InputNumeric", 2) then
+          Callback("Trade", true, 0)
+        end
+      end
+      while not AwaitAddonGone("Trade", 5) do
+        Callback("Trade", true, -1)
+      end
+    end
+  end
+  CloseAddonFast("Trade")
+  if isPartyInCombat() then
+    yield("/bmrai on")
+    yield("/wrath auto on")
+    RepeatWhile(TargetClosestEnemy, isPartyInCombat)
+    yield("/bmrai off")
+    yield("/wrath auto off")
+  end
+end
+
+local function sendLogComplete(target)
+  local gil = GetGil()
+  RepeatUntil(function ()
+    if not IsAddonReady("Trade") and not IsAddonReady("SelectYesno") and Target(target) and GetDistanceToTarget() < 3 then
+      yield("/trade")
+      yield("/wait 0.1")
+    end
+  end, function () return GetGil() > gil end)
+  CloseAddonFast("Trade")
+end
+
+local function waitUntilHuntComplete(target, ...)
+  local args = { ... }
+  --return FollowUntil(function () return IsAdderHuntLogComplete(table.unpack(args)) end)
+  return WaitUntil(function () return IsAdderHuntLogComplete(table.unpack(args)) end)
+end
+
+local function gcHuntLogEastThan(target, fullname)
+  if IsAdderHuntLogComplete(0, 6, 8) then return end
+  repeat yield("/t "..fullname.." hunt-east-than") until acceptTeleportTo("Drybone", 145)
+  RidePillion(target)
+
+  WaitForPlayerReady()
+  waitUntilHuntComplete(target, 0)
+  sendLogComplete(target)
+  RidePillion(target)
+
+  WaitForPlayerReady()
+  waitUntilHuntComplete(target, 6, 8)
+  sendLogComplete(target)
+end
+
+local function gcHuntLogEastShroud(target, fullname)
+  if IsAdderHuntLogComplete(4) then return end
+  repeat yield("/t "..fullname.." hunt-east-shroud") until acceptTeleportTo("Hawthorne", 152)
+  RidePillion(target)
+
+  WaitForPlayerReady()
+  waitUntilHuntComplete(target, 4)
+  sendLogComplete(target)
+end
+
+local function gcHuntLogNorthShroudHighlands(target, fullname)
+  if IsAdderHuntLogComplete(7, 9) then return end
+  repeat yield("/t "..fullname.." hunt-north-shroud") until acceptTeleportTo("Gridania", 132)
+  yield("/li North Shroud")
+  WaitForReadyInZone(154)
+  RidePillion(target)
+
+  WaitForPlayerReady()
+  waitUntilHuntComplete(target, 7)
+  sendLogComplete(target)
+  RidePillion(target)
+
+  WaitForPlayerReady()
+  waitUntilHuntComplete(target, 9)
+  sendLogComplete(target)
+end
+
+local function gcHuntLogLimsaUpper(target, fullname)
+  if IsAdderHuntLogComplete(5) then return end
+  repeat yield("/t "..fullname.." hunt-limsa-upper") until acceptTeleportTo("Aleport", 138)
+  RidePillion(target)
+
+  WaitForPlayerReady()
+  waitUntilHuntComplete(target, 5)
+  sendLogComplete(target)
+end
+
+local function gcHuntLogHalatali(target, fullname)
+  while not IsAdderHuntLogComplete(1, 2, 3) do
+    yield("/at y")
+    yield("/pnotify s 1")
+    repeat yield("/t "..fullname.." hunt-halatali") until acceptTeleportTo("Gridania", 132, 4) or AwaitAddonReady("ContentsFinderConfirm", 1)
+    if AwaitAddonReady("ContentsFinderConfirm", 5) then
+      Callback("ContentsFinderConfirm", true, 8)
+      WaitForReadyInZone(1245)
+      WaitUntil(function () return IsAddonVisible("_Image") end)
+
+      FollowUntil(target, function ()
+        local dist = GetDistanceToObject("Aetherial Flow")
+        yield("/wait 0.2")
+        return dist and dist > 0 and dist < 15
+      end)
+      enterAetherialFlow()
+
+      FollowUntil(target, function () return IsAdderHuntLogComplete(1, 2, 3) or getPartyCount() < 2 end)
+      LeaveDuty()
+      WaitForReadyInZone(132)
+    end
+    yield("/pnotify r")
+    yield("/at n")
+  end
+end
+
+local function gcHuntCarryUnlockHalataliQuest()
+  TeleportToZone(140)
+  MountAndWaitPillion()
+  NavToPoint(-471.1, 23.0, -355.4, 0.3, true, 300)
+  Dismount()
+end
+
+local function gcHuntCarryUnlockHalataliDungeon()
+  TeleportToZone(145)
+  MountAndWaitPillion()
+  NavToPoint(-331.5, -22.5, 434.1, 0.3, true, 120)
+  Dismount()
+end
+
+local function gcHuntCarryEastThan(sender)
+  TeleportToZone(145)
+  MountAndWaitPillion()
+
+  NavToPoint(-109.6, -29.4, 280.4, 1, true, 300)
+  Dismount()
+  fightUntilLogComplete(sender, "Amalj'aa Javelinier")
+  MountAndWaitPillion()
+
+  NavToPoint(152.2, 12.9, -52.7, 1, true, 300)
+  Dismount()
+  fightUntilLogComplete(sender, "Amalj'aa Bruiser", "Amalj'aa Ranger")
+end
+
+local function gcHuntCarryEastShroud(sender)
+  TeleportToZone(152)
+  MountAndWaitPillion()
+
+  NavToPoint(-123.1, 15.7, 11.5, 1, true, 300)
+  Dismount()
+  fightUntilLogComplete(sender, "Sylvan Scream")
+end
+
+local function gcHuntCarryNorthShroudHighlands(sender)
+  TeleportToGridania()
+  yield("/li North Shroud")
+  MountAndWaitPillion()
+
+  NavToPoint(72.2, -32.4, 314.7, 1, true, 300)
+  Dismount()
+  fightUntilLogComplete(sender, "Ixali Deftalon")
+  MountAndWaitPillion()
+
+  repeat
+    PathfindAndMoveTo(-372, 6.8, 185, true)
+  until WaitForReadyInZone(155, 120)
+  NavToPoint(509.8, 234.4, 317.6, 1, true, 300)
+  Dismount()
+  fightUntilLogComplete(sender, "Ixali Fearcaller")
+end
+
+local function gcHuntCarryLimsaUpper(sender)
+  TeleportToAetheryte(14)
+  MountAndWaitPillion()
+
+  repeat
+    PathfindAndMoveTo(409, 36, -16, true)
+  until WaitForReadyInZone(139, 120)
+  NavToPoint(-455.5, 32.3, 44.5, 1, true, 300)
+  Dismount()
+  fightUntilLogComplete(sender, "Kobold Pickman")
+end
+
+local function gcHuntCarryHalatali()
+  if not IsInGridania() then TeleportToGridania() end
+  EnterHalataliUnrestricted()
+  yield("/ad start")
+  yield("/wait 5")
+  WaitUntil(function ()
+    if getPartyCount() < 2 then
+      yield("/ad stop")
+      LeaveDuty()
+    else
+      TargetClosestEnemy()
+    end
+    return ADIsStopped()
+  end)
+  WaitForReadyInZone(132)
+  yield("/wait 1")
+end
+
+function GCHuntingLog(target)
+  if not Quests.IsQuestComplete(66219) then
+    Logging.Notify(GetCharacterName(true).." has not completed MSQ")
+    return
+  end
+  local world = gcHuntLogInit(target)
+  if StringIsEmpty(world) then return end
+  local fullname = target .. "@" .. world
+  gcHuntLogUnlockHalatali(target, fullname)
+  gcHuntLogEastThan(target, fullname)
+  gcHuntLogEastShroud(target, fullname)
+  gcHuntLogNorthShroudHighlands(target, fullname)
+  gcHuntLogLimsaUpper(target, fullname)
+  gcHuntLogHalatali(target, fullname)
+  yield("/leave")
+  WaitUntil(function () return getPartyCount() < 2 end)
+end
+
+function GCHuntMulti(chars, target, server)
+  local function huntLoop()
+    yield("/pnotify s 5")
+    if TravelToWorld(server) then
+      yield("/pnotify r")
+      GCHuntingLog("Venom Tertia")
+      yield("/pnotify s 5")
+      ReturnToHomeWorld()
+    end
+    yield("/pnotify r")
+  end
+  local cids = ARFindCids(chars)
+  ARApplyToAllCharacters(cids, huntLoop)
+end
+
+function GCHuntingLogCarryTrigger()
+  local function trimWorld(name)
+    for i = #name, 1, -1 do
+      if string.match(name:sub(i, i), "%u") then
+        return name:sub(1, i - 1)
+      end
+    end
+  end
+
+  if not TriggerData then return end
+  if tostring(TriggerData.type) ~= "TellIncoming: 13" then return end
+  local sender = trimWorld(TriggerData.sender)
+
+  if not isInParty(sender) then
+    if tostring(TriggerData.message) ~= "hunt-log" then return end
+    Logging.Echo("hunting log carry request from "..tostring(TriggerData.sender))
+    gcHuntCarryInit(trimWorld(TriggerData.sender))
+    return
+  end
+
+  if tostring(TriggerData.message) == "unlock-halatali-quest" then
+    gcHuntCarryUnlockHalataliQuest()
+  end
+
+  if tostring(TriggerData.message) == "unlock-halatali-dungeon" then
+    gcHuntCarryUnlockHalataliDungeon()
+  end
+
+  if tostring(TriggerData.message) == "hunt-east-than" then
+    gcHuntCarryEastThan(sender)
+  end
+
+  if tostring(TriggerData.message) == "hunt-east-shroud" then
+    gcHuntCarryEastShroud(sender)
+  end
+
+  if tostring(TriggerData.message) == "hunt-north-shroud" then
+    gcHuntCarryNorthShroudHighlands(sender)
+  end
+
+  if tostring(TriggerData.message) == "hunt-limsa-upper" then
+    gcHuntCarryLimsaUpper(sender)
+  end
+
+  if tostring(TriggerData.message) == "hunt-halatali" then
+    gcHuntCarryHalatali()
+  end
+
+  if getPartyCount() < 2 and not IsInGridania() then TeleportToGridania() end
+end
+
 function HuntingLogPrereqs()
   local function mountChocobo() while TerritorySupportsMounting() and not IsMounted() do yield("/mount \"Company Chocobo\"") WaitUntil(IsMounted, 3) end end
   local function waitZoneTransfer(zone) WaitUntil(function () return IsPlayerAvailable() and NavIsReady() and IsInZone(zone) end) end
