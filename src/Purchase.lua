@@ -161,7 +161,7 @@ function PurchasedAllItems(buy_table)
   return true
 end
 
-function GoPurchaseDCItems(buy_table, gil_floor, back_to_start)
+function GoPurchaseDCItems(buy_table, gil_floor, back_to_start, exclude_servers)
   Logging.Trace("purchasing items in current dc")
   if not IsInLimsa() then TeleportToLimsa() end
 
@@ -189,10 +189,14 @@ function GoPurchaseDCItems(buy_table, gil_floor, back_to_start)
     return false
   end
 
-  local purchase_result = GoPurchaseItems(buy_table, gil_floor)
-  if not purchase_result then return on_fail(purchase_result) end
+  local purchase_result
+  if not TableContains(exclude_servers, start_server.name) then
+    purchase_result = GoPurchaseItems(buy_table, gil_floor)
+    if not purchase_result then return on_fail(purchase_result) end
+  end
+
   for dest_id, dest_name in pairs(server_list) do
-    if dest_id ~= start_server.id then
+    if not TableContains(exclude_servers, dest_name) and dest_id ~= start_server.id then
       local world_visit_result = WorldVisitTo(dest_name)
       if world_visit_result == false then
         Logging.Error("failed to travel to server "..dest_name)
