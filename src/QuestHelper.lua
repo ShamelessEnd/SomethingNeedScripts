@@ -114,7 +114,7 @@ function QuestWatch(target_level, gc, silent)
   local last_x = 0
   local last_y = 0
   local last_z = 0
-  while not target_level or not IsPlayerAvailable() or GetLevel() < target_level or (gc and not Quests.IsQuestComplete(66219)) do
+  while not target_level or not IsPlayerAvailable() or GetLevel() < target_level or (gc and not Quests.IsQuestComplete(66219)) or not ADIsStopped() do
     if IsPlayerDead() and IsAddonVisible("SelectYesno") and StringStartsWith(GetNewNodeText("SelectYesno", 1, 2), "Return to ") then
       Logging.Warning("player dead, attempting to recover")
       yield("/qst stop")
@@ -145,7 +145,14 @@ function QuestWatch(target_level, gc, silent)
       yield("/qst start")
     end
 
-    if not ADIsStopped() or IsInCombat() then
+    if IsQuestAccepted(65913) then
+      --yield("/bmai off")
+      yield("/bmrai off")
+      if IsInCombat() then
+        yield("/wrath auto on")
+        TargetClosestEnemy()
+      end
+    elseif not ADIsStopped() or IsInCombat() or (InstancedContent.ContentTimeLeft and InstancedContent.ContentTimeLeft > 300) then
       --yield("/bmai on")
       yield("/bmrai on")
     else
@@ -162,21 +169,28 @@ function QuestWatch(target_level, gc, silent)
       if PathIsRunning() then
         stuck_count = stuck_count + 1
         if stuck_count > 20 then
-          yield("/qst stop")
-          PathStop()
-          yield("/xldisablecollection Questionable")
-          yield("/wait 2")
-          if fail_count > 2 then
-            Logging.Warning("repeated nav stuck, resetting")
-            local zone = GetZoneID()
-            returnOrGridania()
-            returnToZone(zone)
+          Logging.Warning("nav stuck, rebuilding")
+          if fail_count == 0 then
+            yield("/vnav rebuild")
+          elseif fail_count == 1 then
+            yield("/qst reload")
           else
-            Logging.Warning("nav stuck, rebuilding")
+            yield("/qst stop")
+            PathStop()
+            if fail_count >= 3 then
+              yield("/xldisablecollection Questionable")
+              yield("/wait 2")
+              if fail_count >= 4 then
+                Logging.Warning("repeated nav stuck, resetting")
+                local zone = GetZoneID()
+                returnOrGridania()
+                returnToZone(zone)
+              end
+              enableQuestionableMulti()
+            end
+            RebuildNavMesh()
+            yield("/qst start")
           end
-          RebuildNavMesh()
-          enableQuestionableMulti()
-          yield("/qst start")
           resetCounts(true)
         end
       elseif not ADIsStopped() then
@@ -240,11 +254,12 @@ function QuestWatch(target_level, gc, silent)
   end
 
   yield("/qst stop")
+  WaitForPlayerReady()
   if not silent then Logging.Notify("questing complete") end
   return true
 end
 
-function QuestMulti(chars, level, gc, names, index, count)
+function QuestMulti(chars, level, gc, names, index, count, aetherytes)
   for _, character in pairs(chars) do
     local function isCharacter() return GetCharacterName(true) == character end
     if not isCharacter() then
@@ -253,6 +268,13 @@ function QuestMulti(chars, level, gc, names, index, count)
     end
     if isCharacter() then
       enableQuestionableMulti()
+      if aetherytes and GetLevel() > 3 then
+        if IsAetheryteUnlocked(2) then PartialGridaniaAethernet() end
+        if IsAetheryteUnlocked(8) then
+          PartialLimsaAethernet()
+          PartialUldahAethernet()
+        end
+      end
       if IsInHousingDistrict() then returnOrGridania() end
       if QuestWatch(level, gc, true) then
         Logging.Info("levelling complete for "..character)
@@ -670,7 +692,8 @@ function HuntingLogMobs()
   TeleportToGridania()
 end
 
-function HuntingLogHalatali()
+function EnterHalataliUnrestricted()
+  yield("/pnotify s 1")
   OpenRegularDuty(7)
   AwaitAddonReady("ContentsFinder")
   SetDFUnrestricted(true)
@@ -681,9 +704,14 @@ function HuntingLogHalatali()
   Callback("ContentsFinder", true, 12, 0)
   AwaitAddonReady("ContentsFinderConfirm")
   Callback("ContentsFinderConfirm", true, 8)
-  WaitUntil(function () return IsPlayerAvailable() and NavIsReady() and IsInZone(1245) end)
+  WaitForReadyInZone(1245)
   WaitUntil(function () return IsAddonVisible("_Image") end)
   yield("/wait 1")
+  yield("/pnotify r")
+end
+
+function HuntingLogHalatali()
+  EnterHalataliUnrestricted()
   RebuildNavMesh()
   GoToKillMobs(1245, nil, 200, 6, -36, "Heckler Imp", 1)
   GoToKillMobs(1245, nil, 153, -2, -9, "Heckler Imp", 2)
@@ -756,6 +784,9 @@ function PartialLimsaAethernet()
   CloseAddonFast("TelepotTown")
   WaitForPlayerReady()
   if no_aethernet then
+    -- Hawkers
+    NavToPoint(-213.6, 16.7, 51.8, 2, false, 100)
+    AttuneToShard()
     -- Arcanist
     NavToPoint(-335.2, 12.62, 56.4, 2, false, 100)
     AttuneToShard()
@@ -768,9 +799,36 @@ function PartialLimsaAethernet()
   end
 end
 
+function UnlockUldahAetheryte()
+  if TeleportToUldah() then return true end
+  yield("/at y")
+  if not TeleportToLimsa() then return false end
+  NavToPoint(9.78, 21.0, 15.1, 2, false, 30)
+  InteractWith("Grehfarr", "SelectIconString")
+  SelectStringOption("Ride Lift to the Airship Landing")
+  SelectYesno(0)
+  WaitForReadyInZone(128)
+  NavToPoint(-25.9, 92.0, -3.68, 3, false, 30)
+  InteractWith("L'nophlo", "SelectIconString")
+  SelectStringOption("Purchase Passage to Ul'dah")
+  SelectYesno(0)
+  WaitForReadyInZone(130)
+  NavToPoint(-26.0, 81.8, -32.0, 3, false, 30)
+  InteractWith("Nanahomi", "SelectIconString")
+  SelectStringOption("Ride Lift to the Ruby Road Exchange")
+  SelectYesno(0)
+  yield("/wait 3")
+  WaitForPlayerReady()
+  NavToPoint(-140.7, -3.15, -165.7, 1, false, 100)
+  InteractWith("aetheryte", nil, 11.165)
+  yield("/wait 3")
+  WaitForPlayerReady()
+  return true
+end
+
 function PartialUldahAethernet()
   yield("/at y")
-  TeleportToUldah()
+  if not UnlockUldahAetheryte() then return end
   InteractWithAetheryte()
   SelectStringOption("Aethernet")
   AwaitAddonReady("TelepotTown")
