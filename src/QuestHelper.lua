@@ -47,8 +47,8 @@ local function enableQuestionableMulti()
   IPC.Questionable.AddQuestPriority("39")
   IPC.Questionable.AddQuestPriority("123")
   IPC.Questionable.AddQuestPriority("124")
-  IPC.Questionable.AddQuestPriority("21")
-  IPC.Questionable.AddQuestPriority("22")
+  --IPC.Questionable.AddQuestPriority("21")
+  --IPC.Questionable.AddQuestPriority("22")
   --IPC.Questionable.AddQuestPriority("46")
   --IPC.Questionable.AddQuestPriority("48")
   --IPC.Questionable.AddQuestPriority("67")
@@ -70,13 +70,12 @@ function QuestWatch(target_level, gc, silent)
     if IPC.Questionable.GetCurrentQuestId() and IPC.Questionable.GetCurrentStepData() and type(IPC.Questionable.GetCurrentStepData()) ~= "function" then
       zone = IPC.Questionable.GetCurrentStepData().TerritoryId or zone
     end
-    if IPC.Questionable.IsQuestAccepted("22") then
-      yield("/li Conjurer")
-      yield("/wait 4")
-    elseif not TeleportToZone(zone) then
+    if not TeleportToZone(zone) then
       Logging.Warning("no available teleport to original zone, trying aethernet")
       if zone == 148 then
         yield("/li Blue Badger")
+      elseif zone == 133 then
+        yield("/li Conjurer")
       else
         yield("/li "..GetZoneName(zone))
       end
