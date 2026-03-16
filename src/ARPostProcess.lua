@@ -59,7 +59,7 @@ function ARPostProcess(retainer_tables, thresholds, skip_multi_check)
     return
   end
 
-  if ar_data.Enabled == true then
+  if ar_data.Enabled == true and thresholds.gc then
     local lacks_inv_space = thresholds.gc.inv ~= nil and GetInventoryFreeSlotCount() < thresholds.gc.inv
     local lacks_ventures = thresholds.gc.venture ~= nil and GetItemCount(21072) < thresholds.gc.venture
     if lacks_inv_space or lacks_ventures then
