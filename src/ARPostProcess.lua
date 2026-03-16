@@ -30,6 +30,10 @@ local _default_thresholds = {
     pre_time = -450,
     end_buf = 150,
   },
+  gc = {
+    inv = 40,
+    vanture = 100,
+  },
   kill_after = 200000,
 }
 
@@ -53,6 +57,15 @@ function ARPostProcess(retainer_tables, thresholds, skip_multi_check)
 
   if not IsNavAvailable() then
     return
+  end
+
+  if ar_data.Enabled == true then
+    local lacks_inv_space = thresholds.gc.inv ~= nil and GetInventoryFreeSlotCount() < thresholds.gc.inv
+    local lacks_ventures = thresholds.gc.venture ~= nil and GetItemCount(21072) < thresholds.gc.venture
+    if lacks_inv_space or lacks_ventures then
+      GCTurnIn()
+      ReturnToBell()
+    end
   end
 
   if ar_data.Enabled and ar_data.WorkshopEnabled and thresholds.tanks then
