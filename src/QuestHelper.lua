@@ -151,12 +151,21 @@ function QuestWatch(target_level, gc, silent)
         yield("/wrath auto on")
         TargetClosestEnemy()
       end
-    elseif not ADIsStopped() or IsInCombat() or (InstancedContent.ContentTimeLeft and InstancedContent.ContentTimeLeft > 300) then
+    elseif IPC.Questionable.GetCurrentStepData() and IPC.Questionable.GetCurrentStepData().InteractionType == "SinglePlayerDuty" then
+      --yield("/bmai on")
+      yield("/bmrai on")
+      yield("/wrath auto on")
+    elseif not ADIsStopped() or (InstancedContent.ContentTimeLeft and InstancedContent.ContentTimeLeft > 300) then
+      --yield("/bmai on")
+      yield("/bmrai on")
+      yield("/wrath auto on")
+    elseif IsInCombat() then
       --yield("/bmai on")
       yield("/bmrai on")
     else
       --yield("/bmai off")
       yield("/bmrai off")
+      yield("/wrath auto off")
     end
 
     if IsInCombat() or IsPlayerDead() or not NavIsReady() or not IsPlayerAvailable(true) or NavBuildProgress() > 0 then
