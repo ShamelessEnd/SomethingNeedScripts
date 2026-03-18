@@ -28,7 +28,7 @@ end
 function GetTimeToNextBoat(offset)
   offset = offset or 0
   local interval = 2 * 60 * 60
-  local dt = os.date("*t")
+  local dt = os.date("!*t")
   local hour = tonumber(dt.hour)
   local min = tonumber(dt.min)
   local sec = tonumber(dt.sec)
