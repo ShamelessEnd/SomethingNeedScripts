@@ -51,7 +51,7 @@ function TradeCeruleumOnTellMessage(password)
   if not TriggerData then return end
   if tostring(TriggerData.type) ~= "TellIncoming: 13" then return end
   if password and tostring(TriggerData.message) ~= password then return end
-  if not IsAddonReady("Trade") then return end
+  if not AwaitAddonReady("Trade", 5) then return end
 
   Logging.Echo("ceruleum trade request from "..tostring(TriggerData.sender))
   TradeCeruleumStacks(5)
