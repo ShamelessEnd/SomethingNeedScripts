@@ -1498,6 +1498,26 @@ function GoUnlockOceanFishing()
   WaitForPlayerReady()
 end
 
+function DoOceanFishingUnlockQuest()
+  if Quests.IsQuestComplete(69379) then return end
+  yield("/at n")
+  while not IsFisher() do yield("/equip 2571") yield ("/wait 1") end
+  EquipRecommendedGear()
+  yield("/li Fishermen")
+  yield("/wait 3")
+  WaitWhile(function () return LifestreamIsBusy() or not IsPlayerAvailable() end)
+  NavToTarget("Fhilsnoe", 2, false, 20)
+  InteractWith("Fhilsnoe", "JournalAccept")
+  yield("/at y")
+  WaitForPlayerReady()
+  yield("/at n")
+  GoToOceanFishing()
+  InteractWith("Foerzagyl", nil, 6)
+  yield("/at y")
+  yield("/wait 5")
+  WaitForPlayerReady()
+end
+
 function GoSetupRetainers(names, index)
   if TableIsEmpty(names) then return true end
   yield("/at y")
