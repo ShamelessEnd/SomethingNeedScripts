@@ -194,9 +194,7 @@ function GoDoOceanFishing(food, offset)
 end
 
 function RetainerOceanFishingLoop(food, offset, pre_time, end_buf)
-  if not IsFishingAvailable() then
-    Logging.Error("fishing not available")
-  end
+  if not IsFishingAvailable() then Logging.Error("fishing not available") return end
 
   food = food or 4673
   offset = offset or 0
