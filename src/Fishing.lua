@@ -192,3 +192,29 @@ function GoDoOceanFishing(food, offset)
 
   DoOceanFishingRoute()
 end
+
+function RetainerOceanFishingLoop(food, offset, pre_time, end_buf)
+  if not IsFishingAvailable() then
+    Logging.Error("fishing not available")
+  end
+
+  food = food or 4673
+  offset = offset or 0
+  pre_time = pre_time or 300
+  end_buf = end_buf or 150
+
+  while true do
+    if IsTimeToGoFish(offset, pre_time, end_buf) then
+      local fisher = ARFindFishCharacterToLevel()
+      if fisher then
+        ARRelogTo(fisher)
+        GoDoOceanFishing(food, offset)
+        ReturnToBell()
+        ARItemSell()
+        Logout()
+      end
+    end
+    yield("/wait 60")
+  end
+end
+

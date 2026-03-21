@@ -78,22 +78,28 @@ function ARFindRetainer(name, server_id)
   return nil
 end
 
+function ARHasFishingRetainer(retainer_data)
+  local fish_job_id = 18
+  if not retainer_data then
+    local ar_data = ARGetCharacterData()
+    if ar_data then retainer_data = ar_data.RetainerData end
+    if not retainer_data then return nil end
+  end
+  local min_fish_level = nil
+  for i = 0, retainer_data.Count - 1 do
+    if retainer_data[i].Job == fish_job_id then
+      local fish_level = retainer_data[i].Level
+      if not min_fish_level or fish_level < min_fish_level then
+        min_fish_level = fish_level
+      end
+    end
+  end
+  return min_fish_level
+end
+
 function ARFindFishCharacterToLevel(level)
   level = level or GetMaxLevel()
   local fish_job_id = 18
-  local function hasFishingRetainer(retainer_data)
-    if not retainer_data then return nil end
-    local min_fish_level = nil
-    for i = 0, retainer_data.Count - 1 do
-      if retainer_data[i].Job == fish_job_id then
-        local fish_level = retainer_data[i].Level
-        if not min_fish_level or fish_level < min_fish_level then
-          min_fish_level = fish_level
-        end
-      end
-    end
-    return min_fish_level
-  end
 
   local found = nil
   local found_level = level
@@ -102,8 +108,8 @@ function ARFindFishCharacterToLevel(level)
   for i = 0, chars.Count - 1 do
     local cid = chars[i]
     local ar_data = GetARCharacterData(cid)
-    if ar_data and ar_data.Enabled then
-      local min_fish_level = hasFishingRetainer(ar_data.RetainerData)
+    if ar_data and ar_data.Enabled and ar_data.RetainerData then
+      local min_fish_level = ARHasFishingRetainer(ar_data.RetainerData)
       if min_fish_level and min_fish_level < level then
         local char_fish_level = GetARJobLevel(ar_data, fish_job_id)
         if char_fish_level and char_fish_level > 0 then
