@@ -65,7 +65,7 @@ function GetNextPurchaseIndex(last_index, remaining, max_price, gil_floor, hq, s
   return list_index, nil
 end
 
-function PurchaseItem(item_table, gil_floor)
+function PurchaseItem(item_table, gil_floor, free_slots)
   local item_id = item_table[1]
   local max_count  = item_table[2]
   local max_price  = item_table[3]
@@ -93,7 +93,7 @@ function PurchaseItem(item_table, gil_floor)
   local remaining = max_count - GetItemCount(item_id)
   local next_index, next_count = GetNextPurchaseIndex(1, remaining, max_price, gil_floor, hq, strict)
   local fail_count = 0
-  while next_count and remaining > 0 and GetInventoryFreeSlotCount() > 0 do
+  while next_count and remaining > 0 and GetInventoryFreeSlotCount() > free_slots do
     if BuyMarketItem(next_index) then
       buy_count = buy_count + next_count
     else
@@ -120,7 +120,8 @@ function PurchaseItem(item_table, gil_floor)
   return true
 end
 
-function GoPurchaseItems(buy_table, gil_floor)
+function GoPurchaseItems(buy_table, gil_floor, free_slots)
+  free_slots = free_slots or 0
   local reduced_buy_table = {}
   for _, item_table in pairs(buy_table) do
     if GetItemCount(item_table[1]) < item_table[2] then
@@ -131,8 +132,8 @@ function GoPurchaseItems(buy_table, gil_floor)
   if TableIsEmpty(reduced_buy_table) then
     Logging.Info("no items to purchase")
     return nil
-  elseif GetInventoryFreeSlotCount() <= 0 then
-    Logging.Info("no free inventory slots")
+  elseif GetInventoryFreeSlotCount() <= free_slots then
+    Logging.Info("not enough free inventory slots")
     return nil
   end
 
@@ -142,8 +143,8 @@ function GoPurchaseItems(buy_table, gil_floor)
     if not PurchaseItem(item_table, gil_floor) then
       CloseMarketBoard()
       return false
-    elseif GetInventoryFreeSlotCount() <= 0 then
-      Logging.Info("no free inventory slots")
+    elseif GetInventoryFreeSlotCount() <= free_slots then
+      Logging.Info("not enough free inventory slots")
       CloseMarketBoard()
       return nil
     end
