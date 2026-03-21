@@ -1788,3 +1788,38 @@ function InitOceanFishingRetainersMulti(chars, names, index)
     InitOceanFishingRetainers(names, index)
   end
 end
+
+function TopUpFishRetainer(junk_table, ventures, cordials, cordial_price, gil_floor, free_slots)
+  ventures = ventures or 500
+  cordials = cordials or 900
+  cordial_price = cordial_price or 1000
+  gil_floor = gil_floor or 100000
+  junk_table = junk_table or {}
+
+  GCTurnIn()
+  ReturnToBell()
+  ARItemSell()
+
+  GoPurchaseItems({{ 6141, cordials, cordial_price }}, gil_floor)
+
+  if GetItemCount(21072) < ventures and not TableIsEmpty(junk_table) then
+    GoPurchaseItems(junk_table, gil_floor, free_slots)
+    GCTurnIn()
+    ReturnToBell()
+  elseif not NavToTarget("Summoning Bell", 2, false, 20) then
+    ReturnToBell()
+  end
+end
+
+function TopUpFishRetainerMulti(junk_table, ventures, cordials, cordial_price, gil_floor, free_slots, level)
+  level = level or GetMaxLevel()
+  local function topUp(cid) TopUpFishRetainer(junk_table, ventures, cordials, cordial_price, gil_floor, free_slots) end
+  local function condition(cid)
+    local data = ARGetCharacterData(cid)
+    if not data or not data.Enabled then return false end
+    local fsh_level = ARHasFishingRetainer(data.RetainerData)
+    return fsh_level and fsh_level < level
+  end
+
+  ARApplyToAllCharacters(ARGetCharacterCIDs(), topUp, condition)
+end
