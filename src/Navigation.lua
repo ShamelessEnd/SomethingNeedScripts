@@ -402,6 +402,16 @@ function ReturnToFC()
   WaitWhile(LifestreamIsBusy)
 end
 
+function BellOrEnter()
+  if Target("Summoning Bell") and GetDistanceToTarget() < 3.5 then return true end
+  if not InteractWith("Entrance", "SelectYesno") then ReturnToBell() end
+  if Target("Summoning Bell") and GetDistanceToTarget() < 3.5 then return true end
+  if not InteractWith("Entrance", "SelectYesno") then return false end
+  if not SelectYesno(true) then return false end
+  if not WaitUntil(function() return not IsInHousingDistrict() and IsPlayerAvailable() and NavIsReady() end, 10, 1) then return false end
+  return WalkToTarget("Summoning Bell", 2)
+end
+
 function ReturnToBell()
   if not ReturnToHomeWorld() then
     Logging.Error("failed to return to home world")
@@ -409,9 +419,7 @@ function ReturnToBell()
   end
 
   local bell_target = "Summoning Bell"
-  local bell_dist = GetDistanceToObject(bell_target)
-  if bell_dist ~= nil and bell_dist < 3 then
-    Target(bell_target)
+  if Target(bell_target) and GetDistanceToTarget() < 3 then
     return
   end
 

@@ -91,6 +91,7 @@ function ARPostProcess(retainer_tables, thresholds, skip_multi_check)
       ARRelogTo(fisher)
       GoDoOceanFishing(thresholds.fish.food, thresholds.fish.offset)
       ReturnToBell()
+      ARItemSell()
     end
   end
 end

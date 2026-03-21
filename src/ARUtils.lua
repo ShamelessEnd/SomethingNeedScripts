@@ -189,3 +189,10 @@ function TimeUntilARTask()
   Logging.Debug("Time until next task: "..min_seconds.." seconds")
   return min_seconds
 end
+
+function ARItemSell()
+  BellOrEnter()
+  yield("/ays itemsell")
+  yield("/wait 1")
+  WaitWhile(function () return ARIsBusy() or not IsPlayerAvailable() end, 300, 1)
+end
