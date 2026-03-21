@@ -66,6 +66,7 @@ function GetNextPurchaseIndex(last_index, remaining, max_price, gil_floor, hq, s
 end
 
 function PurchaseItem(item_table, gil_floor, free_slots)
+  if not free_slots or free_slots < 0 then free_slots = 0 end
   local item_id = item_table[1]
   local max_count  = item_table[2]
   local max_price  = item_table[3]
@@ -121,7 +122,7 @@ function PurchaseItem(item_table, gil_floor, free_slots)
 end
 
 function GoPurchaseItems(buy_table, gil_floor, free_slots)
-  free_slots = free_slots or 0
+  if not free_slots or free_slots < 0 then free_slots = 0 end
   local reduced_buy_table = {}
   for _, item_table in pairs(buy_table) do
     if GetItemCount(item_table[1]) < item_table[2] then
@@ -140,7 +141,7 @@ function GoPurchaseItems(buy_table, gil_floor, free_slots)
   if not NavToMarketBoard() then return false end
   if not OpenMarketBoard() then return false end
   for _, item_table in pairs(reduced_buy_table) do
-    if not PurchaseItem(item_table, gil_floor) then
+    if not PurchaseItem(item_table, gil_floor, free_slots) then
       CloseMarketBoard()
       return false
     elseif GetInventoryFreeSlotCount() <= free_slots then
