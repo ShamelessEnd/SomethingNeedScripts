@@ -1838,7 +1838,7 @@ function BuyFishRetainerLevellingGear(vendor, market)
 end
 
 function BuyFishRetainerLevellingGearMulti()
-  ARApplyToAllCharacters(ARFindAllFishCharactersToLevel(), BuyFishRetainerLevellingGear)
+  ARApplyToAllCharacters(ARFindAllFishCharactersToLevel(nil, true), BuyFishRetainerLevellingGear)
 end
 
 function TopUpFishRetainer(junk_table, ventures, cordials, cordial_price, gil_floor, free_slots)
@@ -1866,5 +1866,5 @@ end
 function TopUpFishRetainerMulti(junk_table, ventures, cordials, cordial_price, gil_floor, free_slots, level)
   level = level or GetMaxLevel()
   local function topUp(cid) TopUpFishRetainer(junk_table, ventures, cordials, cordial_price, gil_floor, free_slots) end
-  ARApplyToAllCharacters(ARFindAllFishCharactersToLevel(level), topUp)
+  ARApplyToAllCharacters(ARFindAllFishCharactersToLevel(level, true), topUp)
 end

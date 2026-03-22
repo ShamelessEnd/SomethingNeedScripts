@@ -97,7 +97,7 @@ function ARHasFishingRetainer(retainer_data)
   return min_fish_level
 end
 
-function ARFindAllFishCharactersToLevel(level)
+function ARFindAllFishCharactersToLevel(level, natural_order)
   level = level or GetMaxLevel()
   local fish_job_id = 18
 
@@ -121,17 +121,20 @@ function ARFindAllFishCharactersToLevel(level)
       end
     end
   end
-  table.sort(found, function (a, b)
-    if a.fish_level_diff < b.fish_level_diff then return true end
-    if a.fish_level_diff > b.fish_level_diff then return false end
-    if a.char_fish_level < b.char_fish_level then return true end
-    if a.char_fish_level > b.char_fish_level then return false end
-    return a.i < b.i
-  end)
+
+  if not natural_order then
+    table.sort(found, function (a, b)
+      if a.fish_level_diff < b.fish_level_diff then return true end
+      if a.fish_level_diff > b.fish_level_diff then return false end
+      if a.char_fish_level < b.char_fish_level then return true end
+      if a.char_fish_level > b.char_fish_level then return false end
+      return a.i < b.i
+    end)
+  end
   return TableMapValueTo(found, function (v) return v.cid end)
 end
 
-function ARFindFishCharacterToLevel(level) return ARFindAllFishCharactersToLevel(level)[1] end
+function ARFindFishCharacterToLevel(level) return ARFindAllFishCharactersToLevel(level, false)[1] end
 
 function ARHasCrafterToLevel(cid, level)
   local target_level = level or GetMaxLevel()
