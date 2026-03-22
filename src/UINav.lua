@@ -110,6 +110,13 @@ function SelectStringOption(text)
   return false
 end
 
+function SelectStringIndex(i)
+  if not WaitUntil(function () return IsAddonReady("SelectString") or IsAddonReady("SelectIconString") end, 5) then return false end
+  if IsAddonReady("SelectString") then Callback("SelectString", true, i) return true end
+  if IsAddonReady("SelectIconString") then Callback("SelectIconString", true, i) return true end
+  return false
+end
+
 function SelectYesno(option)
   if not AwaitAddonReady("SelectYesno", 2) then return false end
   if option == true or option == 0 then
