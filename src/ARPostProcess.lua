@@ -98,6 +98,7 @@ end
 
 function OnAsyncPostProcess(retainer_tables, thresholds)
   CallbackConfig.ExitOnDC = true
+  Logging.NotifyEnabled = false
   ARPostProcess(retainer_tables, thresholds, true)
   Logout()
   if thresholds.kill_after and thresholds.kill_after < Svc.PluginInterface.LoadTimeDelta.TotalSeconds then

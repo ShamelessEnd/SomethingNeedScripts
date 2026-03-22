@@ -3,6 +3,7 @@ require "LegacySndBridge"
 Logging = {
   LogLevel = 0,
   EchoLevel = 2,
+  NotifyEnabled = true,
 }
 
 local function sFix(data)
@@ -60,4 +61,10 @@ Logging.Echo = function (...)
   logEcho(s)
 end
 
-Logging.Notify = function (msg) Logging.Echo("[Notification] "..sFix(msg)) end
+Logging.Notify = function (msg)
+  if Logging.NotifyEnabled then
+    Logging.Echo("[Notification] "..sFix(msg))
+  else
+    Logging.Echo(msg)
+  end
+end

@@ -187,8 +187,10 @@ function GoDoOceanFishing(food, offset)
     UseItem(food)
   end
 
+  yield("/pnotify s 16")
   if not AwaitAddonReady("ContentsFinderConfirm", 16 * 60) then return end
   Callback("ContentsFinderConfirm", true, 8)
+  yield("/pnotify r")
 
   DoOceanFishingRoute()
 end
