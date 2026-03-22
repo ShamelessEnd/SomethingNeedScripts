@@ -41,6 +41,33 @@ function ToTable(c)
   return t
 end
 
+function TableInsertAll(t, other)
+  other = ToTable(other) or {}
+  for k, v in pairs(other) do t[k] = v end
+  return t
+end
+
+function TableAppendAll(t, other)
+  other = ToTable(other) or {}
+  for _, v in pairs(other) do table.insert(t, v) end
+  return t
+end
+
+function TableMapValueTo(t, lambda)
+  local mapped = {}
+  for k, v in pairs(t) do mapped[k] = lambda(v) end
+  return mapped
+end
+
+function TableMapTo(t, lambda)
+  local mapped = {}
+  for k, v in pairs(t) do
+    local k2, v2 = lambda(k, v)
+    mapped[k2] = v2
+  end
+  return mapped
+end
+
 function ChunkedTable(t, size)
   t = ToTable(t)
   if t == nil or size <= 0 then return nil end
