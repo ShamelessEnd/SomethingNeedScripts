@@ -9,6 +9,7 @@ function EquipRecommendedGear()
   if OpenCharacterWindow() then
     Callback("Character", true, 12)
     if AwaitAddonReady("RecommendEquip", 3) then
+      WaitUntil(function () return not IsNodeVisible("RecommendEquip", 1, 8) end, 3)
       repeat
         Callback("RecommendEquip", true, 0)
       until AwaitAddonGone("RecommendEquip", 1)
