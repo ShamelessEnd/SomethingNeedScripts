@@ -69,3 +69,20 @@ end
 function FindItemsInRetainerInventory(name) return FindItemsInInventory(GetLazyInventoryData().retainers[name]) end
 function FindItemsInCharacterInventory() return FindItemsInInventory(GetLazyInventoryData().inventory) end
 function FindItemsInCharacterArmoury(slot) return FindItemsInInventory(GetLazyInventoryData().armoury[slot]) end
+
+function MoveItemsToArmouryChest(items)
+  local inv_types = { InventoryType.Inventory1, InventoryType.Inventory2, InventoryType.Inventory3, InventoryType.Inventory4 }
+  for _, inv in pairs(inv_types) do
+    local inv_items = Inventory.GetInventoryContainer(inv).Items
+    for i = 0, inv_items.Count - 1 do
+      local item = inv_items[i]
+      local id = item.ItemId
+      local dest = item.ArmouryContainer
+      if id and id > 0 and dest and dest ~= InventoryType.Invalid and dest ~= inv and TableContains(items, id) then
+        repeat
+          item:MoveItemSlot(item.ArmouryContainer)
+        until WaitUntil(function () return item.ItemId ~= id end, 1)
+      end
+    end
+  end
+end
