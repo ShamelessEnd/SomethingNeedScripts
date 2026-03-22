@@ -49,7 +49,7 @@ end
 
 function TableAppendAll(t, other)
   other = ToTable(other) or {}
-  for _, v in pairs(other) do table.insert(t, v) end
+  for _, v in ipairs(other) do table.insert(t, v) end
   return t
 end
 

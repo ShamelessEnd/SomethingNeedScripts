@@ -100,7 +100,7 @@ end
 
 function GetSellEntryByName(sell_table, item_name)
   if sell_table then
-    for i, raw_sell_entry in pairs(sell_table) do
+    for _, raw_sell_entry in ipairs(sell_table) do
       if not raw_sell_entry.item_name then
         raw_sell_entry.item_name = GetItemName(raw_sell_entry[1])
       end
@@ -300,7 +300,7 @@ function ListItemForSale(sell_entry, max_slots, item_stacks, listed_item)
 
   local num_listings = 0
   local min_keep = sell_entry.min_keep
-  for _, item_stack in pairs(item_stacks) do
+  for _, item_stack in ipairs(item_stacks) do
     Logging.Debug("processing stack "..item_stack.count.." at "..item_stack.visible.page.."."..item_stack.visible.slot)
     local original_count = item_stack.count
     if item_stack.count <= 0 then
@@ -357,7 +357,7 @@ function SellRetainerItems(retainer_index, retainer_name, sell_table, unlist, un
   local inventory = FindItemsInRetainerInventory(retainer_name)
 
   Logging.Info("  Listing sale items for retainer "..retainer_index)
-  for _, raw_sell_entry in pairs(sell_table) do
+  for _, raw_sell_entry in ipairs(sell_table) do
     local item_stacks = inventory[raw_sell_entry[1]]
     if item_stacks ~= nil then
       local sell_entry = ParseSellEntry(raw_sell_entry)
@@ -375,10 +375,10 @@ end
 function EntrustSellTableItems(sell_table)
   OpenRetainerInventory()
   local inventory = FindItemsInCharacterInventory()
-  for _, raw_sell_entry in pairs(sell_table) do
+  for _, raw_sell_entry in ipairs(sell_table) do
     local item_id = raw_sell_entry[1]
     local item_stacks = inventory[item_id] or {}
-    for _, stack in pairs(item_stacks) do EntrustSingleItem(item_id, stack) end
+    for _, stack in ipairs(item_stacks) do EntrustSingleItem(item_id, stack) end
   end
   CloseRetainerInventory()
 end

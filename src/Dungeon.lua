@@ -84,7 +84,7 @@ end
 function CapCharacters(character_table)
     yield("/xlenablecollection Questionable")
     yield("/wait 4")
-    for _, char in pairs(character_table) do
+    for _, char in ipairs(character_table) do
         if char.duty and (not char.cap or char.cap > 0) then
             if ARRelogTo(char.id) then
                 RunDutyUntilCap(char.duty, char.cap, char.tomestone)

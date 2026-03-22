@@ -123,7 +123,7 @@ end
 function GoPurchaseItems(buy_table, gil_floor, free_slots)
   if not free_slots or free_slots < 0 then free_slots = 0 end
   local reduced_buy_table = {}
-  for _, item_table in pairs(buy_table) do
+  for _, item_table in ipairs(buy_table) do
     if GetItemCount(item_table[1]) < item_table[2] then
       table.insert(reduced_buy_table, item_table)
     end
@@ -139,7 +139,7 @@ function GoPurchaseItems(buy_table, gil_floor, free_slots)
 
   if not NavToMarketBoard() then return false end
   if not OpenMarketBoard() then return false end
-  for _, item_table in pairs(reduced_buy_table) do
+  for _, item_table in ipairs(reduced_buy_table) do
     if not PurchaseItem(item_table, gil_floor, free_slots) then
       CloseMarketBoard()
       return false
@@ -154,7 +154,7 @@ function GoPurchaseItems(buy_table, gil_floor, free_slots)
 end
 
 function PurchasedAllItems(buy_table)
-  for _, item_table in pairs(buy_table) do
+  for _, item_table in ipairs(buy_table) do
     if GetItemCount(item_table[1]) < item_table[2] then
       return false
     end
@@ -277,7 +277,7 @@ function BuyFromVendor(name, buy_list, use_total_count)
     local reduced_buy_list = {}
     for menus, items in pairs(buy_list) do
       local reduced_items = {}
-      for _, item in pairs(items) do
+      for _, item in ipairs(items) do
         local id = item[1]
         local i = item[2]
         local target_count = item[3] or 1
@@ -300,10 +300,10 @@ function BuyFromVendor(name, buy_list, use_total_count)
       InteractWith(name, "Shop")
     else
       InteractWith(name)
-      for _, i in pairs(menu_path) do SelectStringIndex(i) end
+      for _, i in ipairs(menu_path) do SelectStringIndex(i) end
     end
 
-    for _, item in pairs(items) do
+    for _, item in ipairs(items) do
       local id = item[1]
       local i = item[2]
       local count = item[3] or 1

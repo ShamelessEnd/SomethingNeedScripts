@@ -155,7 +155,7 @@ function ARApplyToAllCharacters(cids, lambda, condition, timeout)
     Logging.Error("invalid cids")
     return
   end
-  for _, cid in pairs(cids) do
+  for _, cid in ipairs(cids) do
     if not condition or condition(cid) then
       if ARRelogTo(cid, timeout) then
         lambda(cid)

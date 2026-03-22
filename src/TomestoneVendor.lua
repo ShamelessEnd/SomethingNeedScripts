@@ -122,7 +122,7 @@ function SpendTomestone(item_table, minimum_tomes)
 
       local vendor_items = GetItemList(vendor_addon)
 
-      for i, item in ipairs(item_table) do
+      for _, item in ipairs(item_table) do
         Logging.Debug("Attempting to buy item "..GetItemName(item.id))
 
         local vendor_item = vendor_items[item.id]
