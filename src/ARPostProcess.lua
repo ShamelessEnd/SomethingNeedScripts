@@ -44,7 +44,7 @@ function ARPostProcess(retainer_tables, thresholds, skip_multi_check)
   if not skip_multi_check and ARGetMultiModeEnabled() then
     ARSetMultiModeEnabled(false)
     ARAbortAllTasks()
-    RunAsync({ "ARPostProcess" }, { OnAsyncPostProcess = { retainer_tables, thresholds } })
+    RunAsync({ "ARPostProcess" }, "OnAsyncPostProcess", { retainer_tables, thresholds })
     return
   end
 

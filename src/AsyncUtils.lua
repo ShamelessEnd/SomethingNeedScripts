@@ -36,13 +36,11 @@ local function toLuaArgs(args)
   return args_str
 end
 
-function RunAsync(requires, calls)
+function RunAsync(requires, func, args)
   local lua_code = ""
-  for _, required in pairs(requires) do
+  for _, required in ipairs(requires) do
       lua_code = lua_code.."require \""..required.."\"\n"
   end
-  for func, args in pairs(calls) do
-    lua_code = lua_code..func.."("..toLuaArgs(args)..")\n"
-  end
+  lua_code = lua_code..func.."("..toLuaArgs(args)..")\n"
   Engines.NLua.Run(lua_code)
 end
