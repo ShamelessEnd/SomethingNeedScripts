@@ -4,12 +4,11 @@ require "ServerData"
 require "Utils"
 
 --[[
-
+Market Purchases:
 buy_table = {
   { id, count, price, strict, hq },
   ...
 }
-
 ]]--
 
 function ShouldBuyMarketItem(list_index, max_price, gil_floor)
@@ -261,4 +260,68 @@ function GoPurchaseAllItems(buy_table, gil_floor, include_oce)
 
   ReturnToBell()
   return true
+end
+
+--[[
+Vendor Purchases:
+buy_list = {
+  ["i1,i2,i3"] = { id, index, count },
+  ...
+}
+"i1,i2,i3" = index path through vendor SelectString menus
+index = index of item in shop (starting from 0)
+]]--
+
+function BuyFromVendor(name, buy_list, use_total_count)
+  NavToObject(name, 3, false, 60)
+  local bought = {}
+
+  for menus, items in pairs(buy_list) do
+    local menu_path = { StringSplit(menus, ',') }
+    if TableIsEmpty(menu_path) then
+      InteractWith(name, "Shop")
+    else
+      InteractWith(name)
+      for _, i in pairs(menu_path) do SelectStringIndex(i) end
+    end
+
+    for _, item in pairs(items) do
+      local id = item[1]
+      local i = item[2]
+      local count = item[3] or 1
+
+      local start_count = GetItemCount(id)
+      local target_count = start_count + count
+      if use_total_count then target_count = count end
+
+      if target_count > start_count then
+        while GetItemCount(id) < target_count do
+          local last_count = GetItemCount(id)
+          Callback("Shop", true, 0, i, 1)
+          Callback("Shop", true, 7, i)
+          Callback("SelectYesno", true, 0)
+          AwaitAddonGone("SelectYesno", 1)
+          WaitWhile(function () return GetItemCount(id) == last_count end, 1)
+        end
+        bought[id] = (bought[id] or 0) + target_count - start_count
+      end
+    end
+
+    repeat
+      TryCallback("Shop", true, -1)
+      TryCallback("SelectString", true, -1)
+      TryCallback("SelectIconString", true, -1)
+    until WaitForPlayerReady(0.1)
+  end
+
+  return bought
+end
+
+function BuyFromVendorMulti(vendor_table, vendor_nav, use_total_count)
+  local bought = {}
+  for vendor, buy_list in pairs(vendor_table) do
+    if vendor_nav then vendor_nav(vendor) end
+    TableAppendAll(bought, BuyFromVendor(vendor, buy_list, use_total_count))
+  end
+  return bought
 end
