@@ -111,6 +111,10 @@ function WaitForNavReady(timeout, sleep)
   return WaitUntil(function () return NavIsReady() and IsPlayerAvailable() end, timeout, sleep)
 end
 
+function WaitForLifestream(timeout, sleep)
+  return WaitUntil(function () return NavIsReady() and IsPlayerAvailable() and not LifestreamIsBusy() end, timeout, sleep)
+end
+
 function UseItem(id)
   if not id then return true end
   if not WaitForPlayerReady(5) then return false end

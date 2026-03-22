@@ -374,15 +374,13 @@ function ReturnToHomeWorld()
   return true
 end
 
-function TeleportToBellZone()
-  if GetARCharacterData().WorkshopEnabled then
-    ReturnToFC()
-    return
-  end
+function TeleportToBellZone(timeout)
+  if GetARCharacterData().WorkshopEnabled then return ReturnToFC(timeout) end
 
   local apt_dist = GetDistanceToObject("Apartment Building Entrance")
-  if IsInHousingDistrict() and apt_dist and apt_dist < 20 then return end
+  if IsInHousingDistrict() and apt_dist and apt_dist < 20 then return true end
 
+  local zoneCheck = IsInHousingDistrict
   if IPC.Lifestream.HasPrivateHouse() then
     LifestreamTeleportToHome()
   elseif IPC.Lifestream.HasApartment() then
@@ -391,18 +389,19 @@ function TeleportToBellZone()
     LifestreamTeleportToFC()
   else
     Logging.Info("no registered home, falling back to Hawkers")
-    TeleportToLimsa()
+    yield("/li hawkers")
+    zoneCheck = IsInLimsa
   end
 
   yield("/wait 3")
-  WaitWhile(function () return LifestreamIsBusy() or not IsPlayerAvailable() or not NavIsReady() end)
+  return WaitForLifestream(timeout) and zoneCheck()
 end
 
-function ReturnToFC()
+function ReturnToFC(timeout)
   if not IPC.Lifestream.HasFreeCompanyHouse() then return end
   LifestreamTeleportToFC()
   yield("/wait 3")
-  WaitWhile(function () return LifestreamIsBusy() or not IsPlayerAvailable() or not NavIsReady() end)
+  return WaitForLifestream(timeout) and IsInHousingDistrict()
 end
 
 function BellOrEnter()
@@ -421,39 +420,23 @@ function ReturnToBell()
     return
   end
 
-  local bell_target = "Summoning Bell"
-  if Target(bell_target) and GetDistanceToTarget() < 3 then
-    return
-  end
+  if Target("Summoning Bell") and GetDistanceToTarget() < 3 then return end
 
-  TeleportToBellZone()
-  local timeout = 0
-  while LifestreamIsBusy() == true or (IsInZone(129) == false and IsInHousingDistrict() == false) or NavIsReady() == false or IsPlayerAvailable() == false do
+  if not TeleportToBellZone(15) then
+    Logging.Warning("teleport to bell zone failed, retrying")
+    LifestreamAbort()
     yield("/wait 1")
-    timeout = timeout + 1
-    if timeout == 18 then
-      Logging.Warning("teleport to bell zone timed out, retrying")
-      LifestreamAbort()
-      yield("/wait 1")
-      TeleportToBellZone()
-    end
-    if timeout > 36 then
+    if not TeleportToBellZone(15) then
       Logging.Error("failed to teleport to bell zone")
       LifestreamAbort()
       return
     end
   end
-  yield("/wait 1")
-  if IsInZone(129) then
-    yield("/li hawkers")
-    yield("/wait 3")
-    WaitWhile(function () return LifestreamIsBusy() == true or NavIsReady() == false or IsPlayerAvailable() == false or GetTargetName() == "Aetheryte" end)
-    yield("/wait 1")
-  end
+
   local apartmentDistance = GetDistanceToObject("Apartment Building Entrance")
-  if IsInHousingDistrict() == false or (apartmentDistance and apartmentDistance < 50) then
+  if not IsInHousingDistrict() or (apartmentDistance and apartmentDistance < 50) then
     -- walk to bell if at hawkers or apartment
-    WalkToTarget(bell_target, 2)
+    WalkToTarget("Summoning Bell", 2)
   end
 end
 
