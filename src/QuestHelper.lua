@@ -1789,6 +1789,58 @@ function InitOceanFishingRetainersMulti(chars, names, index)
   end
 end
 
+function BuyFishRetainerLevellingGear(vendor, market)
+  local gear_buy_table = {
+    { 15545, 1, 200000, true, true }, -- Luminous Fiber Fishing Rod
+    { 17726, 1, 100000, true, nil  }, -- Spearfishing Gig
+    { 19617, 1, 100000, true, true }, -- Gaganaskin Bush Hat
+    { 19618, 1, 100000, true, true }, -- Gaganaskin Vest
+    { 19619, 1, 100000, true, true }, -- Gaganaskin Gloves
+    { 19620, 1, 100000, true, true }, -- Bloodhempen Trousers of Gathering
+    { 19621, 1, 100000, true, true }, -- Gaganaskin Fringe Boots
+    { 19733, 1, 100000, true, true }, -- Gyuki Leather Earrings
+    { 19734, 1, 100000, true, true }, -- Gyuki Leather Choker
+    { 19735, 1, 100000, true, true }, -- Gyuki Leather Wristband
+    { 19736, 2, 100000, true, true }, -- Gyuki Leather Ring
+  }
+  local gear_vendor_table = {
+    ["Syneyhil"] = {
+      ["1,2"] = {
+        { 2576, 9, 1 },
+      },
+    },
+    ["Iron Thunder"] = {
+      ["2,2"] = {
+        { 2734, 4, 1 },
+        { 3092, 8, 1 },
+        { 3578, 13, 1 },
+        { 3351, 17, 1 },
+        { 3810, 22, 1 },
+      },
+    }
+  }
+
+  if vendor ~= false then BuyFromVendorMulti(gear_vendor_table, nil, true) end
+  if market ~= false then GoPurchaseAllItems(gear_buy_table) end
+
+  local gear_ids = TableMapValueTo(gear_buy_table, function (v) return v[1] end)
+  for _, buy_table in pairs(gear_vendor_table) do
+    for _, items in pairs(buy_table) do
+      for _, item in pairs(items) do
+        table.insert(gear_ids, item[1])
+      end
+    end
+  end
+  MoveItemsToArmouryChest(gear_ids)
+  EquipRecommendedGear()
+
+  ReturnToBell()
+end
+
+function BuyFishRetainerLevellingGearMulti()
+  ARApplyToAllCharacters(ARFindAllFishCharactersToLevel(), BuyFishRetainerLevellingGear)
+end
+
 function TopUpFishRetainer(junk_table, ventures, cordials, cordial_price, gil_floor, free_slots)
   ventures = ventures or 500
   cordials = cordials or 900
@@ -1814,12 +1866,5 @@ end
 function TopUpFishRetainerMulti(junk_table, ventures, cordials, cordial_price, gil_floor, free_slots, level)
   level = level or GetMaxLevel()
   local function topUp(cid) TopUpFishRetainer(junk_table, ventures, cordials, cordial_price, gil_floor, free_slots) end
-  local function condition(cid)
-    local data = ARGetCharacterData(cid)
-    if not data or not data.Enabled then return false end
-    local fsh_level = ARHasFishingRetainer(data.RetainerData)
-    return fsh_level and fsh_level < level
-  end
-
-  ARApplyToAllCharacters(ARGetCharacterCIDs(), topUp, condition)
+  ARApplyToAllCharacters(ARFindAllFishCharactersToLevel(level), topUp)
 end
