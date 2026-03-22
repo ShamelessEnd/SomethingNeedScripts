@@ -273,9 +273,27 @@ index = index of item in shop (starting from 0)
 ]]--
 
 function BuyFromVendor(name, buy_list, use_total_count)
-  NavToObject(name, 3, false, 60)
-  local bought = {}
+  if use_total_count then
+    local reduced_buy_list = {}
+    for menus, items in pairs(buy_list) do
+      local reduced_items = {}
+      for _, item in pairs(items) do
+        local id = item[1]
+        local i = item[2]
+        local target_count = item[3] or 1
+        local buy_count = target_count - GetItemCount(id)
+        if buy_count > 0 then table.insert(reduced_items, { id, i, buy_count }) end
+      end
+      if not TableIsEmpty(reduced_items) then reduced_buy_list[menus] = reduced_items end
+    end
+    buy_list = reduced_buy_list
+  end
 
+  if TableIsEmpty(buy_list) then return {} end
+
+  NavToObject(name, 3, false, 60)
+
+  local bought = {}
   for menus, items in pairs(buy_list) do
     local menu_path = { StringSplit(menus, ',') }
     if TableIsEmpty(menu_path) then
@@ -292,7 +310,6 @@ function BuyFromVendor(name, buy_list, use_total_count)
 
       local start_count = GetItemCount(id)
       local target_count = start_count + count
-      if use_total_count then target_count = count end
 
       if target_count > start_count then
         while GetItemCount(id) < target_count do
