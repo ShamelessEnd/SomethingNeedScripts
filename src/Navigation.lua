@@ -381,25 +381,28 @@ function TeleportToBellZone()
   end
 
   local apt_dist = GetDistanceToObject("Apartment Building Entrance")
-  if IsInHousingDistrict() and apt_dist ~= nil and apt_dist < 20 then
-    return
-  end
+  if IsInHousingDistrict() and apt_dist and apt_dist < 20 then return end
 
-  LifestreamTeleportToApartment()
-  yield("/wait 3")
-
-  if not IsCasting() then
-    Logging.Info("no registered fc or apartment, falling back to Hawkers")
-    TeleportToLimsa()
+  if IPC.Lifestream.HasPrivateHouse() then
+    LifestreamTeleportToHome()
+  elseif IPC.Lifestream.HasApartment() then
+    LifestreamTeleportToApartment()
+  elseif IPC.Lifestream.HasFreeCompanyHouse() then
+    LifestreamTeleportToFC()
   else
-    yield("/wait 5")
+    Logging.Info("no registered home, falling back to Hawkers")
+    TeleportToLimsa()
   end
+
+  yield("/wait 3")
+  WaitWhile(function () return LifestreamIsBusy() or not IsPlayerAvailable() or not NavIsReady() end)
 end
 
 function ReturnToFC()
-  yield("/li fc")
-  yield("/wait 7")
-  WaitWhile(LifestreamIsBusy)
+  if not IPC.Lifestream.HasFreeCompanyHouse() then return end
+  LifestreamTeleportToFC()
+  yield("/wait 3")
+  WaitWhile(function () return LifestreamIsBusy() or not IsPlayerAvailable() or not NavIsReady() end)
 end
 
 function BellOrEnter()

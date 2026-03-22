@@ -435,6 +435,10 @@ function LifestreamTeleportToFC()
   return IPC.Lifestream.TeleportToFC()
 end
 
+function LifestreamTeleportToHome()
+  return IPC.Lifestream.TeleportToHome()
+end
+
 function LifestreamTeleportToApartment()
   return IPC.Lifestream.TeleportToApartment()
 end
