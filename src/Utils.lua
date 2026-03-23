@@ -176,10 +176,7 @@ function RepeatUntil(action, condition, timeout, sleep)
   if timeout and timeout < 0 then return false end
   if timeout and timeout < error_check_threshold then error_check_threshold = timeout end
   repeat
-    if action then
-      local result = action()
-      if result ~= nil then return result end
-    end
+    if action then action() end
     if CallbackConfig.ExitOnDC then
       if error_check_count >= error_check_threshold then
         ExitGameIfServerError()
