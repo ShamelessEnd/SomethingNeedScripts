@@ -135,7 +135,8 @@ function PathToNearestGroundPoint(x_t, y_t, z_t)
   PathfindAndMoveTo(x_g, y_g, z_g, false)
 end
 
-function NavToPoint(x, y, z, stop_dist, fly, timeout)
+function NavToPoint(x, y, z, stop_dist, fly, timeout, jump_stuck)
+  jump_stuck = jump_stuck ~= false
   if not x or not y or not z then return false end
   stop_dist = stop_dist or 1
   fly = fly or false
@@ -155,7 +156,7 @@ function NavToPoint(x, y, z, stop_dist, fly, timeout)
   local rebuild_once = true
   local last_x, last_y, last_z = GetPlayerXYZ()
   local stuck_count = 0
-  local jump_once = true
+  local jump_once = jump_stuck
   local jump_timeout = 5
   local function rebuildAndRetry()
       RebuildNavMesh()
@@ -164,7 +165,7 @@ function NavToPoint(x, y, z, stop_dist, fly, timeout)
       timeout_count = 0
       last_x, last_y, last_z = GetPlayerXYZ()
       stuck_count = 0
-      jump_once = true
+      jump_once = jump_stuck
   end
   while GetDistanceToPoint(x, y, z) > stop_dist do
     if timeout and timeout_count > timeout then
@@ -188,7 +189,7 @@ function NavToPoint(x, y, z, stop_dist, fly, timeout)
     else
       last_x, last_y, last_z = GetPlayerXYZ()
       stuck_count = 0
-      jump_once = true
+      jump_once = jump_stuck
     end
     timeout_count = timeout_count + 0.1
     yield("/wait 0.1")
