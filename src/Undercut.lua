@@ -100,7 +100,7 @@ end
 
 function GetSellEntryByName(sell_table, item_name)
   if sell_table then
-    for i, raw_sell_entry in pairs(sell_table) do
+    for _, raw_sell_entry in pairs(sell_table) do
       if not raw_sell_entry.item_name then
         raw_sell_entry.item_name = GetItemName(raw_sell_entry[1])
       end

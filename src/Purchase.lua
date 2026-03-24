@@ -300,7 +300,7 @@ function BuyFromVendor(name, buy_list, use_total_count)
       InteractWith(name, "Shop")
     else
       InteractWith(name)
-      for _, i in pairs(menu_path) do SelectStringIndex(i) end
+      for _, i in ipairs(menu_path) do SelectStringIndex(i) end
     end
 
     for _, item in pairs(items) do

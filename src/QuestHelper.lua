@@ -599,8 +599,8 @@ local function equipCombatJob(min_level)
     yield("/armoury")
   until AwaitAddonReady("ArmouryBoard", 1)
   local weapons = FindItemsInCharacterArmoury("Main")
-  for key, value in pairs(weapons) do
-    yield("/equip "..key)
+  for id, _ in pairs(weapons) do
+    yield("/equip "..id)
     if WaitUntil(function () return GetClassJobId() ~= 18 end, 3) then
       if GetLevel() >= min_level then
         EquipRecommendedGear()
