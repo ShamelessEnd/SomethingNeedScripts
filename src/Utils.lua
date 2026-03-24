@@ -68,12 +68,19 @@ function TableMapTo(t, lambda)
   return mapped
 end
 
+function TableSize(t)
+  local c = 0
+  for _ in pairs(t) do c = c + 1 end
+  return c
+end
+
 function ChunkedTable(t, size)
   t = ToTable(t)
   if t == nil or size <= 0 then return nil end
+  local total = TableSize(t)
   local chunked = {}
-  for i = 1,#t,size do
-    table.insert(chunked, {table.unpack(t, i, math.min(#t, i + size - 1))})
+  for i = 1,total,size do
+    table.insert(chunked, {table.unpack(t, i, math.min(total, i + size - 1))})
   end
   return chunked
 end

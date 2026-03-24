@@ -25,13 +25,13 @@ local function toLuaArgs(args)
   if not args then return "" end
   local args_str = ""
   local first = true
-  for i = 1, #args do
+  for _, arg in ipairs(args) do
     if first then
       first = false
     else
       args_str = args_str..", "
     end
-    args_str = args_str..toLuaData(args[i])
+    args_str = args_str..toLuaData(arg)
   end
   return args_str
 end
