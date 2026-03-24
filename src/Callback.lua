@@ -17,7 +17,7 @@ function CallbackCommand(target, update, ...)
   local prefix
   if IsPCallAvailable() then prefix = "/pcall " else prefix = "/callback " end
   local command = prefix..target.." "..tostring(update)
-  for _, arg in ipairs({...}) do
+  for _, arg in pairs({...}) do
     if type(arg) == "string"then
       if arg:find(" ") then
         command = command.." \""..arg.."\""

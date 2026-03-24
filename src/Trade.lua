@@ -62,7 +62,7 @@ function TradeCeruleumStacks(stacks, max_only)
   local inventory = FindItemsInCharacterInventory()
   local item_stacks = inventory[10155] or {}
   local stack_count = 0
-  for _, stack in ipairs(item_stacks) do
+  for _, stack in pairs(item_stacks) do
     if stack.count >= 999 or not max_only then
       if not TradeItemFromSlot(stack) then return end
       stack_count = stack_count + 1
@@ -260,5 +260,5 @@ function TopUpCeruleumTanks(target, server, exclude, password, thresholds)
 
   local chunk_size = math.max(math.floor(thresholds.target_space / thresholds.buy_stacks), 1)
   local chunked_cids_need_tanks = ChunkedTable(cids_need_tanks, chunk_size) or {}
-  for _, chunk in ipairs(chunked_cids_need_tanks) do applyCidChunk(chunk) end
+  for _, chunk in pairs(chunked_cids_need_tanks) do applyCidChunk(chunk) end
 end

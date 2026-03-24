@@ -18,7 +18,7 @@ CharacterTable = {
 
 function CharacterIdTable()
   local ids = {}
-  for _, char in ipairs(CharacterTable) do
+  for _, char in pairs(CharacterTable) do
     if GetARCharacterData(char.id) then
       table.insert(ids, char.id)
     end

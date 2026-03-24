@@ -60,7 +60,7 @@ function TeleportToUldah() return TeleportToAetheryte(9) end
 
 function TeleportToZone(zone)
   local aetherytes = GetAetherytesInZone(zone)
-  for _, aetheryte in ipairs(aetherytes) do
+  for _, aetheryte in pairs(aetherytes) do
     if TeleportToAetheryte(aetheryte) then
       return true
     end

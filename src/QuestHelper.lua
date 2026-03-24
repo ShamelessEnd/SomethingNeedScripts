@@ -268,7 +268,7 @@ function QuestWatch(target_level, gc, silent)
 end
 
 function QuestMulti(chars, level, gc, names, index, count, aetherytes)
-  for _, character in ipairs(chars) do
+  for _, character in pairs(chars) do
     local function isCharacter() return GetCharacterName(true) == character end
     if not isCharacter() then
       yield("/ays relog "..character)
@@ -462,7 +462,7 @@ end
 
 function KillMobs(targets)
   local function needKill()
-    for _, count in ipairs(targets) do
+    for _, count in pairs(targets) do
       if count > 0 then return true end
     end
     return false
@@ -599,8 +599,8 @@ local function equipCombatJob(min_level)
     yield("/armoury")
   until AwaitAddonReady("ArmouryBoard", 1)
   local weapons = FindItemsInCharacterArmoury("Main")
-  for id, _ in pairs(weapons) do
-    yield("/equip "..id)
+  for key, value in pairs(weapons) do
+    yield("/equip "..key)
     if WaitUntil(function () return GetClassJobId() ~= 18 end, 3) then
       if GetLevel() >= min_level then
         EquipRecommendedGear()
@@ -717,7 +717,7 @@ function IsAdderHuntLogComplete(...)
       end
     end
   until not StringIsEmpty(GetNewNodeText("MonsterNote", 1, 46, GetNodeListIndex(9, 5), 4))
-  for _, arg in ipairs({...}) do
+  for _, arg in pairs({...}) do
     if not IsNodeVisible("MonsterNote", 1, 46, GetNodeListIndex(arg, 6), 3) then
       CloseAddonFast("MonsterNote")
       return false
@@ -1528,7 +1528,7 @@ function GoSetupRetainers(names, index)
   while not NavToObject("Frydwyb", 3, false, 30) do
     TeleportToLimsa()
   end
-  for _, name in ipairs(names) do
+  for _, name in pairs(names) do
     InteractWith("Frydwyb", "SelectString")
     Callback("SelectString", true, 0)
     Callback("SelectYesno", true, 0)
@@ -1741,7 +1741,7 @@ function GoPurchaseFishingItems()
   NavToObject("Sorcha", 3, false, 20)
   InteractWith("Sorcha", "SelectIconString")
   Callback("SelectIconString", true, 1)
-  for _, i in ipairs({ 5, 12, 16, 20, 20}) do
+  for _, i in pairs({ 5, 12, 16, 20, 20}) do
     Callback("Shop", true, 0, i, 1)
     Callback("Shop", true, 7, i)
     Callback("SelectYesno", true, 0)
@@ -1783,7 +1783,7 @@ function InitOceanFishingRetainers(names, index, count)
 end
 
 function InitOceanFishingRetainersMulti(chars, names, index)
-  for _, char in ipairs(chars) do
+  for _, char in pairs(chars) do
     ARRelogTo(ARFindCid(char))
     InitOceanFishingRetainers(names, index)
   end
@@ -1824,9 +1824,9 @@ function BuyFishRetainerLevellingGear(vendor, market)
   if market ~= false then GoPurchaseAllItems(gear_buy_table) end
 
   local gear_ids = TableMapValueTo(gear_buy_table, function (v) return v[1] end)
-  for _, buy_table in ipairs(gear_vendor_table) do
-    for _, items in ipairs(buy_table) do
-      for _, item in ipairs(items) do
+  for _, buy_table in pairs(gear_vendor_table) do
+    for _, items in pairs(buy_table) do
+      for _, item in pairs(items) do
         table.insert(gear_ids, item[1])
       end
     end

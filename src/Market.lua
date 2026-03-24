@@ -129,7 +129,7 @@ function GetItemHistoryTrimmedMean()
   local history_list, history_count = GetItemHistoryPriceList(10)
 
   local history_total = 0
-  for _, history_price in ipairs(history_list) do
+  for _, history_price in pairs(history_list) do
     history_total = history_total + history_price
   end
 

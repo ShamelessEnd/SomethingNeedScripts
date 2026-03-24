@@ -50,7 +50,7 @@ function FindItemsInInventory(inventory_map)
   if inventory_map == nil then
     return items
   end
-  for _, mapping in ipairs(inventory_map) do
+  for _, mapping in pairs(inventory_map) do
     local item_id = GetItemIdInSlot(mapping.internal.page, mapping.internal.slot)
     local item_stack = {
       visible = mapping.visible,
@@ -72,7 +72,7 @@ function FindItemsInCharacterArmoury(slot) return FindItemsInInventory(GetLazyIn
 
 function MoveItemsToArmouryChest(items)
   local inv_types = { InventoryType.Inventory1, InventoryType.Inventory2, InventoryType.Inventory3, InventoryType.Inventory4 }
-  for _, inv in ipairs(inv_types) do
+  for _, inv in pairs(inv_types) do
     local inv_items = Inventory.GetInventoryContainer(inv).Items
     for i = 0, inv_items.Count - 1 do
       local item = inv_items[i]
