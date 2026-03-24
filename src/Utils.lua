@@ -37,7 +37,7 @@ function ToTable(c)
   if type(c) == "table" then return c end
   if c == nil or c.Count == nil then return nil end
   local t = {}
-  for i = 0, c.Count - 1 do t[i+1] = c[i] end
+  for i = 0, c.Count - 1 do table.insert(t, c[i]) end
   return t
 end
 
