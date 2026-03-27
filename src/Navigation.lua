@@ -399,6 +399,7 @@ function TeleportToBellZone(timeout)
 end
 
 function ReturnToFC(timeout)
+  if not ReturnToHomeWorld() then return end
   if not IPC.Lifestream.HasFreeCompanyHouse() then return end
   LifestreamTeleportToFC()
   yield("/wait 3")
