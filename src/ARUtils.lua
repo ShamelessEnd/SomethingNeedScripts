@@ -5,7 +5,6 @@ require "Utils"
 function GetARCharacterData(cid)
   cid = cid or GetPlayerContentId()
   if not cid then return nil end
-  Logging.Debug("fetching AR character data "..cid)
   local data = ARGetCharacterData(cid)
   if data and data.CID == cid then
     return data
