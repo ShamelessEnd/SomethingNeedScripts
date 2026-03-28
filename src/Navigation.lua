@@ -376,7 +376,8 @@ function ReturnToHomeWorld()
 end
 
 function TeleportToBellZone(timeout)
-  if GetARCharacterData().WorkshopEnabled then return ReturnToFC(timeout) end
+  local ar_data = GetARCharacterData()
+  if ar_data and ar_data.WorkshopEnabled then return ReturnToFC(timeout) end
 
   local apt_dist = GetDistanceToObject("Apartment Building Entrance")
   if IsInHousingDistrict() and apt_dist and apt_dist < 20 then return true end

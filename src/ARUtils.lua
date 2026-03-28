@@ -4,8 +4,16 @@ require "Utils"
 
 function GetARCharacterData(cid)
   cid = cid or GetPlayerContentId()
+  if not cid then
+    yield("/wait 0.1")
+    cid = GetPlayerContentId()
+  end
   if not cid then return nil end
   local data = ARGetCharacterData(cid)
+  if not data then
+    yield("/wait 0.1")
+    data = ARGetCharacterData(cid)
+  end
   if data and data.CID == cid then
     return data
   end
