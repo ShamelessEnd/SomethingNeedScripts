@@ -176,8 +176,11 @@ function GoDoOceanFishing(food, offset)
   WaitUntil(function () local time = GetTimeToNextBoat(offset) return time > 105 * 60 + 5 and time < 120 * 60 - 5 end)
 
   if not InteractWith("Dryskthota", "SelectString") then return end
-  Callback("SelectString", true, 0)
-  if not AwaitAddonReady("SelectYesno", 3) then return end
+  RepeatUntil(
+    function () CallbackTimeout(1, "SelectString", true, 0) end,
+    function () return AwaitAddonReady("SelectYesno", 1) end,
+    30
+  )
   repeat
     Callback("SelectYesno", true, 0)
   until AwaitAddonGone("SelectYesno", 1)
