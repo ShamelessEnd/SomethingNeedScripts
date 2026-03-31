@@ -32,7 +32,7 @@ local _default_thresholds = {
   },
   gc = {
     inv = 40,
-    vanture = 100,
+    venture = 100,
   },
   kill_after = 200000,
 }
