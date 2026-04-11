@@ -311,7 +311,6 @@ function QuestMulti(chars, level, gc, names, index, count, aetherytes)
 end
 
 function UnlockTeleport()
-  if GetLevel() > 3 then return end
   if not Quests.IsQuestComplete(65575) then
     yield("/at y")
     NavToObject("Bertennant", 2, false, 15)
