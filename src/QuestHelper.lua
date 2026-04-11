@@ -312,6 +312,16 @@ end
 
 function UnlockTeleport()
   if GetLevel() > 3 then return end
+  if not Quests.IsQuestComplete(65575) then
+    yield("/at y")
+    NavToObject("Bertennant", 2, false, 15)
+    InteractWith("Bertennant")
+    WaitForPlayerReady()
+    yield("/at n")
+    NavToObject("Mother Miounne", 2, false, 30)
+    yield("/at y")
+    WaitUntil(function () return IsPlayerAvailable() and IsQuestAccepted(65659) end, 30)
+  end
   if IsInZone(132) then
     yield("/at n")
     NavToAetheryte()
