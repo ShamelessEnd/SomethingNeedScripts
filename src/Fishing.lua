@@ -108,7 +108,7 @@ function DoOceanFishing()
   }
 
   WaitForNavReady()
-  if not NavToPoint(7.5, 6.7, -6.0, 0.3, false, 30, false) then return end
+  if not NavToPoint(7.5, 6.7, -6.0, 0.3, false, 30, false) and not IsGathering() then return end
   EquipBait(oceanMapBait[GetNewNodeText("IKDFishingLog", 1, 6)])
   SetAutoHookState(true)
   if not RepeatUntil(function () yield("/ac cast") end, IsFishingWaiting, 30, 0.5) then return end
@@ -136,6 +136,7 @@ function DoOceanFishingRoute()
     return false
   end
 
+  SetAutoHookState(false)
   WaitForReadyInZone(900, 200, 1)
   while true do
     if not WaitWhile(isBetweenFishingZones, 100, 1) then return end
