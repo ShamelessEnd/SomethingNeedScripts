@@ -254,6 +254,20 @@ function InteractWithAetheryte()
 end
 
 function WorldVisitTo(server_name)
+  local dest = FindServerData(server_name)
+  local current = GetServerData()
+  if dest.id == current.id then return true end
+  if dest.dc ~= current.dc then
+    Logging.Error("destination is not on this dc")
+    return false
+  end
+
+  if IsInTown() then NavToAetheryte() end
+  LifestreamTo(server_name)
+  return GetCurrentWorld() == dest.id
+end
+
+function WorldVisitToLegacy(server_name)
   if not IsInTown() or not NavToAetheryte() then
     TeleportToLimsa()
     if not NavToAetheryte() then
