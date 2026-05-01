@@ -170,7 +170,7 @@ function CollectGilTo(target, server, exclude)
     if traded_gil >= MAX_TRADED_GIL then return false end
     local data = GetARCharacterData(cid)
     if TableContains(exclude, cid) then return false end
-    if not data or data.Gil < 5000000 then return false end
+    if not data or not data.WorkshopEnabled or data.Gil < 5000000 then return false end
     local server_data = FindServerData(data.World)
     if not server_data or server_data.dc ~= target_server_data.dc then return false end
     return true
