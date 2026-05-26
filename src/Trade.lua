@@ -215,7 +215,7 @@ function TopUpCeruleumTanks(target, server, exclude, password, thresholds)
   local cids_retainer_char = {}
   for i = 0, cids.Count - 1 do
     local cid = cids[i]
-    local data = ARGetCharacterData(cid)
+    local data = GetARCharacterData(cid)
     if data then
       local server_data = FindServerData(data.World)
       if server_data and server_data.dc == target_server_data.dc and not TableContains(exclude, cid) then
