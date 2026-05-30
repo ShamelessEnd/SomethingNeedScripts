@@ -221,7 +221,7 @@ function TopUpCeruleumTanks(target, server, exclude, password, thresholds)
       if server_data and server_data.dc == target_server_data.dc and not TableContains(exclude, cid) then
         if data.Enabled == true then
           cids_retainer_char[math.random(math.maxinteger)] = cid
-        elseif data.Ceruleum < thresholds.min_tanks then
+        elseif data.WorkshopEnabled and data.Ceruleum < thresholds.min_tanks then
           table.insert(cids_need_tanks, cid)
         end
       end
