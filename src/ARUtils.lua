@@ -10,11 +10,11 @@ function GetARCharacterData(cid)
   end
   if not cid then return nil end
   local data = ARGetCharacterData(cid)
-  if not data then
+  if not data or type(data) ~= "userdata" then
     yield("/wait 0.1")
     data = ARGetCharacterData(cid)
   end
-  if data and data.CID == cid then
+  if data and type(data) == "userdata" and data.CID == cid then
     return data
   end
   return nil
