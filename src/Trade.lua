@@ -150,7 +150,7 @@ function GoFetchCeruleumFrom(target, server, min_tanks, password)
   end
 
   repeat
-    if not TradeCeruleumOnceFromTarget(password) then break end
+    TradeCeruleumOnceFromTarget(password)
   until GetItemCount(10155) >= min_tanks
 
   ReturnToFC()
@@ -204,8 +204,9 @@ function CollectCeruleumFrom(target, server, exclude, password)
   Logging.Notify("ceruleum collection complete")
 end
 
-function TopUpCeruleumTanks(target, server, exclude, password, thresholds)
+function TopUpCeruleumTanks(target, server, exclude, password, thresholds, start_tank_stacks)
   if not thresholds then thresholds = { min_tanks = 4996, buy_stacks = 5, target_space = 100 } end
+  if not start_tank_stacks then start_tank_stacks = 0 end
 
   local target_server_data = FindServerData(server)
   if not target_server_data then return end
@@ -230,7 +231,9 @@ function TopUpCeruleumTanks(target, server, exclude, password, thresholds)
 
   local cids_retainer_char_empty = {}
   local function applyCidChunk(cids_need_tanks_chunk)
-    local tanks_stacks_needed = TableSize(cids_need_tanks_chunk) * thresholds.buy_stacks
+    local tanks_stacks_requested = TableSize(cids_need_tanks_chunk) * thresholds.buy_stacks
+    local tanks_stacks_needed = math.max(0, tanks_stacks_requested - start_tank_stacks)
+    start_tank_stacks = start_tank_stacks - (tanks_stacks_requested - tanks_stacks_needed)
     local function goBuyTanks(cid)
       local bought = GoBuyCeruleumTanks(tanks_stacks_needed)
       if not bought or bought < tanks_stacks_needed then
