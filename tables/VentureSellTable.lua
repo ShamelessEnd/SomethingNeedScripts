@@ -62,6 +62,7 @@ VentureSellTable = {
       {  7542,       19500,      false,          1,            1,        0 }, -- "Spring Dress Shoes"         },
       {  7540,       49500,      false,          1,            1,        0 }, -- "Spring Dress"               },
       { 47260,        9500,      false,          1,            1,        0 }, -- "Summertide Formal Shoes"    },
+      { 47261,       19500,      false,          1,            1,        0 }, -- "Summertide Formal Dress"    },
       { 47262,       19500,      false,          1,            1,        0 }, -- "Summertide Formal Dress Sh" },
       { 47258,       19500,      false,          1,            1,        0 }, -- "Summertide Formal Jacket"   },
       { 47259,       19500,      false,          1,            1,        0 }, -- "Summertide Formal Slacks"   },
