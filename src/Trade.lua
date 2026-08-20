@@ -54,7 +54,7 @@ function TradeCeruleumOnTellMessage(password)
   if not AwaitAddonReady("Trade", 5) then return end
 
   Logging.Echo("ceruleum trade request from "..tostring(TriggerData.sender))
-  TradeCeruleumStacks(5)
+  TradeCeruleumStacks(5, true)
 end
 
 function TradeCeruleumStacks(stacks, max_only)
