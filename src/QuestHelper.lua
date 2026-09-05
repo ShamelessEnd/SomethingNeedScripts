@@ -311,6 +311,10 @@ function QuestMulti(chars, level, gc, names, index, count, aetherytes)
 end
 
 function UnlockTeleport()
+  repeat
+    yield("/at y")
+    TryCallback("SelectString", true, -1)
+  until WaitUntil(IsPlayerAvailable, 1)
   if not Quests.IsQuestComplete(65575) then
     yield("/at y")
     NavToObject("Bertennant", 2, false, 15)
