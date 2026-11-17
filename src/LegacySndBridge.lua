@@ -17,6 +17,7 @@ function GetCharacterName(includeWorld)
 end
 
 function GetPlayerContentId()
+  if not Player.Entity then return nil end
   return Player.Entity.ContentId
 end
 
