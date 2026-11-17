@@ -8,7 +8,7 @@ require "Utils"
 --[[
 
 sell_table = {
-  { id, price_floor, force_list, stack_size, max_listings, min_keep },
+  { id, price_floor, force_list, stack_size, max_listings, min_keep, discard },
   ...
 }
 
@@ -94,6 +94,7 @@ function ParseSellEntry(raw_sell_entry)
     stack_size = raw_sell_entry[4] or 1,
     max_listings = raw_sell_entry[5] or 20,
     min_keep = raw_sell_entry[6] or 0,
+    discard = raw_sell_entry[7] or false,
   }
   return raw_sell_entry.parsed_entry
 end
@@ -154,7 +155,7 @@ function UndercutItems(return_function, sell_table, undercut_other, default_floo
 
     if sell_entry then
       local item_id = sell_entry.id
-      if listed_items[item_id] then
+      if listed_items[item_id] and listed_items[item_id].count >= 0 then
         listed_items[item_id].count = listed_items[item_id].count + 1
       else
         listed_items[item_id] = { count=1, price=undercut_price }
@@ -169,9 +170,6 @@ function UndercutItems(return_function, sell_table, undercut_other, default_floo
     if undercut_price <= 0 then
       Logging.Info("    failed to calculate price, skipping item")
       CloseItemSell()
-    elseif undercut_price == current_price then
-      Logging.Info("    price target unchanged, skipping item")
-      CloseItemSell()
     elseif undercut_price < floor_price then
       Logging.Info("    new price too low ("..undercut_price.." < "..floor_price..")")
       if sell_entry and sell_entry.force_list then
@@ -184,10 +182,12 @@ function UndercutItems(return_function, sell_table, undercut_other, default_floo
           returned_count = returned_count + 1
         end
         if sell_entry then
-          -- set count to max to prevent future re-trying to list same item
-          listed_items[sell_entry.id].count = sell_entry.max_listings
+          listed_items[sell_entry.id].count = -1
         end
       end
+    elseif undercut_price == current_price then
+      Logging.Info("    price target unchanged, skipping item")
+      CloseItemSell()
     else
       ApplyPriceUpdateAndClose(undercut_price)
       Logging.Info("    price updated: "..current_price.." -> "..undercut_price)
@@ -238,13 +238,15 @@ function ListItemForSaleFromStack(item_stack, stack_size, max_slots, price_floor
       if force_list then
         list_price = RoundUpToNext(price_floor, 10) - 10
       else
-        list_price = 0
+        CloseItemSell()
+        Logging.Info("sell price is too low, not listing")
+        return 0, 0
       end
     end
     if list_price <= 0 then
       CloseItemSell()
-      Logging.Debug("item price is too low, bailing")
-      return 0, 0
+      Logging.Info("failed to calculate sell price, bailing")
+      return 0, -1
     end
   end
 
@@ -285,12 +287,22 @@ function ListItemForSale(sell_entry, max_slots, item_stacks, listed_item)
   end
 
   local list_price = -1
+  local discard_all = false
   if listed_item ~= nil then
     list_price = listed_item.price
-    max_listings = max_listings - listed_item.count
-    if max_listings <= 0 then
-      Logging.Debug("max listings already fulfilled, skipping item")
-      return 0
+    if listed_item.count < 0 then
+      if sell_entry.discard then
+        discard_all = true
+      else
+        Logging.Debug("item failed undercut already, skipping")
+        return 0
+      end
+    else
+      max_listings = max_listings - listed_item.count
+      if max_listings <= 0 then
+        Logging.Debug("max listings already fulfilled, skipping item")
+        return 0
+      end
     end
   end
 
@@ -302,33 +314,42 @@ function ListItemForSale(sell_entry, max_slots, item_stacks, listed_item)
   local min_keep = sell_entry.min_keep
   for _, item_stack in pairs(item_stacks) do
     Logging.Debug("processing stack "..item_stack.count.." at "..item_stack.visible.page.."."..item_stack.visible.slot)
-    local original_count = item_stack.count
-    if item_stack.count <= 0 then
-      Logging.Debug("cannot process stack, failed to fetch item count")
-    elseif min_keep > 0 then
-      if item_stack.count < min_keep then
-        min_keep = min_keep - item_stack.count
-        item_stack.count = 0
-      else
-        item_stack.count = item_stack.count - min_keep
-        min_keep = 0
+    if discard_all then
+      DiscardItemStack(item_stack, sell_entry.id)
+    else
+      local original_count = item_stack.count
+      if item_stack.count <= 0 then
+        Logging.Debug("cannot process stack, failed to fetch item count")
+      elseif min_keep > 0 then
+        if item_stack.count < min_keep then
+          min_keep = min_keep - item_stack.count
+          item_stack.count = 0
+        else
+          item_stack.count = item_stack.count - min_keep
+          min_keep = 0
+        end
+        Logging.Debug("reducing count to save min_keep items. new count "..item_stack.count.." (save_count="..min_keep..")")
       end
-      Logging.Debug("reducing count to save min_keep items. new count "..item_stack.count.." (save_count="..min_keep..")")
-    end
 
-    if item_stack.count > 0 then
-      local listings_added = 0
-      listings_added, list_price = ListItemForSaleFromStack(item_stack, sell_entry.stack_size, max_slots, sell_entry.price_floor, sell_entry.force_list, list_price)
-      item_stack.count = original_count - (listings_added * sell_entry.stack_size)
-      num_listings = num_listings + listings_added
-      max_slots = max_slots - listings_added
-      if list_price == 0 then
-        Logging.Debug("failed to fetch item price, bailing")
-        break
-      end
-      if max_slots <= 0 then
-        Logging.Debug("max slots reached, bailing")
-        break
+      if item_stack.count > 0 then
+        local listings_added = 0
+        listings_added, list_price = ListItemForSaleFromStack(item_stack, sell_entry.stack_size, max_slots, sell_entry.price_floor, sell_entry.force_list, list_price)
+        item_stack.count = original_count - (listings_added * sell_entry.stack_size)
+        num_listings = num_listings + listings_added
+        max_slots = max_slots - listings_added
+        if list_price < 0 then
+          break
+        elseif list_price == 0 then
+          if sell_entry.discard then
+            discard_all = true
+            DiscardItemStack(item_stack, sell_entry.id)
+          else
+            break
+          end
+        elseif max_slots <= 0 then
+          Logging.Debug("max slots reached, bailing")
+          break
+        end
       end
     end
   end
@@ -337,6 +358,16 @@ function ListItemForSale(sell_entry, max_slots, item_stacks, listed_item)
     Logging.Info("    Listed item "..sell_entry.id.." "..num_listings.." times, at "..list_price)
   end
   return num_listings
+end
+
+function DiscardItemStack(item_stack, item_id)
+  local item = GetInternalInventoryItem(item_stack.internal.page, item_stack.internal.slot)
+  if not item or item.IsEmpty or item.ItemId ~= item_id then
+    Logging.Error("item not found in slot")
+  else
+    Logging.Info("discarding item "..item.ItemId.." count: "..item.Count.." slot: "..item.Slot.." container: "..tostring(item.Container))
+    item:Discard()
+  end
 end
 
 function SellRetainerItems(retainer_index, retainer_name, sell_table, unlist, undercut, floor)
