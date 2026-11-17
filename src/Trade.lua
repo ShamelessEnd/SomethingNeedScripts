@@ -33,7 +33,20 @@ function TradeGilTo(target, trade_gil)
   return trade_gil
 end
 
+function FirstFreeTradeSlot()
+  if not IsAddonVisible("Trade") then return nil end
+  for i = 0, 4 do
+    if not IsNodeVisible("Trade", 1, 6, 7, i + 8, 2) then return i end
+  end
+  return -1
+end
+
 function TradeItemFromSlot(stack)
+  local next_slot = FirstFreeTradeSlot()
+  if not next_slot or next_slot < 0 then
+    Logging.Error("No free trade slot")
+    return false
+  end
   if not CallbackTimeout(2, "InventoryExpansion", true, 12, 48 + stack.visible.page, stack.visible.slot) then
     Logging.Error("failed to trade - inventory not open")
     return false
@@ -41,6 +54,11 @@ function TradeItemFromSlot(stack)
   if AwaitAddonReady("InputNumeric", 2) then
     CallbackTimeout(2, "InputNumeric", true, stack.count)
     AwaitAddonGone("InputNumeric", 2)
+  end
+  local next_next_slot = FirstFreeTradeSlot()
+  if not next_next_slot or (next_next_slot <= next_slot and next_next_slot >= 0) then
+    Logging.Error("failed to add stack to trade")
+    return false
   end
   yield("/wait 0.1")
   return true
@@ -64,13 +82,15 @@ function TradeCeruleumStacks(stacks, max_only)
   local stack_count = 0
   for _, stack in pairs(item_stacks) do
     if stack.count >= 999 or not max_only then
-      if not TradeItemFromSlot(stack) then return end
+      if not TradeItemFromSlot(stack) then
+        if not TradeItemFromSlot(stack) then return false end
+      end
       stack_count = stack_count + 1
     end
     if stack_count >= stacks then break end
   end
-  if stack_count <= 0 then
-    Logging.Error("no ceruleum to trade")
+  if stack_count < stacks then
+    Logging.Error("not enough ceruleum to trade")
     CallbackTimeout(2, "Trade", true, -1)
     return false
   elseif not CallbackTimeout(2, "Trade", true, 0) then
@@ -126,13 +146,20 @@ function GoTradeCeruleumStacksTo(target, server, stacks)
     Logging.Error("failed to find target "..target)
   end
 
+  Logging.Info("trading "..stacks.." stacks of ceruleum to "..target)
+
   yield("/wait 0.2")
+  local errors = 0
   while stacks > 0 do
     repeat yield("/trade") until AwaitAddonReady("Trade", 0.2)
     local to_trade = math.min(stacks, 5)
     if not TradeCeruleumStacks(to_trade, true) then
       while not AwaitAddonGone("Trade", 1) do Callback("Trade", true, -1) end
-      break
+      errors = errors + 1
+      if errors > 3 then
+        Logging.Error("failed to trade ceruleum stacks to "..target)
+        break
+      end
     end
     stacks = stacks - to_trade
   end
@@ -257,6 +284,10 @@ function TopUpCeruleumTanks(target, server, exclude, password, thresholds, start
       return tanks_stacks_needed > 0 and not TableContains(cids_retainer_char_empty, cid)
     end
     ARApplyToAllCharacters(cids_retainer_char, goBuyTanks, buyTanksIf)
+    if tanks_stacks_needed > 0 then
+      Logging.Error("failed to purchase enough ceruleum tanks")
+      return
+    end
     local function goCollectTanks() GoFetchCeruleumFrom(target, server, GetItemCount(10155) + (999 * thresholds.buy_stacks), password) end
     ARApplyToAllCharacters(cids_need_tanks_chunk, goCollectTanks)
   end
