@@ -6,6 +6,7 @@ require "FreeCompany"
 require "GCTurnIn"
 require "Navigation"
 require "Purchase"
+require "SocketIPC"
 require "Undercut"
 
 local _default_tables = {
@@ -35,6 +36,7 @@ local _default_thresholds = {
     venture = 100,
   },
   kill_after = 200000,
+  ipc = true,
 }
 
 function ARPostProcess(retainer_tables, thresholds, skip_multi_check)
@@ -102,6 +104,8 @@ function OnAsyncPostProcess(retainer_tables, thresholds)
   ARPostProcess(retainer_tables, thresholds, true)
   Logout()
   if thresholds.kill_after and thresholds.kill_after < Svc.PluginInterface.LoadTimeDelta.TotalSeconds then
+    ExitGameFromTitle()
+  elseif thresholds.ipc and HasShutdownCommand(true) then
     ExitGameFromTitle()
   else
     ARSetMultiModeEnabled(true)

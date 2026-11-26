@@ -82,7 +82,7 @@ end
 function CreateSocket(id, overwrite)
     local path = _socket_folder.."\\"..id..".sock"
     local f = io.open(path, "r")
-    local registered = ListSockets(true)[id] ~= nil
+    local registered = HasSocket(id)
     local exists = f ~= nil
     if f then f:close() end
 
@@ -172,4 +172,9 @@ function ListSockets(cleanup)
     f:close()
     if cleanup and TableIsEmpty(sockets) then os.remove(path) end
     return sockets
+end
+
+function HasSocket(id)
+    local sid = tostring(id)
+    return ListSockets()[sid] ~= nil
 end
