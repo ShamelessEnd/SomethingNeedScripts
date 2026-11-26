@@ -13,6 +13,11 @@ function StringEndsWith(s, suffix)
   return s:sub(1 + s:len() - suffix:len()) == suffix
 end
 
+function StringContains(s, substr)
+  if StringIsEmpty(s) or not substr then return false end
+  return s:find(substr, 1, true) ~= nil
+end
+
 function StringTrim(s) if s == nil then return nil else return s:match("^%s*(.-)%s*$") end end
 
 function StringSplit(s, sep)
