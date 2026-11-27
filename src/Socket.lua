@@ -4,6 +4,28 @@ require "Utils"
 local _socket_folder = os.getenv("USERPROFILE")
 function SetSocketFolder(folder) _socket_folder = folder end
 
+function RegisterPID()
+  local pid = GetProcessId()
+  if not pid then return false end
+  local path = _socket_folder.."\\sns.pid.idx"
+  local f = io.open(path, "a")
+  if not f then return false end
+  f:write("+", pid, "@", os.time(), "\n")
+  f:close()
+  return true
+end
+
+function DeregisterPID()
+  local pid = GetProcessId()
+  if not pid then return false end
+  local path = _socket_folder.."\\sns.pid.idx"
+  local f = io.open(path, "a")
+  if not f then return false end
+  f:write("-", pid, "@", os.time(), "\n")
+  f:close()
+  return true
+end
+
 local function RegisterSocket(id)
   local path = _socket_folder.."\\sns.sock.idx"
   local f = io.open(path, "a")
@@ -75,7 +97,12 @@ local function BuildSocket(id, path, fa, fr)
     send = function (msg) return SendMessage(fa, fr, msg) end,
     read = function () return ReadMessage(fr) end,
     close = function () CloseSocket(fa, fr) end,
-    remove = function () CloseSocket(fa, fr) DeregisterSocket(id) return os.remove(path) end
+    remove = function (timeout)
+      CloseSocket(fa, fr)
+      DeregisterSocket(id)
+      if timeout then return WaitUntil(function () return os.remove(path) end, timeout) end
+      return os.remove(path)
+    end
   }
 end
 
@@ -172,6 +199,31 @@ function ListSockets(cleanup)
   f:close()
   if cleanup and TableIsEmpty(sockets) then os.remove(path) end
   return sockets
+end
+
+function ListPIDs(cleanup)
+  local path = _socket_folder.."\\sns.pid.idx"
+  local f = io.open(path, "r")
+  if not f then
+    return {}
+  end
+
+  local pids = {}
+  for l in f:lines() do
+    local op, pid, ts = l:match("^([+-])([^@]+)@(%d+)$")
+    if op == "+" then
+      pids[pid] = pid
+    else
+      pids[pid] = nil
+    end
+  end
+
+  f:close()
+  if cleanup and TableIsEmpty(pids) then os.remove(path) end
+
+  local pid = GetProcessId()
+  if pid then pids[pid] = nil end
+  return pids
 end
 
 function HasSocket(id)
