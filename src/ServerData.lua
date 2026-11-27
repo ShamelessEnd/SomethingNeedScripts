@@ -161,4 +161,20 @@ function FindServerData(server_name)
   Logging.Error("server "..server_name.." not found")
 end
 
+function CanTravelBetweenData(origin_data, target_data)
+  if not origin_data or not target_data then return nil end
+  if not origin_data.id or not target_data.id then return nil end
+  if origin_data.id == target_data.id then return "SERVER" end
+  if not origin_data.dc or not target_data.dc then return nil end
+  if origin_data.dc == target_data.dc then return "DC" end
+  if not origin_data.region or not target_data.region then return nil end
+  if origin_data.region == target_data.region then return "REGION" end
+  if target_data.region == "OCE" then return "OCE" end
+  return nil
+end
+
+function CanTravelBetween(origin_name, target_name)
+  return CanTravelBetweenData(FindServerData(origin_name), FindServerData(target_name))
+end
+
 function GetHomeServerData() return GetServerData(GetHomeWorld()) end

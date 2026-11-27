@@ -61,7 +61,7 @@ function NavToCompanyCreditShop()
     if not (exit_dist and rooms_dist and (exit_dist < 3 or rooms_dist < 3)) then
       local house_dist = GetDistanceToObject("Entrance")
       if not house_dist or house_dist > 10 then
-        ReturnToFC()
+        if not ReturnToFC() then return false end
       end
       if not WalkToTarget("Entrance") then return false end
       if not InteractWith("Entrance", "SelectYesno") then return false end

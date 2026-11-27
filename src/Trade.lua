@@ -131,7 +131,7 @@ function GoTradeAllGilTo(target, server, limit)
   return traded_gil
 end
 
-function GoTradeCeruleumStacksTo(target, server, stacks)
+function GoTradeCeruleumStacksTo(target, server, stacks, no_return)
   if not stacks or stacks <= 0 then return false end
 
   local start_ceruleum = GetItemCount(10155)
@@ -164,7 +164,7 @@ function GoTradeCeruleumStacksTo(target, server, stacks)
     stacks = stacks - to_trade
   end
 
-  ReturnToFC()
+  if not no_return then ReturnToFC() end
   return stacks <= 0
 end
 
