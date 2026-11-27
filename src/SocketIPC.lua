@@ -68,7 +68,9 @@ end
 
 local function SendCommand(socket, msg)
   local encoded = table.concat(msg, _MSG_SEP)
+  Logging.Debug("sending ipc command "..encoded.." to "..socket.id)
   if encoded and socket.send(encoded) then return ParseSocketMessage(encoded) end
+  Logging.Error("failed to send command "..encoded.." to "..socket.id)
   return nil
 end
 
@@ -150,23 +152,27 @@ function HasCloseCommand(socket)
 end
 
 function AwaitAckCommand(socket, msg, timeout, sleep)
-  return WaitUntil(
+  if WaitUntil(
     function ()
       local m = ParseSocketMessage(socket.read())
       return m and m.command == _ACK_COMMAND and m.ack_cmd == msg.command and m.ack_time == msg.time
     end,
     timeout, sleep
-  )
+  ) then return true end
+  Logging.Error("timed out awaiting ACK for command "..msg.time.."#"..msg.command)
+  return false
 end
 
 function AwaitDoneCommand(socket, msg, timeout, sleep)
-  return WaitUntil(
+  if WaitUntil(
     function ()
       local m = ParseSocketMessage(socket.read())
       return m and m.command == _DONE_COMMAND and m.done_cmd == msg.command and m.done_time == msg.time
     end,
     timeout, sleep
-  )
+  ) then return true end
+  Logging.Error("timed out awaiting DONE for command "..msg.time.."#"..msg.command)
+  return false
 end
 
 function RequestCeruleumIPC(stacks, timeout)
@@ -174,6 +180,7 @@ function RequestCeruleumIPC(stacks, timeout)
   if not arData then return end
   local s = CreateRandomSocket()
   if not s then return end
+  Logging.Info("requesting "..tostring(stacks).." ceruleum stacks for "..arData.Name.."@"..arData.World..": "..s.id)
 
   local msg = SendCeruleumCommand(s, arData.Name, arData.World, stacks)
   local function exit()
@@ -186,7 +193,7 @@ function RequestCeruleumIPC(stacks, timeout)
   if not AwaitAckCommand(s, msg, timeout, 1) then exit() return end
 
   TeleportToGridania()
-  AwaitDoneCommand(s, msg, timeout, 1)
+  if AwaitDoneCommand(s, msg, timeout, 1) then Logging.Info("ceruleum request complete") end
   exit()
   ReturnToBell()
 end
@@ -199,10 +206,12 @@ function AnswerCeruleumIPC()
   local server = msg.world
   local stacks = msg.stacks or 5
   if not target or not server or not stacks then s.close() return end
+  Logging.Info("fulfilling ceruleum ipc request from "..target.."@"..server.." for "..stacks.." stacks")
 
   if not SendAckCommand(s, msg) then s.close() return end
   local function exit()
     if HasCloseCommand(s) then
+      Logging.Warning("socket closed by requester")
       s.remove()
     else
       SendDoneCommand(s, msg)
@@ -211,13 +220,17 @@ function AnswerCeruleumIPC()
   end
 
   local char = ARFindCeruleumBuyer(stacks, server)
-  if not char then exit() return end
+  if not char then
+    Logging.Error("found no character that can fulfil the request")
+    exit()
+    return
+  end
   if not ARRelogTo(char.CID) then exit() return end
 
   local bought = GoBuyCeruleumTanks(stacks)
   if not bought or bought <= 0 then exit() return end
 
-  GoTradeCeruleumStacksTo(target, server, bought, true)
+  if GoTradeCeruleumStacksTo(target, server, bought, true) then Logging.Info("ceruleum request fulfilled") end
   exit()
   ReturnToBell()
 end

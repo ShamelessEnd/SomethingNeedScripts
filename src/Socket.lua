@@ -7,6 +7,7 @@ function SetSocketFolder(folder) _socket_folder = folder end
 function RegisterPID()
   local pid = GetProcessId()
   if not pid then return false end
+  Logging.Debug("registering PID "..pid)
   local path = _socket_folder.."\\sns.pid.idx"
   local f = io.open(path, "a")
   if not f then return false end
@@ -18,6 +19,7 @@ end
 function DeregisterPID()
   local pid = GetProcessId()
   if not pid then return false end
+  Logging.Debug("deregistering PID "..pid)
   local path = _socket_folder.."\\sns.pid.idx"
   local f = io.open(path, "a")
   if not f then return false end
@@ -27,6 +29,7 @@ function DeregisterPID()
 end
 
 local function RegisterSocket(id)
+  Logging.Debug("registering socket "..id)
   local path = _socket_folder.."\\sns.sock.idx"
   local f = io.open(path, "a")
   if not f then return false end
@@ -36,6 +39,7 @@ local function RegisterSocket(id)
 end
 
 local function DeregisterSocket(id)
+  Logging.Debug("deregistering socket "..id)
   local path = _socket_folder.."\\sns.sock.idx"
   local f = io.open(path, "a")
   if not f then return false end
@@ -145,6 +149,7 @@ function CreateSocket(id, overwrite)
     return nil
   end
 
+  Logging.Debug("created socket "..path)
   return BuildSocket(id, path, fa, fr)
 end
 
@@ -176,6 +181,7 @@ function OpenSocket(id, create)
     return nil
   end
 
+  Logging.Debug("opened socket "..path)
   return BuildSocket(id, path, fa, fr)
 end
 
