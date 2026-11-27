@@ -5,12 +5,14 @@ function StringIsEmpty(s) return s == nil or s == "" end
 
 function StringStartsWith(s, prefix)
   if StringIsEmpty(s) or not prefix then return false end
-  return s:sub(1, prefix:len()) == prefix
+  local x = tostring(prefix)
+  return s:sub(1, x:len()) == x
 end
 
 function StringEndsWith(s, suffix)
   if StringIsEmpty(s) or not suffix then return false end
-  return s:sub(1 + s:len() - suffix:len()) == suffix
+  local x = tostring(suffix)
+  return s:sub(1 + s:len() - x:len()) == x
 end
 
 function StringContains(s, substr)
@@ -178,6 +180,25 @@ function ReadXORData(file, key, bytes)
     x = x + ((string.byte(data) ~ key) << (8 * i))
   end
   return x
+end
+
+local _seeded_random = false
+local function _SeedRandom()
+  if _seeded_random then return end
+  local ts = os.time() + math.floor(os.clock() * 1000000)
+  local id = GetPlayerContentId() or GetProcessId() or 0
+  math.randomseed(ts, id)
+  _seeded_random = true
+end
+
+function UUID()
+  _SeedRandom()
+  local template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+  local uuid = string.gsub(template, '[xy]', function (c)
+    local v = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb)
+    return string.format('%x', v)
+  end)
+  return uuid
 end
 
 function RepeatUntil(action, condition, timeout, sleep)

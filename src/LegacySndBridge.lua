@@ -21,6 +21,11 @@ function GetPlayerContentId()
   return Player.Entity.ContentId
 end
 
+function GetProcessId()
+  if not System.GetProcessId then return nil end
+  return System.GetProcessId()
+end
+
 function GetPlayerGC()
   return Player.GrandCompany
 end

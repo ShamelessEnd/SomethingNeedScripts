@@ -80,7 +80,7 @@ local function BuildSocket(id, path, fa, fr)
 end
 
 function CreateSocket(id, overwrite)
-  local path = _socket_folder.."\\"..id..".sock"
+  local path = _socket_folder.."\\sns."..id..".sock"
   local f = io.open(path, "r")
   local registered = HasSocket(id)
   local exists = f ~= nil
@@ -122,7 +122,7 @@ function CreateSocket(id, overwrite)
 end
 
 function OpenSocket(id, create)
-  local path = _socket_folder.."\\"..id..".sock"
+  local path = _socket_folder.."\\sns."..id..".sock"
   local f = io.open(path, "r")
   if not f and not create then
     Logging.Error("socket does not exist")
@@ -177,4 +177,15 @@ end
 function HasSocket(id)
   local sid = tostring(id)
   return ListSockets()[sid] ~= nil
+end
+
+function RemoveAllSockets(prefix)
+  for _, sid in pairs(ListSockets()) do
+    if prefix then
+      if StringStartsWith(sid, prefix) then OpenSocket(sid).remove() end
+    else
+      OpenSocket(sid).remove()
+    end
+  end
+  ListSockets(true)
 end
