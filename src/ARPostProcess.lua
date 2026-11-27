@@ -18,7 +18,7 @@ local _default_thresholds = {
   tanks = {
     min_tanks = 999,
     buy_stacks = 10,
-    ipc_timeout = 450,
+    ipc_timeout = 600,
   },
   repair = {
     min = 200,
@@ -72,7 +72,7 @@ function ARPostProcess(retainer_tables, thresholds, skip_multi_check)
   end
 
   if thresholds.tanks and GetItemCount(10155) < thresholds.tanks.min_tanks then
-    if ar_data.Enabled and ar_data.WorkshopEnabled then
+    if ar_data.Enabled and ar_data.WorkshopEnabled and GetFCCredits() > thresholds.tanks.buy_stacks * 999 * 100 then
       GoBuyCeruleumTanks(thresholds.tanks.buy_stacks)
     elseif thresholds.ipc and not TableIsEmpty(ListPIDs()) then
       RequestCeruleumIPC(thresholds.tanks.buy_stacks, thresholds.tanks.ipc_timeout)

@@ -221,7 +221,7 @@ function ListPIDs(cleanup)
   f:close()
   if cleanup and TableIsEmpty(pids) then os.remove(path) end
 
-  local pid = GetProcessId()
+  local pid = tostring(GetProcessId())
   if pid then pids[pid] = nil end
   return pids
 end
