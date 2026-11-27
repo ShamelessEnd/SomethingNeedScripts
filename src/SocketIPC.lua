@@ -1,5 +1,9 @@
+require "ARUtils"
+require "FreeCompany"
 require "Logging"
+require "Navigation"
 require "Socket"
+require "Trade"
 require "Utils"
 
 local _MSG_SEP = "#"
@@ -76,6 +80,10 @@ function SendDoneCommand(socket, msg)
   return SendCommand(socket, { os.time(), _DONE_COMMAND, msg.time, msg.command })
 end
 
+function SendCloseCommand(socket)
+  return SendCommand(socket, { os.time(), _CLOSE_COMMAND })
+end
+
 function SendCeruleumCommand(socket, name, world, stacks)
   return SendCommand(socket, { os.time(), _CERULEAM_COMMAND, name, world, stacks })
 end
@@ -127,4 +135,89 @@ function HasShutdownCommand(cleanup)
   until not msg
   socket.close()
   return false
+end
+
+function HasCloseCommand(socket)
+  local msg = nil
+  repeat
+    msg = socket.read()
+    local parsed = ParseSocketMessage(msg)
+    if parsed and parsed.command == _CLOSE_COMMAND then
+      return true
+    end
+  until not msg
+  return false
+end
+
+function AwaitAckCommand(socket, msg, timeout, sleep)
+  return WaitUntil(
+    function ()
+      local m = ParseSocketMessage(socket.read())
+      return m and m.command == _ACK_COMMAND and m.ack_cmd == msg.command and m.ack_time == msg.time
+    end,
+    timeout, sleep
+  )
+end
+
+function AwaitDoneCommand(socket, msg, timeout, sleep)
+  return WaitUntil(
+    function ()
+      local m = ParseSocketMessage(socket.read())
+      return m and m.command == _DONE_COMMAND and m.done_cmd == msg.command and m.done_time == msg.time
+    end,
+    timeout, sleep
+  )
+end
+
+function RequestCeruleumIPC(stacks, timeout)
+  local arData = GetARCharacterData()
+  if not arData then return end
+  local s = CreateRandomSocket()
+  if not s then return end
+
+  local msg = SendCeruleumCommand(s, arData.Name, arData.World, stacks)
+  local function exit()
+    if msg then SendDoneCommand(s, msg) end
+    SendCloseCommand(s)
+    s.remove(10)
+  end
+
+  if not msg then exit() return end
+  if not AwaitAckCommand(s, msg, timeout, 1) then exit() return end
+
+  TeleportToGridania()
+  AwaitDoneCommand(s, msg, timeout, 1)
+  exit()
+  ReturnToBell()
+end
+
+function AnswerCeruleumIPC()
+  local s, msg = FindOpenCeruleumCommand()
+  if not s then return end
+  if not msg then s.close() return end
+  local target = msg.name
+  local server = msg.world
+  local stacks = msg.stacks or 5
+  if not target or not server or not stacks then s.close() return end
+
+  if not SendAckCommand(s, msg) then s.close() return end
+  local function exit()
+    if HasCloseCommand(s) then
+      s.remove()
+    else
+      SendDoneCommand(s, msg)
+      s.close()
+    end
+  end
+
+  local char = ARFindCeruleumBuyer(stacks, server)
+  if not char then exit() return end
+  if not ARRelogTo(char.CID) then exit() return end
+
+  local bought = GoBuyCeruleumTanks(stacks)
+  if not bought or bought <= 0 then exit() return end
+
+  GoTradeCeruleumStacksTo(target, server, bought, true)
+  exit()
+  ReturnToBell()
 end

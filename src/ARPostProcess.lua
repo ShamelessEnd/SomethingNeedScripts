@@ -17,7 +17,8 @@ local _default_tables = {
 local _default_thresholds = {
   tanks = {
     min_tanks = 999,
-    buy_stacks = 4,
+    buy_stacks = 10,
+    ipc_timeout = 450,
   },
   repair = {
     min = 200,
@@ -70,9 +71,11 @@ function ARPostProcess(retainer_tables, thresholds, skip_multi_check)
     end
   end
 
-  if ar_data.Enabled and ar_data.WorkshopEnabled and thresholds.tanks then
-    if GetItemCount(10155) < thresholds.tanks.min_tanks then
+  if thresholds.tanks and GetItemCount(10155) < thresholds.tanks.min_tanks then
+    if ar_data.Enabled and ar_data.WorkshopEnabled then
       GoBuyCeruleumTanks(thresholds.tanks.buy_stacks)
+    elseif thresholds.ipc and not TableIsEmpty(ListPIDs()) then
+      RequestCeruleumIPC(thresholds.tanks.buy_stacks, thresholds.tanks.ipc_timeout)
     end
   end
 
@@ -87,13 +90,19 @@ function ARPostProcess(retainer_tables, thresholds, skip_multi_check)
     end
   end
 
+  if thresholds.ipc then
+    AnswerCeruleumIPC()
+  end
+
   if thresholds.fish and IsFishingAvailable() and IsTimeToGoFish(thresholds.fish.offset, thresholds.fish.pre_time, thresholds.fish.end_buf) then
     local fisher = ARFindFishCharacterToLevel()
     if fisher then
+      DeregisterPID()
       ARRelogTo(fisher)
       GoDoOceanFishing(thresholds.fish.food, thresholds.fish.offset)
       ReturnToBell()
       ARItemSell()
+      RegisterPID()
     end
   end
 end

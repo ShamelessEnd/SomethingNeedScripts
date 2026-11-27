@@ -219,3 +219,53 @@ function ARItemSell()
   yield("/wait 1")
   WaitWhile(function () return ARIsBusy() or not IsPlayerAvailable() end, 300, 1)
 end
+
+function ARFindCeruleumBuyer(stacks, server)
+  local function canBuyTanks(cid)
+    if not cid then return nil end
+    if not stacks or stacks <= 0 then return nil end
+    local arData = GetARCharacterData(cid)
+    if not arData or not arData.FCID or not arData.Enabled then return nil end
+    if arData.InventorySpace <= stacks then return nil end
+    local required = 1000000 + 100 * 999 * stacks
+    local fcData = IPC.AutoRetainer.GetFCData(arData.FCID)
+    if not fcData or fcData.FCPoints < required or fcData.HolderChara ~= arData.CID then return nil end
+    local travel = CanTravelBetween(arData.World, server)
+    if not travel then return nil end
+    return {
+      arData = arData,
+      fcData = fcData,
+      travel = travel,
+    }
+  end
+
+  local max = {}
+  local second = {}
+  local cids = ARGetCharacterCIDs()
+  local cData = canBuyTanks(GetPlayerContentId())
+  for i = 0, cids.Count - 1 do
+    local data = canBuyTanks(cids[i])
+    if data and (not cData or data.arData.CID ~= cData.arData.CID) then
+      if not max[data.travel] or max[data.travel].fcData.FCPoints < data.fcData.FCPoints then
+        second[data.travel] = max[data.travel]
+        max[data.travel] = data
+      elseif not second[data.travel] or second[data.travel].fcData.FCPoints < data.fcData.FCPoints then
+        second[data.travel] = data
+      end
+    end
+  end
+
+  if cData and cData.travel == "SERVER" then return cData.arData end
+  if second["SERVER"] then return second["SERVER"].arData end
+  if max["SERVER"] then return max["SERVER"].arData end
+  if cData and cData.travel == "DC" then return cData.arData end
+  if second["DC"] then return second["DC"].arData end
+  if max["DC"] then return max["DC"].arData end
+  if cData and cData.travel == "REGION" then return cData.arData end
+  if second["REGION"] then return second["REGION"].arData end
+  if max["REGION"] then return max["REGION"].arData end
+  if cData and cData.travel == "OCE" then return cData.arData end
+  if second["OCE"] then return second["OCE"].arData end
+  if max["OCE"] then return max["OCE"].arData end
+  return nil
+end
