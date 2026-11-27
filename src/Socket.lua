@@ -195,10 +195,12 @@ function ListSockets(cleanup)
   local sockets = {}
   for l in f:lines() do
     local op, id, ts = l:match("^([+-])([^@]+)@(%d+)$")
-    if op == "+" then
-      sockets[id] = id
-    else
-      sockets[id] = nil
+    if id then
+      if op == "+" then
+        sockets[id] = id
+      elseif op == "-" then
+        sockets[id] = nil
+      end
     end
   end
 
@@ -217,10 +219,12 @@ function ListPIDs(cleanup)
   local pids = {}
   for l in f:lines() do
     local op, pid, ts = l:match("^([+-])([^@]+)@(%d+)$")
-    if op == "+" then
-      pids[pid] = pid
-    else
-      pids[pid] = nil
+    if pid then
+      if op == "+" then
+        pids[pid] = pid
+      elseif op == "-" then
+        pids[pid] = nil
+      end
     end
   end
 
@@ -240,9 +244,13 @@ end
 function RemoveAllSockets(prefix)
   for _, sid in pairs(ListSockets()) do
     if prefix then
-      if StringStartsWith(sid, prefix) then OpenSocket(sid).remove() end
+      if StringStartsWith(sid, prefix) then
+        local s = OpenSocket(sid)
+        if s then s.remove() end
+      end
     else
-      OpenSocket(sid).remove()
+      local s = OpenSocket(sid)
+      if s then s.remove() end
     end
   end
   ListSockets(true)

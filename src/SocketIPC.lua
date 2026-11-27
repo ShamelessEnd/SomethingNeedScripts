@@ -28,26 +28,26 @@ function ParseSocketMessage(msg)
   }
 
   if cmd == _ACK_COMMAND then
-    base["command"] = table.remove(parts, 1)
+    base.command = table.remove(parts, 1)
     if TableSize(parts) < 2 then return base end
-    base["ack_time"] = tonumber(table.remove(parts, 1))
-    base["ack_cmd"] = table.remove(parts, 1)
+    base.ack_time = tonumber(table.remove(parts, 1))
+    base.ack_cmd = table.remove(parts, 1)
   elseif cmd == _DONE_COMMAND then
-    base["command"] = table.remove(parts, 1)
+    base.command = table.remove(parts, 1)
     if TableSize(parts) < 2 then return base end
-    base["done_time"] = tonumber(table.remove(parts, 1))
-    base["done_cmd"] = table.remove(parts, 1)
+    base.done_time = tonumber(table.remove(parts, 1))
+    base.done_cmd = table.remove(parts, 1)
   elseif cmd == _CERULEAM_COMMAND then
-    base["command"] = table.remove(parts, 1)
-    base["name"] = table.remove(parts, 1)
-    base["world"] = table.remove(parts, 1)
-    base["stacks"] = tonumber(table.remove(parts, 1))
+    base.command = table.remove(parts, 1)
+    base.name = table.remove(parts, 1)
+    base.world = table.remove(parts, 1)
+    base.stacks = tonumber(table.remove(parts, 1))
   elseif cmd == _CLOSE_COMMAND then
-    base["command"] = table.remove(parts, 1)
+    base.command = table.remove(parts, 1)
   elseif cmd == _SHUTDOWN_COMMAND then
-    base["command"] = table.remove(parts, 1)
+    base.command = table.remove(parts, 1)
     if TableSize(parts) < 1 then return base end
-    base["pid"] = tonumber(table.remove(parts, 1))
+    base.pid = tonumber(table.remove(parts, 1))
   end
 
   return base
@@ -103,9 +103,9 @@ local function FindOpenCommand(cmd_name)
           if msg.command == cmd_name then
             commands[msg.time] = msg
           elseif msg.command == _ACK_COMMAND and msg.ack_cmd == cmd_name then
-            commands[msg.time] = nil
-          elseif msg.command == _DONE_COMMAND and msg.ack_cmd == cmd_name then
-            commands[msg.time] = nil
+            commands[msg.ack_time] = nil
+          elseif msg.command == _DONE_COMMAND and msg.done_cmd == cmd_name then
+            commands[msg.done_time] = nil
           elseif msg.command == _CLOSE_COMMAND then
             commands = {}
             break
