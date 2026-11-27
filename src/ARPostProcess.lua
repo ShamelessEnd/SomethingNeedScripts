@@ -71,8 +71,8 @@ function ARPostProcess(retainer_tables, thresholds, skip_multi_check)
     end
   end
 
-  if thresholds.tanks and GetItemCount(10155) < thresholds.tanks.min_tanks then
-    if ar_data.Enabled and ar_data.WorkshopEnabled and GetFCCredits() > thresholds.tanks.buy_stacks * 999 * 100 then
+  if ar_data.WorkshopEnabled and thresholds.tanks and GetItemCount(10155) < thresholds.tanks.min_tanks then
+    if ar_data.Enabled and GetFCCredits() > thresholds.tanks.buy_stacks * 999 * 100 then
       GoBuyCeruleumTanks(thresholds.tanks.buy_stacks)
     elseif thresholds.ipc and not TableIsEmpty(ListPIDs()) then
       AnswerCeruleumIPC()
