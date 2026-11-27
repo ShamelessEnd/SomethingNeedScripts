@@ -157,7 +157,7 @@ function OpenSocket(id, create)
   local path = _socket_folder.."\\sns."..id..".sock"
   local f = io.open(path, "r")
   if not f and not create then
-    Logging.Error("socket does not exist")
+    Logging.Error("socket does not exist: "..path)
     return nil
   end
 
