@@ -142,8 +142,9 @@ function GoTradeCeruleumStacksTo(target, server, stacks, no_return)
 
   NavToGridaniaTrade(server)
 
-  while not NavToTarget(target, 2, false, 10) do
+  if not WaitUntil(function () return NavToTarget(target, 2, false, 10) end, 60) then
     Logging.Error("failed to find target "..target)
+    return false
   end
 
   Logging.Info("trading "..stacks.." stacks of ceruleum to "..target)
